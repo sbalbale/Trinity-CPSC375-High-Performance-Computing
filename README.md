@@ -1,6 +1,3 @@
-# Trinity CPSC375 High Performance Computing
-
-
 <div align="center" id="top"> 
   <img src="./.github/app.gif" alt="Trinity CPSC375 High Performance Computing" />
 
