@@ -29,14 +29,14 @@ int main() {
 
     // Create FIFOs
     // The server must create the pipes
-    if (mkfifo(FIFO1, 0666) == -1) {
-        if (errno != EEXIST) {
+    if (mkfifo(FIFO1, 0666) == -1) {    // Create first FIFO
+        if (errno != EEXIST) {          // Ignore error if FIFO already exists
             perror("mkfifo FIFO1");
             exit(EXIT_FAILURE);
         }
     }
-    if (mkfifo(FIFO2, 0666) == -1) {
-        if (errno != EEXIST) {
+    if (mkfifo(FIFO2, 0666) == -1) {    // Create second FIFO
+        if (errno != EEXIST) {          // Ignore error if FIFO already exists
             perror("mkfifo FIFO2");
             exit(EXIT_FAILURE);
         }

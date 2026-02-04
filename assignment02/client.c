@@ -80,13 +80,13 @@ int main() {
     } else {
         // Child process: Blocks on the incoming FIFO (FIFO1) and renders received data
         while (1) {
-            ssize_t n = read(fd1, buf, BUFSIZ);
+            ssize_t n = read(fd1, buf, BUFSIZ);         // Read from FIFO1
             if (n <= 0) {
                 break; // EOF or error
             }
 
             // Check for exit condition from Server
-            if (strcmp(buf, ".\n") == 0) {
+            if (strcmp(buf, ".\n") == 0) {          // Server signals exit
                 printf("Server disconnected.\n");
                 kill(getppid(), SIGTERM); // Notify parent to exit
                 break;
