@@ -5,7 +5,6 @@
  * Date: 2/6/2026
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,7 +19,8 @@
 #define FIFO1 "/tmp/FIFO1"
 #define FIFO2 "/tmp/FIFO2"
 
-int main() {
+int main()
+{
     int fd1, fd2;
     char buf[BUFSIZ];
     pid_t pid;
@@ -30,40 +30,49 @@ int main() {
     // Client opens the existing pipes
     // Must match the Server's order to avoid deadlock
     // Server: open(FIFO1, WR), open(FIFO2, RD)
-    
+
     // 1. Open FIFO1 for reading
     // This unblocks the Server's open(FIFO1, WR)
     fd1 = open(FIFO1, O_RDONLY);
-    if (fd1 == -1) { 
-        if (errno == ENOENT) {
+    if (fd1 == -1)
+    {
+        if (errno == ENOENT)
+        {
             fprintf(stderr, "Error: FIFO1 not found. Start the server first.\n");
-        } else {
-            perror("open FIFO1"); 
         }
-        exit(EXIT_FAILURE); 
+        else
+        {
+            perror("open FIFO1");
+        }
+        exit(EXIT_FAILURE);
     }
-    
+
     // 2. Open FIFO2 for writing
     // This unblocks the Server's open(FIFO2, RD)
     fd2 = open(FIFO2, O_WRONLY);
-    if (fd2 == -1) { 
-        perror("open FIFO2"); 
-        exit(EXIT_FAILURE); 
+    if (fd2 == -1)
+    {
+        perror("open FIFO2");
+        exit(EXIT_FAILURE);
     }
 
     printf("Connected to server. Start typing. (Send '.' to exit)\n");
 
     pid = fork();
-    if (pid < 0) {
+    if (pid < 0)
+    {
         perror("fork");
         exit(EXIT_FAILURE);
     }
 
-    if (pid > 0) {
+    if (pid > 0)
+    {
         // Parent process: Monitors stdin and writes to the outgoing FIFO (FIFO2)
-        while (1) {
+        while (1)
+        {
             // Read from stdin
-            if (fgets(buf, BUFSIZ, stdin) == NULL) {
+            if (fgets(buf, BUFSIZ, stdin) == NULL)
+            {
                 break;
             }
 
@@ -71,7 +80,8 @@ int main() {
             write(fd2, buf, strlen(buf) + 1);
 
             // Check for exit condition
-            if (strcmp(buf, ".\n") == 0) {
+            if (strcmp(buf, ".\n") == 0)
+            {
                 break;
             }
         }
@@ -79,22 +89,26 @@ int main() {
         // Cleanup
         close(fd1);
         close(fd2);
-        
+
         kill(pid, SIGTERM);
         wait(NULL);
         printf("Client exited.\n");
         exit(0);
-
-    } else {
+    }
+    else
+    {
         // Child process: Blocks on the incoming FIFO (FIFO1) and renders received data
-        while (1) {
-            ssize_t n = read(fd1, buf, BUFSIZ);         // Read from FIFO1
-            if (n <= 0) {
+        while (1)
+        {
+            ssize_t n = read(fd1, buf, BUFSIZ); // Read from FIFO1
+            if (n <= 0)
+            {
                 break; // EOF or error
             }
 
             // Check for exit condition from Server
-            if (strcmp(buf, ".\n") == 0) {          // Server signals exit
+            if (strcmp(buf, ".\n") == 0)
+            { // Server signals exit
                 printf("Server disconnected.\n");
                 kill(getppid(), SIGTERM); // Notify parent to exit
                 break;
