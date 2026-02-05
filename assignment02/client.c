@@ -16,8 +16,8 @@
 #include <sys/wait.h>
 #include <errno.h>
 
-#define FIFO1 "/tmp/FIFO1"
-#define FIFO2 "/tmp/FIFO2"
+#define FIFO1 "/tmp/seanb_FIFO1"
+#define FIFO2 "/tmp/seanb_FIFO2"
 
 int main()
 {
