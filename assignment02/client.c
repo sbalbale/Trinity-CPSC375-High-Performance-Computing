@@ -1,3 +1,11 @@
+/*
+ * File: client.c
+ * Purpose: Implements a simple client for server-client chat using named pipes (FIFOs)
+ * Author: Sean Balbale
+ * Date: 2/6/2026
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
