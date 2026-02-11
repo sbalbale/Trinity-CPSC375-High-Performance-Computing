@@ -57,8 +57,6 @@ int main(int argc, char *argv[])
     signal(SIGUSR1, sig_handler);
     signal(SIGUSR2, sig_handler);
 
-    // --- SETUP IPC CONNECTIONS ---
-
     // 1. Get Shared Memory
     key_t key = ftok(SHM_KEY_PATH, SHM_KEY_ID);
     if (key == -1)
@@ -106,11 +104,16 @@ int main(int argc, char *argv[])
     }
     int msgid = msgget(msg_key, 0666);
     if (msgid < 0)
-        // Semaphore Operations
-        struct sembuf p_op = {0, -1, 0}; // Wait / Lock
-    struct sembuf v_op = {0, 1, 0};      // Signal / Unlock
+    {
+        perror("worker msgget");
+        exit(1);
+    }
 
-    // --- MAIN LOOP ---
+    struct msg_buf msg;
+    // Semaphore Operations
+    struct sembuf p_op = {0, -1, 0}; // Wait / Lock
+    struct sembuf v_op = {0, 1, 0};  // Signal / Unlock
+
     while (!terminate)
     {
         // Handle Pausing
@@ -161,15 +164,10 @@ int main(int argc, char *argv[])
         // Critical Section: Update Global Count
         semop(semid, &p_op, 1); // Lock
         *global_count += local_in_circle;
-        semop(semid, &v_op, 1); // Unlock++;
+        semop(semid, &v_op, 1); // Unlock
     }
 
-    // Update Global
-    semop(semid, &p_op, 1);
-    *global_count += local_in_circle;
-    semop(semid, &v_op, 1);
-}
-
-shmdt(global_count);
-return 0;
+    // Detach shared memory and exit
+    shmdt(global_count);
+    return 0;
 }
