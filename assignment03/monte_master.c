@@ -136,8 +136,6 @@ int main(int argc, char *argv[])
     signal(SIGUSR1, sig_handler);
     signal(SIGUSR2, sig_handler);
 
-    // --- IPC SETUP ---
-
     // Setup Shared Memory
     key_t key = ftok(SHM_KEY_PATH, SHM_KEY_ID);
     shmid = shmget(key, sizeof(long long), IPC_CREAT | 0666);
@@ -170,95 +168,91 @@ int main(int argc, char *argv[])
     if (msgid < 0)
     {
         perror("msgget");
-        -- -WORKER SPAWNING-- -
-            for (int i = 0; i < M; i++)
-        {
-            pid_t pid = fork();
-            if (pid == 0)
-            {
-                // CHILD PROCESS (Worker)
-                char s_str[20];
-                sprintf(s_str, "%d", S + i); // Calculate unique seed for worker
-                // Execute worker program
-                execl("./monte_worker", "./monte_worker", s_str, NULL);
-                perror("execl failed");
-                exit(1);
-            }
-            else if (pid > 0)
-            {
-                // PARENT PROCESS   perror("execl failed");
-                exit(1);
-            }
-            else if (pid > 0)
-            {
-                m_pid_arr[num_workers_spawned++] = pid;
-            }
-            else
-            {
-                perror("fork");
-            }
-        }
-
-        // --- MAIN TASK LOOP ---
-        time_t start = time(NULL);
-
-        struct msg_buf msg;
-        msg.mtype = 1;
-
-        long long remaining = N;
-
-        while (remaining > 0 && !terminate)
-        {
-            // Handle PAUSE signal (SIGUSR1)
-            while (paused && !terminate)
-            {
-                sleep(1); // Wait until resumed
-            }
-            if (terminate)
-                break;
-
-            // Calculate chunk size (C or whatever is left)
-            long long current_chunk = (remaining > C) ? C : remaining;
-            msg.tosses = current_chunk;
-
-            // Send task to Message Queue
-            if (msgsnd(msgid, &msg, sizeof(long long), 0) == -1)
-            {
-                if (errno == EINTR)
-                {
-                    // Interrupted by signal (e.g. pause), just retry the loop
-                    continue;
-                }
-                perror("msgsnd");
-                break;
-            }
-
-            remaining -= current_chunk;
-        }
-
-        // --- TERMINATION ---
-
-        // Send Empty Messages (size 0) to signal workers to exit
-        for (int i = 0; i < M; i++)
-        {
-            msg.tosses = 0; // 0 indicates termination to worker
-            msgsnd(msgid, &msg, sizeof(long long), 0);
-        }
-
-        // Wait for all workers to finish
-        while (wait(NULL) > 0)
-            ;
-
-        time_t end = time(NULL);
-
-        // Read Final Result from Shared Memory
-        global_count = (long long *)shmat(shmid, NULL, 0);
-        double pi_estimate = 4.0 * (*global_count) / ((double)N);
-        printf("Pi estimate: %f\n", pi_estimate);
-        printf("Elapsed time = %ld seconds\n", end - start);
-
-        shmdt(global_count);
-        cleanup(); // Final cleanup of IPC
-
-        return 0;
+        cleanup();
+        exit(1);
     }
+
+    for (int i = 0; i < M; i++)
+    {
+        pid_t pid = fork();
+        if (pid == 0)
+        {
+            // CHILD PROCESS (Worker)
+            char s_str[20];
+            sprintf(s_str, "%d", S + i); // Calculate unique seed for worker
+            // Execute worker program
+            execl("./monte_worker", "./monte_worker", s_str, NULL);
+            perror("execl failed");
+            exit(1);
+        }
+        else if (pid > 0)
+        {
+            // PARENT PROCESS
+            m_pid_arr[num_workers_spawned++] = pid;
+        }
+        else
+        {
+            perror("fork");
+        }
+    }
+
+    time_t start = time(NULL);
+
+    struct msg_buf msg;
+    msg.mtype = 1;
+
+    long long remaining = N;
+
+    while (remaining > 0 && !terminate)
+    {
+        // Handle PAUSE signal (SIGUSR1)
+        while (paused && !terminate)
+        {
+            sleep(1); // Wait until resumed
+        }
+        if (terminate)
+            break;
+
+        // Calculate chunk size (C or whatever is left)
+        long long current_chunk = (remaining > C) ? C : remaining;
+        msg.tosses = current_chunk;
+
+        // Send task to Message Queue
+        if (msgsnd(msgid, &msg, sizeof(long long), 0) == -1)
+        {
+            if (errno == EINTR)
+            {
+                // Interrupted by signal (e.g. pause), just retry the loop
+                continue;
+            }
+            perror("msgsnd");
+            break;
+        }
+
+        remaining -= current_chunk;
+    }
+
+    // Send Empty Messages (size 0) to signal workers to exit
+    for (int i = 0; i < M; i++)
+    {
+        msg.tosses = 0; // 0 indicates termination to worker
+        msgsnd(msgid, &msg, sizeof(long long), 0);
+    }
+
+    // Wait for all workers to finish
+    while (wait(NULL) > 0)
+        ;
+
+    time_t end = time(NULL);
+
+    // Read Final Result from Shared Memory
+    global_count = (long long *)shmat(shmid, NULL, 0);
+    double pi_estimate = 4.0 * (*global_count) / ((double)N);
+    printf("Pi estimate: %f\n", pi_estimate);
+    printf("Elapsed time = %ld seconds\n", end - start);
+
+    shmdt(global_count);
+    cleanup(); // Final cleanup of IPC
+
+    return 0;
+}
