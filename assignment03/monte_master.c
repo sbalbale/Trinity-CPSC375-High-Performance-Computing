@@ -83,7 +83,6 @@ int main(int argc, char *argv[])
     int S = 1;
 
     // Parse arguments
-    // Note: manual parsing or getopt. Simple manual parsing for args like -M 2 -N ...
     for (int i = 1; i < argc; i++)
     {
         if (argv[i][0] == '-')
@@ -132,6 +131,7 @@ int main(int argc, char *argv[])
 
     printf("M=%d, N=%lld, C=%lld, S=%d\n", M, N, C, S);
 
+    // Set up signal handlers
     signal(SIGINT, sig_handler);
     signal(SIGUSR1, sig_handler);
     signal(SIGUSR2, sig_handler);
