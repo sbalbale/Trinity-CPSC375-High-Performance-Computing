@@ -57,14 +57,14 @@ int main(int argc, char *argv[])
     signal(SIGUSR1, sig_handler);
     signal(SIGUSR2, sig_handler);
 
-    // 1. Get Shared Memory
+    // Get Shared Memory
     key_t key = ftok(SHM_KEY_PATH, SHM_KEY_ID);
     if (key == -1)
     {
         perror("worker ftok");
         exit(1);
     }
-    int shmid = shmget(key, sizeof(long long), 0666);
+    int shmid = shmget(key, sizeof(long long), 0666); // Only get existing, no creation
     if (shmid < 0)
     {
         if (errno == ENOENT)
@@ -81,28 +81,28 @@ int main(int argc, char *argv[])
     // Attach Shared Memory
     long long *global_count = (long long *)shmat(shmid, NULL, 0);
 
-    // 2. Get Semaphore
-    key_t sem_key = ftok(SHM_KEY_PATH, SEM_KEY_ID);
+    // Get Semaphore
+    key_t sem_key = ftok(SHM_KEY_PATH, SEM_KEY_ID); // Must match master
     if (sem_key == -1)
     {
         perror("worker ftok sem");
         exit(1);
     }
-    int semid = semget(sem_key, 1, 0666);
+    int semid = semget(sem_key, 1, 0666); // Only get existing, no creation
     if (semid < 0)
     {
         perror("worker semget");
         exit(1);
     }
 
-    // 3. Get Message Queue
-    key_t msg_key = ftok(SHM_KEY_PATH, MSG_KEY_ID);
+    // Get Message Queue
+    key_t msg_key = ftok(SHM_KEY_PATH, MSG_KEY_ID); // Must match master
     if (msg_key == -1)
     {
         perror("worker ftok msg");
         exit(1);
     }
-    int msgid = msgget(msg_key, 0666);
+    int msgid = msgget(msg_key, 0666); // Only get existing, no creation
     if (msgid < 0)
     {
         perror("worker msgget");

@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     long long toss;
     double x, y, distance_squared, pi_estimate;
 
-    /* read the input */
+    // Parse command-line argument for number of tosses
     if (argc > 1)
     {
         number_of_tosses = atoll(argv[1]);
