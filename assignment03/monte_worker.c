@@ -1,3 +1,11 @@
+/*
+* File: monte_worker.c
+* Purpose: Worker process for Monte Carlo Pi estimation using System V IPC
+*          Receives tasks from master, performs calculations, and updates shared memory.
+* Author: Sean Balbale
+* Date: 2/13/2026
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

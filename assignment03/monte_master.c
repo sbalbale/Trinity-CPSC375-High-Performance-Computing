@@ -1,3 +1,12 @@
+/*
+* File: monte_master.c
+* Purpose: Master process for Monte Carlo Pi estimation using System V IPC
+*          Spawns worker processes, distributes tasks, and aggregates results.
+* Author: Sean Balbale
+* Date: 2/13/2026
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
