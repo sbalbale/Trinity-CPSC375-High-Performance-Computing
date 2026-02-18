@@ -1,6 +1,6 @@
 ======================================================
  CPSC 375: Three Idiots Cluster - Hybrid MPI + OpenMP
- Date: Tue Feb 17 12:45:50 PM EST 2026
+ Date: Wed Feb 18 12:54:16 PM EST 2026
 ======================================================
 
 Launching Hybrid HPL...
@@ -52,25 +52,25 @@ ALIGN  : 8 double precision words
 ================================================================================
 T/V                N    NB     P     Q               Time                 Gflops
 --------------------------------------------------------------------------------
-WC11C2R4       68500   256     1     3             444.60             4.8198e+02
-HPL_pdgesv() start time Tue Feb 17 12:46:10 2026
+WC11C2R4       68500   256     1     3             444.48             4.8210e+02
+HPL_pdgesv() start time Wed Feb 18 12:54:37 2026
 
-HPL_pdgesv() end time   Tue Feb 17 12:53:35 2026
+HPL_pdgesv() end time   Wed Feb 18 13:02:01 2026
 
 --VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV--VVV-
-Max aggregated wall time rfact . . . :               3.75
-+ Max aggregated wall time pfact . . :               0.72
-+ Max aggregated wall time mxswp . . :               0.09
-Max aggregated wall time update  . . :             439.36
-+ Max aggregated wall time laswp . . :               8.81
-Max aggregated wall time up tr sv  . :               0.34
+Max aggregated wall time rfact . . . :               3.65
++ Max aggregated wall time pfact . . :               0.68
++ Max aggregated wall time mxswp . . :               0.08
+Max aggregated wall time update  . . :             439.22
++ Max aggregated wall time laswp . . :               8.87
+Max aggregated wall time up tr sv  . :               0.35
 --------------------------------------------------------------------------------
 ||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=              inf ...... FAILED
 ||Ax-b||_oo  . . . . . . . . . . . . . . . . . =           0.000000
 ||A||_oo . . . . . . . . . . . . . . . . . . . =       17272.958538
 ||A||_1  . . . . . . . . . . . . . . . . . . . =       17277.514165
 ||x||_oo . . . . . . . . . . . . . . . . . . . =           6.167360
-||x||_1  . . . . . . . . . . . . . . . . . . . =       77440.232802
+||x||_1  . . . . . . . . . . . . . . . . . . . =       77440.232805
 ||b||_oo . . . . . . . . . . . . . . . . . . . =           0.499990
 ================================================================================
 

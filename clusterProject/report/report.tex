@@ -113,7 +113,7 @@ We utilized a shell script (\texttt{verify\_nodes.sh}) to sequentially poll the 
 To confirm the integrity of the \texttt{mpiicx} compiler and the underlying message-passing fabric, we engineered a parallel C program (\texttt{hello1\_mpi.c}). Submitted via \texttt{submit\_hello.sh}, the program successfully instantiated 24 parallel processes across the three nodes, verifying the runtime environment was correctly mapping MPI ranks to the physical 8-core CPUs on each node.
 
 \section{Configurations and Bottleneck Mitigation}
-Achieving our record peak performance of \SI{481.98}{Gflops} required navigating several physical and software-level bottlenecks. We engineered specific solutions to address network latency, memory limits, thermal throttling, and compiler artifacts.
+Achieving our record peak performance of \SI{482.10}{Gflops} required navigating several physical and software-level bottlenecks. We engineered specific solutions to address network latency, memory limits, thermal throttling, and compiler artifacts.
 
 \subsection{The Gigabit Bottleneck and Hybrid Architecture}
 Early scaling tests revealed a severe drop in parallel efficiency. A Pure MPI architecture (24 discrete processes) maxed out at roughly \SI{446}{Gflops}. The \SI{1}{\giga\bit\per\second} Netgear switch and the head node's USB adapter choked under the sheer volume of 24 ranks broadcasting simultaneously, creating a strict ``Communication Wall.''
@@ -125,12 +125,12 @@ We configured the HPL broadcast algorithm to use a 1-Ring Modified topology (\te
 \subsection{Memory Optimization and the ``Swap Death'' Cliff}
 HPL memory consumption scales quadratically ($N^2$). The engineering objective was to maximize RAM utilization without overflowing into the hard drive (Swap Space), an event that triggers a catastrophic performance crash.
 
-We dialed the matrix size to $N=68,500$ with a Block Size ($NB$) of 256. This consumed approximately \SI{12.5}{\giga\byte} of RAM per node, leaving a precise \SI{1.4}{\giga\byte} safety buffer for the Linux kernel and network buffers.
+We dialed the matrix size to $N=68,500$ with a Block Size ($NB$) of 256. This consumed approximately \SI{12.5}{\giga\byte} of RAM per node, leaving a precise \SI{1.4}{\giga\byte} safety buffer for the Linux kernel and network buffers. By performing a hard ``cleansing reboot'' before our final validation run, we ensured the matrix dropped into a completely contiguous, unfragmented block of DDR4 RAM.
 
 \subsection{Thermal Throttling in SFF Chassis}
 The SFF chassis design restricts airflow. Prolonged 10-minute compute phases heat-soaked the internal Voltage Regulator Modules (VRMs) and CPU silicon. To prevent physical damage, the processors automatically dropped their clock frequencies, plummeting performance to $\approx \SI{360}{Gflops}$ .
 
-We mitigated this by enforcing strict 15-minute thermal cooldowns (\texttt{sleep 900}) between Slurm job steps and utilizing the Intel \texttt{powersave} governor to dynamically pace CPU voltages, allowing the chassis air to reset to ambient room temperature before initiating the next benchmark.
+We mitigated this by enforcing strict 15-minute thermal cooldowns (\texttt{sleep 900}) between Slurm job steps and utilizing the Intel \texttt{powersave} governor to dynamically pace CPU voltages. This allowed the chassis air to reset to ambient room temperature before initiating the next benchmark, providing maximum thermal headroom to boost clock speeds.
 
 \subsection{The ``FAILED'' Residual Artifact and Compiler Physics}
 Throughout the benchmarking phases, the HPL output consistently reported \texttt{inf ...... FAILED} during the final scaled residual check. We traced this anomaly directly to the aggressive Intel compiler (\texttt{mpiicx}) flags utilized during the build process: \texttt{-O3 -xHost}.
@@ -159,7 +159,7 @@ A rigorous sequence of hardware-stress tests was conducted to push the theoretic
     Full Saturation (MTU 9000) & 68,544 & 192 & 9000 & \texttt{performance} & 423.10 \\
     AVX Alignment Recovery     & 68,352 & 256 & 9000 & \texttt{powersave} & 447.07 \\
     Network Binary Search      & 68,352 & 256 & 3000 & \texttt{powersave} & 473.18 \\
-    \textbf{Validated Peak Record} & \textbf{68,500} & \textbf{256} & \textbf{2500} & \textbf{\texttt{powersave}} & \textbf{481.98} \\
+    \textbf{Validated Peak Record} & \textbf{68,500} & \textbf{256} & \textbf{2500} & \textbf{\texttt{powersave}} & \textbf{482.10} \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -186,7 +186,7 @@ In contrast to the Pi estimation, High-Performance Linpack (HPL) requires contin
     1 Node & 8 & $2 \times 4$ & 39,424 & 174.31 & 234.37 & 1.00x \\
     2 Nodes & 16 & $4 \times 4$ & 55,808 & 326.92 & 354.46 & 1.51x \\
     3 Nodes (Pure MPI) & 24 & $4 \times 6$ & 68,500 & 480.24 & 446.21 & 1.90x \\
-    \textbf{3 Nodes (Hybrid)} & \textbf{24} & $\mathbf{1 \times 3}$ & \textbf{68,500} & \textbf{444.60} & \textbf{481.98} & \textbf{2.06x} \\
+    \textbf{3 Nodes (Hybrid)} & \textbf{24} & $\mathbf{1 \times 3}$ & \textbf{68,500} & \textbf{444.48} & \textbf{482.10} & \textbf{2.06x} \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -213,7 +213,7 @@ In contrast to the Pi estimation, High-Performance Linpack (HPL) requires contin
         \addplot[color=blue, mark=*, thick] coordinates {
           (1, 234.37)
           (2, 354.46)
-          (3, 481.98)
+          (3, 482.10)
         };
         \addlegendentry{Hybrid Arch.}
         \addplot[color=red, mark=square, thick, dashed] coordinates {
@@ -259,7 +259,7 @@ In contrast to the Pi estimation, High-Performance Linpack (HPL) requires contin
 \end{figure}
 
 \subsection{Efficiency Trade-offs}
-As we scale the architecture from one node to three nodes, absolute throughput increases, but parallel efficiency mathematically decreases. The baseline node establishes \SI{234.37}{Gflops}. In a perfectly linear system without overhead, three nodes would process $\approx \SI{703}{Gflops}$ ($3.0\text{x}$ speedup). Our measured hybrid architecture peaks at \SI{481.98}{Gflops} ($2.06\text{x}$ speedup), yielding a parallel efficiency of roughly 68.6\%.
+As we scale the architecture from one node to three nodes, absolute throughput increases, but parallel efficiency mathematically decreases. The baseline node establishes \SI{234.37}{Gflops}. In a perfectly linear system without overhead, three nodes would process $\approx \SI{703}{Gflops}$ ($3.0\text{x}$ speedup). Our measured hybrid architecture peaks at \SI{482.10}{Gflops} ($2.06\text{x}$ speedup), yielding a parallel efficiency of roughly 68.6\%.
 
 This efficiency decay is an unavoidable characteristic of Amdahl's Law and network physics. Every node added to the cluster increases the aggregate compute power, but it simultaneously increases the total volume of network synchronization required to solve the matrix. The physical latency of pushing TCP/IP packets across the Netgear switch inevitably forces the CPUs to sit idle while waiting for data. The Hybrid MPI + OpenMP architecture successfully minimizes this penalty by reducing the total number of network broadcasters from 24 down to 3, accounting for the $\approx \SI{35}{Gflops}$ performance delta between the pure MPI and Hybrid implementations on the final hardware configuration.
 
