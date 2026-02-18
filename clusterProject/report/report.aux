@@ -4,30 +4,55 @@
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{tab:ip_table}{{1}{1}{}{table.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Software and Technology Stack}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Configurations and Bottleneck Mitigation}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}The Gigabit Bottleneck and Hybrid Architecture}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Memory Optimization and the ``Swap Death'' Cliff}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Thermal Throttling in SFF Chassis}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}The ``FAILED'' Residual Artifact and Compiler Heuristics}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Performance Analysis}{3}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces HPL Benchmark Scaling Data}}{3}{}\protected@file@percent }
-\newlabel{tab:performance}{{2}{3}{}{table.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Computational Throughput vs. Node Count.}}{4}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Measured Speedup vs. Ideal Linear Scaling.}}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Efficiency Trade-offs}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {A}Execution Scripts and Job Allocation}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Slurm Batch Script: Pure MPI Scaling (\texttt  {run\_scaling.sbatch})}{5}{}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{references/run\textunderscore scaling.sbatch}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}Slurm Batch Script: Hybrid Architecture (\texttt  {run\_hybrid.sbatch})}{6}{}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{references/run\textunderscore hybrid.sbatch}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {B}HPL Configuration Topologies}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}3-Node Hybrid Configuration (\texttt  {HPL\_hybrid.dat})}{7}{}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{references/HPL\textunderscore hybrid.dat}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}3-Node Pure MPI Configuration (\texttt  {HPL\_3node.dat})}{7}{}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{references/HPL\textunderscore 3node.dat}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {C}Raw Benchmark Telemetry}{9}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {C.1}Hybrid Run Telemetry (\texttt  {hybrid\_results.txt})}{9}{}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{references/hybrid\textunderscore results.txt}{9}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {C.2}Scaling Run Telemetry (\texttt  {scaling\_results.txt})}{10}{}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{references/scaling\textunderscore results.txt}{10}{}\protected@file@percent }
-\gdef \@abspage@last{13}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Testing and Verification}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Network and Execution Verification}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}MPI Compiler Validation}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Configurations and Bottleneck Mitigation}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The Gigabit Bottleneck and Hybrid Architecture}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Memory Optimization and the ``Swap Death'' Cliff}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Thermal Throttling in SFF Chassis}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}The ``FAILED'' Residual Artifact and Compiler Physics}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}The ``500 Gflops'' Experimental Tuning Phase}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Experimental \SI {500}{Gflops} Push (Hybrid Architecture)}}{4}{}\protected@file@percent }
+\newlabel{tab:experimental_push}{{2}{4}{}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Performance Analysis: Memory Models}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Distributed Memory Isolation: Monte Carlo Pi Estimation}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Shared vs. Distributed Limits: HPL Scaling}{5}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces HPL Benchmark Scaling Data}}{5}{}\protected@file@percent }
+\newlabel{tab:performance}{{3}{5}{}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Computational Throughput vs. Node Count.}}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Measured Speedup vs. Ideal Linear Scaling.}}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Efficiency Trade-offs}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Verification and Analysis Scripts}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Cluster Verification Script (\texttt  {verify\_nodes.sh})}{7}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/verify\textunderscore nodes.sh}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.2}MPI Connection Validation (\texttt  {hello1\_mpi.c})}{7}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/hello1\textunderscore mpi.c}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3}Monte Carlo Pi Estimation (\texttt  {pi\_test.c})}{7}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/pi\textunderscore test.c}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.4}Monte Carlo Job Submission (\texttt  {compute\_pi.sh})}{9}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/compute\textunderscore pi.sh}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B}HPL Execution Scripts and Job Allocation}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}Slurm Batch Script: Pure MPI Scaling (\texttt  {run\_scaling.sbatch})}{10}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/run\textunderscore scaling.sbatch}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}Slurm Batch Script: Hybrid Architecture (\texttt  {run\_hybrid.sbatch})}{11}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/run\textunderscore hybrid.sbatch}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {C}HPL Configuration Topologies}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.1}3-Node Hybrid Configuration (\texttt  {HPL\_hybrid.dat})}{12}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/HPL\textunderscore hybrid.dat}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.2}3-Node Pure MPI Configuration (\texttt  {HPL\_3node.dat})}{12}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/HPL\textunderscore 3node.dat}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.3}2-Node Pure MPI Configuration (\texttt  {HPL\_2node.dat})}{13}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/HPL\textunderscore 2node.dat}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.4}1-Node Pure MPI Configuration (\texttt  {HPL\_1node.dat})}{13}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/HPL\textunderscore 1node.dat}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {D}Raw Benchmark Telemetry}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.1}Monte Carlo Output (\texttt  {pi\_final\_1.out})}{15}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/pi\textunderscore final\textunderscore 1.out}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.2}Monte Carlo Output (\texttt  {pi\_final\_24.out})}{15}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/pi\textunderscore final\textunderscore 24.out}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.3}Hybrid Run Telemetry (\texttt  {hybrid\_results.txt})}{15}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/hybrid\textunderscore results.txt}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.4}Scaling Run Telemetry (\texttt  {scaling\_results.txt})}{17}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{references/scaling\textunderscore results.txt}{17}{}\protected@file@percent }
+\gdef \@abspage@last{22}
