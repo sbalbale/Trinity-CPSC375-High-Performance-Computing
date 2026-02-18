@@ -1,0 +1,34 @@
+======================================================
+ CPSC 375: Three Idiots Cluster Scaling Benchmarks
+ Date: Mon Feb 16 12:33:55 PM EST 2026
+======================================================
+
+--- 1 Node (8 Cores) ---
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+--
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WC11C2R4       39424   256     2     4             174.13             2.3460e+02
+
+--- 2 Nodes (16 Cores) ---
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+--
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WC11C2R4       55808   256     4     4             327.18             3.5418e+02
+
+--- 3 Nodes (24 Cores) ---
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+--
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WC11C2R4       68500   256     4     6             481.45             4.4509e+02
+
+======================================================
+All benchmarks complete! Results saved to scaling_results.txt
