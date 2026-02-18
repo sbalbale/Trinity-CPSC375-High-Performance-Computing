@@ -1,0 +1,18 @@
+======================================================
+ CPSC 375: Three Idiots Cluster - Hybrid MPI + OpenMP
+ Date: Tue Feb 17 10:01:16 AM EST 2026
+======================================================
+
+Launching Hybrid HPL...
+Nodes: 3 | MPI Ranks: 3 | Threads/Rank: 8
+
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+--
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WC11C2R4       68500   256     1     3             444.80             4.8176e+02
+
+======================================================
+Hybrid benchmark complete!
