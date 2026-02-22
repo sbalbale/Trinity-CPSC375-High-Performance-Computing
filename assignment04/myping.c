@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <math.h>
 
-#define PORT 60001
+#define PORT 12345
 #define PING_PAYLOAD "Ping"
 #define TIMEOUT_SEC 1
 
