@@ -12,14 +12,14 @@
 #include <errno.h>
 #include <math.h>
 
-#define PORT 12345
+#define PORT 60001
 #define PING_PAYLOAD "Ping"
 #define TIMEOUT_SEC 1
 
 int sockfd;
 struct sockaddr_in server_addr;
 
-// Statistics variables
+// Statistics variables to track packet loss and RTT
 long sent_packets = 0;
 long received_packets = 0;
 double min_rtt = 999999.0;
@@ -27,6 +27,8 @@ double max_rtt = 0.0;
 double total_rtt = 0.0;
 char *target_host;
 
+// Signal handler for SIGINT (Ctrl+C)
+// Prints statistics and closes socket before exiting
 void cleanup(int signum) {
     close(sockfd);
     
@@ -62,20 +64,20 @@ int main(int argc, char *argv[]) {
 
     target_host = argv[1];
 
-    // Resolve hostname
+    // Resolve hostname to IP address
     server = gethostbyname(argv[1]);
     if (server == NULL) {
         fprintf(stderr,"ERROR, no such host\n");
         exit(0);
     }
 
-    // Create UDP socket
+    // Create UDP socket (SOCK_DGRAM)
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("ERROR opening socket");
         exit(1);
     }
 
-    // Set socket timeout
+    // Set socket receive timeout to handle lost packets
     timeout.tv_sec = TIMEOUT_SEC;
     timeout.tv_usec = 0;
     if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
@@ -90,7 +92,7 @@ int main(int argc, char *argv[]) {
     bcopy((char *)server->h_addr, (char *)&server_addr.sin_addr.s_addr, server->h_length);
     server_addr.sin_port = htons(PORT);
 
-    // Handle Ctrl+C
+    // Register signal handler for proper cleanup on Ctrl+C
     signal(SIGINT, cleanup);
 
     printf("PING %s (%s) %lu bytes of data.\n", 
@@ -98,16 +100,19 @@ int main(int argc, char *argv[]) {
 
     while (1) {
         seq++;
-        gettimeofday(&start, NULL);
+        gettimeofday(&start, NULL); // Start timer
 
-        // Send ping
+        // Send ping message to server
         if (sendto(sockfd, PING_PAYLOAD, strlen(PING_PAYLOAD), 0,
                    (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
             perror("sendto");
         }        sent_packets++;
+        
+        // Wait for response (pong)
         from_len = sizeof(from_addr);
         if ((n = recvfrom(sockfd, buffer, 1024, 0,
                      (struct sockaddr *) &from_addr, &from_len)) < 0) {
+            // Check if error was due to timeout
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 printf("Request timeout for seq %d\n", seq);
             } else {
@@ -115,24 +120,25 @@ int main(int argc, char *argv[]) {
             }
         } 
         else {
-            gettimeofday(&end, NULL);
-            // Calculate RTT in milliseconds
+            gettimeofday(&end, NULL); // Stop timer
+            
+            // Calculate Round-Trip Time (RTT) in milliseconds
             long seconds = end.tv_sec - start.tv_sec;
             long microseconds = end.tv_usec - start.tv_usec;
             double rtt = (seconds * 1000.0) + (microseconds / 1000.0);
 
-            // Print output
+            // Print formatted output standard ping style
             printf("from %s (%s): seq=%d time=%.3f ms\n", 
                    argv[1], inet_ntoa(from_addr.sin_addr), seq, rtt);
 
-            // Update stats
+            // Update min/max/avg statistics
             received_packets++;
             total_rtt += rtt;
             if (rtt < min_rtt) min_rtt = rtt;
             if (rtt > max_rtt) max_rtt = rtt;
         }
 
-        sleep(1);
+        sleep(1); // Wait 1 second before next ping
     }
 
     return 0;
