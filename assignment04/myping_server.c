@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define PORT 12345
+#define PORT 60001
 #define BUFFER_SIZE 1024
 
 int main() {
@@ -17,7 +17,7 @@ int main() {
     socklen_t addr_len;
     ssize_t received_bytes;
 
-    // Create UDP socket
+    // Create UDP socket (SOCK_DGRAM)
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
@@ -28,10 +28,10 @@ int main() {
 
     // Fill server information
     server_addr.sin_family = AF_INET; // IPv4
-    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_addr.s_addr = INADDR_ANY; // Accept connections from any IP
     server_addr.sin_port = htons(PORT);
 
-    // Bind the socket with the server address
+    // Bind the socket with the server address and port
     if (bind(sockfd, (const struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("bind failed");
         close(sockfd);
@@ -40,9 +40,11 @@ int main() {
 
     printf("Server listening on port %d\n", PORT);
 
+    // Infinite loop to listen for incoming packets
     while (1) {
-        addr_len = sizeof(client_addr); // Try to receive some data
+        addr_len = sizeof(client_addr); 
         
+        // Receive message from client and store client address
         received_bytes = recvfrom(sockfd, (char *)buffer, BUFFER_SIZE, 
                     0, (struct sockaddr *) &client_addr,
                     &addr_len);
@@ -52,13 +54,13 @@ int main() {
             continue;
         }
 
-        // Echo the message back to client
+        // Echo the exact same message back to client (Ping -> Pong)
         if (sendto(sockfd, (const char *)buffer, received_bytes, 
                    0, (const struct sockaddr *) &client_addr,
                    addr_len) < 0) {
             perror("sendto failed");
         } else {
-            // Optional: Print what was received/sent for debugging
+            // Print what was received/sent for debugging
             // buffer[received_bytes] = '\0';
             // printf(" unexpected packet from %s: %s\n", inet_ntoa(client_addr.sin_addr), buffer);
         }
