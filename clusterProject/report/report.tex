@@ -97,7 +97,7 @@ The physical assembly involved wiring all nodes to a Netgear 5-port Gigabit Ethe
 To optimize payload efficiency across the physical layer, we configured the network interfaces to utilize a custom 2500 MTU (``Baby Jumbo Frames''). This specific tuning maximizes the throughput of the unmanaged Netgear Gigabit switch by reducing packet overhead during massive array transfers.
 
 \section{Software and Technology Stack}
-We deviated from baseline syllabus requirements to instantiate a modern, enterprise-grade High-Performance Computing (HPC) stack. The head node operates on Ubuntu Server 24, while the compute nodes operate on Rocky Linux. A Network File System (NFS) maps the \texttt{/mirror} directory across all hardware for synchronized file execution.
+We deviated from baseline requirements to instantiate a modern, enterprise-grade High-Performance Computing (HPC) stack. The head node operates on Ubuntu Server 24, while the compute nodes operate on Rocky Linux 9. A Network File System (NFS) maps the \texttt{/mirror} directory across all hardware for synchronized file execution.
 
 Administrative access was secured by configuring passwordless SSH (RSA key authentication) from the head node to all three desktops, enabling seamless cluster management. To manage parallel execution, we replaced basic SSH looping with the Slurm Workload Manager. Using \texttt{sbatch} and \texttt{srun}, we implemented professional queueing, job allocation, and process management.
 
@@ -125,7 +125,7 @@ We configured the HPL broadcast algorithm to use a 1-Ring Modified topology (\te
 \subsection{Memory Optimization and the ``Swap Death'' Cliff}
 HPL memory consumption scales quadratically ($N^2$). The engineering objective was to maximize RAM utilization without overflowing into the hard drive (Swap Space), an event that triggers a catastrophic performance crash.
 
-We dialed the matrix size to $N=68,500$ with a Block Size ($NB$) of 256. This consumed approximately \SI{12.5}{\giga\byte} of RAM per node, leaving a precise \SI{1.4}{\giga\byte} safety buffer for the Linux kernel and network buffers. By performing a hard ``cleansing reboot'' before our final validation run, we ensured the matrix dropped into a completely contiguous, unfragmented block of DDR4 RAM.
+We dialed the matrix size to $N=68,500$ with a Block Size ($NB$) of 256. This consumed approximately \SI{12.5}{\giga\byte} of RAM per node, leaving a \SI{1.4}{\giga\byte} safety buffer for the Linux kernel and network buffers. By performing a hard ``cleansing reboot'' before our final validation run, we ensured the matrix dropped into a completely contiguous, unfragmented block of DDR4 RAM.
 
 \subsection{Thermal Throttling in SFF Chassis}
 The SFF chassis design restricts airflow. Prolonged 10-minute compute phases heat-soaked the internal Voltage Regulator Modules (VRMs) and CPU silicon. To prevent physical damage, the processors automatically dropped their clock frequencies, plummeting performance to $\approx \SI{360}{Gflops}$ .
