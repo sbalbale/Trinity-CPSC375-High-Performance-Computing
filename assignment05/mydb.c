@@ -276,6 +276,7 @@ static int tuple_from_line(relation_t *rel, const char *line, tuple_t *out)
 /* Finds tuple index by matching all key attributes; returns -1 if not found. */
 static int find_row_by_key(const relation_t *rel, char key_vals[][MAX_VAL], int key_count)
 {
+    // Key arity must match the relation's primary-key width.
     if (key_count != rel->keysize)
     {
         return -1;
@@ -283,6 +284,7 @@ static int find_row_by_key(const relation_t *rel, char key_vals[][MAX_VAL], int 
 
     for (int i = 0; i < rel->row_count; i++)
     {
+        // Compare all key components in order.
         int match = 1;
         for (int k = 0; k < rel->keysize; k++)
         {
@@ -441,6 +443,7 @@ static void dict_add_relation_row(const relation_t *rel)
     }
 
     tuple_t row;
+    // catalog schema order: Relname Kind Attsize Keysize Relsize Relptr.
     snprintf(row.values[0], MAX_VAL, "%s", rel->name);
     snprintf(row.values[1], MAX_VAL, "%d", rel->is_base ? 0 : 1);
     snprintf(row.values[2], MAX_VAL, "%d", rel->num_attrs);
@@ -464,6 +467,7 @@ static void dict_add_columns_rows(const relation_t *rel)
     for (int i = 0; i < rel->num_attrs; i++)
     {
         tuple_t row;
+        // columns schema order: Relname Attname Attdomain Attposition.
         snprintf(row.values[0], MAX_VAL, "%s", rel->name);
         snprintf(row.values[1], MAX_VAL, "%s", rel->attrs[i].name);
         snprintf(row.values[2], MAX_VAL, "%d", rel->attrs[i].domain == 'S' ? 0 : 1);
@@ -484,6 +488,7 @@ static void dict_remove_relation_rows(const char *relname)
     }
 
     int w = 0;
+    // Compact rows in place while skipping matching relation name.
     for (int i = 0; i < catalog->row_count; i++)
     {
         if (strcmp(catalog->rows[i].values[0], relname) != 0)
@@ -508,6 +513,7 @@ static void dict_remove_columns_rows(const char *relname)
     }
 
     int w = 0;
+    // Compact rows in place while skipping matching relation name.
     for (int i = 0; i < columns->row_count; i++)
     {
         if (strcmp(columns->rows[i].values[0], relname) != 0)
@@ -545,11 +551,13 @@ static void dict_update_relsize(const relation_t *rel)
 /* Implements CR: create a new base relation and dictionary entries. */
 static int do_create(const char *name, int n_attrs, int keysize, attr_info_t *attrs)
 {
+    // Reject reserved names and duplicate relation names.
     if (is_reserved_name(name) || relation_exists(name))
     {
         return 0;
     }
 
+    // Validate schema and key constraints.
     if (n_attrs <= 0 || n_attrs > MAX_ATTR || keysize <= 0 || keysize > n_attrs)
     {
         return 0;
@@ -561,6 +569,7 @@ static int do_create(const char *name, int n_attrs, int keysize, attr_info_t *at
 /* Implements DE: delete an existing non-dictionary relation. */
 static int do_delete(const char *name)
 {
+    // Delete relation and prune dictionary entries.
     return delete_relation_internal(name, 1);
 }
 
@@ -749,7 +758,9 @@ static int do_print(const char *name)
         return 0;
     }
 
+    // Print relation name first.
     printf("%s\n", rel->name);
+    // Print header row with attribute names.
     for (int i = 0; i < rel->num_attrs; i++)
     {
         if (i > 0)
@@ -760,6 +771,7 @@ static int do_print(const char *name)
     }
     printf("\n");
 
+    // Print each tuple on its own line.
     for (int r = 0; r < rel->row_count; r++)
     {
         for (int c = 0; c < rel->num_attrs; c++)
@@ -914,6 +926,7 @@ static int do_select(const char *src, const char *dst, int n, FILE *in)
 
     if (p == NULL || relation_exists(dst) || is_reserved_name(dst) || n < 0 || n > MAX_ATTR)
     {
+        // Keep stream aligned by consuming all predicate lines.
         for (int i = 0; i < n; i++)
         {
             if (fgets(line, sizeof(line), in) == NULL)
@@ -990,6 +1003,7 @@ static int do_select(const char *src, const char *dst, int n, FILE *in)
  */
 static int compatible_relations(const relation_t *p, const relation_t *q, int map_q_to_p[])
 {
+    // Relations must have identical number of attributes.
     if (p->num_attrs != q->num_attrs)
     {
         return 0;
@@ -997,6 +1011,7 @@ static int compatible_relations(const relation_t *p, const relation_t *q, int ma
 
     for (int i = 0; i < p->num_attrs; i++)
     {
+        // Match by attribute name so different orders are allowed.
         int idx = find_attr_index(q, p->attrs[i].name);
         if (idx < 0)
         {
@@ -1144,6 +1159,7 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
 
     if (p == NULL || q == NULL || relation_exists(rname) || is_reserved_name(rname) || n < 0 || n > MAX_ATTR)
     {
+        // Keep stream aligned by consuming join-attribute lines.
         for (int i = 0; i < n; i++)
         {
             if (fgets(line, sizeof(line), in) == NULL)
@@ -1229,6 +1245,7 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
             }
             if (!ok)
             {
+                // This tuple pair does not satisfy the join condition.
                 continue;
             }
 
@@ -1261,6 +1278,7 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
 /* Bootstraps bitmap and initializes dictionary relations with self-descriptions. */
 static void init_system(void)
 {
+    // Initialize bitmap and relation registry to all-zero state.
     memset(bitmapblk, 0, sizeof(bitmapblk));
     memset(g_relations, 0, sizeof(g_relations));
 
@@ -1289,6 +1307,7 @@ static void init_system(void)
     relation_t *catalog = find_relation("catalog");
     relation_t *columns = find_relation("columns");
 
+    // Add dictionary self-descriptions into catalog and columns.
     if (catalog != NULL)
     {
         dict_add_relation_row(catalog);
@@ -1322,6 +1341,7 @@ static void process_commands(FILE *in)
 {
     char line[LINE_BUF];
 
+    // Process command stream line-by-line until EOF.
     while (fgets(line, sizeof(line), in) != NULL)
     {
         char verb[3] = {0};
@@ -1329,11 +1349,13 @@ static void process_commands(FILE *in)
 
         if (line[0] == '\0')
         {
+            // Ignore empty lines.
             continue;
         }
 
         if (sscanf(line, "%2s", verb) != 1)
         {
+            // Ignore malformed command lines.
             continue;
         }
 
