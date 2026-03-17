@@ -1126,22 +1126,34 @@ static int eval_cmp(char domain, const char *lhs, const char *op, const char *rh
     {
         long a = strtol(lhs, NULL, 10);
         long b = strtol(rhs, NULL, 10);
-        if (strcmp(op, "==") == 0) return a == b;
-        if (strcmp(op, "!=") == 0) return a != b;
-        if (strcmp(op, ">") == 0) return a > b;
-        if (strcmp(op, ">=") == 0) return a >= b;
-        if (strcmp(op, "<") == 0) return a < b;
-        if (strcmp(op, "<=") == 0) return a <= b;
+        if (strcmp(op, "==") == 0)
+            return a == b;
+        if (strcmp(op, "!=") == 0)
+            return a != b;
+        if (strcmp(op, ">") == 0)
+            return a > b;
+        if (strcmp(op, ">=") == 0)
+            return a >= b;
+        if (strcmp(op, "<") == 0)
+            return a < b;
+        if (strcmp(op, "<=") == 0)
+            return a <= b;
         return 0;
     }
 
     int c = strcmp(lhs, rhs);
-    if (strcmp(op, "==") == 0) return c == 0;
-    if (strcmp(op, "!=") == 0) return c != 0;
-    if (strcmp(op, ">") == 0) return c > 0;
-    if (strcmp(op, ">=") == 0) return c >= 0;
-    if (strcmp(op, "<") == 0) return c < 0;
-    if (strcmp(op, "<=") == 0) return c <= 0;
+    if (strcmp(op, "==") == 0)
+        return c == 0;
+    if (strcmp(op, "!=") == 0)
+        return c != 0;
+    if (strcmp(op, ">") == 0)
+        return c > 0;
+    if (strcmp(op, ">=") == 0)
+        return c >= 0;
+    if (strcmp(op, "<") == 0)
+        return c < 0;
+    if (strcmp(op, "<=") == 0)
+        return c <= 0;
     return 0;
 }
 
