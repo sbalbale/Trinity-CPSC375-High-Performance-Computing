@@ -1,9 +1,6 @@
 /*
  * File: mydb.c
- * Purpose: Simple database implementation
- *         This program simulates a basic in-memory database with a disk bitmap and
- *         a catalog of relations. It supports creating/deleting relations, inserting/removing/updating tuples,
- *         and relational algebra operations like projection, selection, union, difference, and natural join.
+ * Purpose: Block-based DBMS simulator for Assignment 5
  * Author: Sean Balbale
  * Date: 3/25/2026
  */
@@ -13,7 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 
-/* --- System Constants (from assignment spec) --- */
+/* --- System Constants --- */
 #define RECSIZE 63
 #define BLKSIZE 256
 #define BLKFAC 4
@@ -24,124 +21,62 @@
 #define MAX_REL 64
 #define MAX_ATTR 10
 #define MAX_NAME 32
-#define MAX_VAL 64 /* value text storage */
+#define MAX_TOKEN 64
 #define LINE_BUF 512
 
-typedef struct
+typedef struct slot
 {
-    /* Attribute identifier and domain code ('S' or 'I'). */
+    char flag; /* 0 = free, 1 = used */
+    char tuple[RECSIZE];
+} slot_t;
+
+typedef union block
+{
+    slot_t slots[BLKFAC];
+    char raw[BLKSIZE];
+} block_t;
+
+typedef struct header_block
+{
+    int data_blocks[BLKMAX];
+    int overflow_blocks[OVBLKMAX];
+    int num_data_blocks;
+    int num_overflow_blocks;
+    int is_base; /* 1 base(hash), 0 derived(heap) */
+} header_block_t;
+
+typedef struct attr_info
+{
     char name[MAX_NAME];
     char domain; /* 'S' or 'I' */
 } attr_info_t;
 
-typedef struct
+typedef struct relation_meta
 {
-    /* Tuple payload stored as tokenized string values by position. */
-    char values[MAX_ATTR][MAX_VAL];
-} tuple_t;
-
-typedef struct
-{
-    /* Slot state in the global relation registry. */
     int in_use;
-    int is_base;       /* 1=base, 0=derived */
-    int is_dictionary; /* catalog or columns */
+    int is_dictionary;
+    int is_base;
 
     char name[MAX_NAME];
     int num_attrs;
     int keysize;
     attr_info_t attrs[MAX_ATTR];
 
-    tuple_t *rows;
-    int row_count;
-    int row_cap;
+    int header_block;
+} relation_meta_t;
 
-    int relptr; /* simulated header block pointer */
-} relation_t;
-
-typedef struct
-{
-    /* Pre-parsed selection predicate: attribute index, operator, literal value. */
-    int attr_idx;
-    char op[3];
-    char value[MAX_VAL];
-} condition_t;
-
-/* --- Simulated disk bitmap --- */
+/* --- Simulated Disk + Buffers (9-block model) --- */
+static unsigned char virtual_disk[DISKSIZE][BLKSIZE];
 static unsigned char bitmapblk[DISKSIZE];
+static unsigned char catalog_header[BLKSIZE];
+static unsigned char columns_header[BLKSIZE];
+static block_t data_buffers[3];
+static unsigned char header_buffers[3][BLKSIZE];
 
-/* --- In-memory catalog of relations --- */
-static relation_t g_relations[MAX_REL];
+/* --- In-memory relation catalog (metadata only) --- */
+static relation_meta_t g_relations[MAX_REL];
 
-/* --- Forward declarations --- */
-static void init_system(void);
-static int allocate_block(void);
-static void free_block(int b);
-
-static int find_relation_index(const char *name);
-static relation_t *find_relation(const char *name);
-static int is_reserved_name(const char *name);
-static int relation_exists(const char *name);
-
-static int create_relation_internal(const char *name, int is_base, attr_info_t *attrs, int num_attrs,
-                                    int keysize, int is_dictionary, int add_to_dictionary);
-static int delete_relation_internal(const char *name, int update_dictionary);
-
-static void ensure_capacity(relation_t *rel, int need);
-static int tuple_equal(const relation_t *rel, const tuple_t *a, const tuple_t *b);
-static int tuple_exists(const relation_t *rel, const tuple_t *t);
-
-static int parse_fields(const char *line, char out[][MAX_VAL], int max_fields);
-static void trim_newline(char *s);
-
-static int tuple_from_line(relation_t *rel, const char *line, tuple_t *out);
-static int find_row_by_key(const relation_t *rel, char key_vals[][MAX_VAL], int key_count);
-
-static void dict_add_relation_row(const relation_t *rel);
-static void dict_add_columns_rows(const relation_t *rel);
-static void dict_remove_relation_rows(const char *relname);
-static void dict_remove_columns_rows(const char *relname);
-static void dict_update_relsize(const relation_t *rel);
-
-static int do_create(const char *name, int n_attrs, int keysize, attr_info_t *attrs);
-static int do_delete(const char *name);
-static int do_insert(const char *name, int n, FILE *in);
-static int do_remove(const char *name, int n, FILE *in);
-static int do_update(const char *name, int n, FILE *in);
-static int do_print(const char *name);
-static int do_project(const char *src, const char *dst, int n, FILE *in);
-static int do_select(const char *src, const char *dst, int n, FILE *in);
-static int do_union(const char *p, const char *q, const char *r);
-static int do_difference(const char *p, const char *q, const char *r);
-static int do_natural_join(const char *p, const char *q, const char *r, int n, FILE *in);
-
-/* --- Disk helpers --- */
-/* Allocates one simulated block by setting the bitmap entry to 1. */
-static int allocate_block(void)
-{
-    for (int i = 0; i < DISKSIZE; i++)
-    {
-        // Scan bitmap for the first free simulated disk block.
-        if (bitmapblk[i] == 0)
-        {
-            bitmapblk[i] = 1;
-            return i;
-        }
-    }
-    return -1;
-}
-
-/* Frees a simulated block by clearing the bitmap entry. */
-static void free_block(int b)
-{
-    if (b >= 0 && b < DISKSIZE)
-    {
-        bitmapblk[b] = 0;
-    }
-}
-
-/* --- Utility --- */
-/* Removes trailing CR/LF so input lines can be parsed safely. */
+/* --- Helpers --- */
 static void trim_newline(char *s)
 {
     size_t n = strlen(s);
@@ -152,30 +87,26 @@ static void trim_newline(char *s)
     }
 }
 
-/* Splits a line by whitespace into positional fields. */
-static int parse_fields(const char *line, char out[][MAX_VAL], int max_fields)
+static int parse_fields(const char *line, char out[][MAX_TOKEN], int max_fields)
 {
     char tmp[LINE_BUF];
-    int count = 0;
     char *tok;
+    int c = 0;
 
     strncpy(tmp, line, sizeof(tmp) - 1);
     tmp[sizeof(tmp) - 1] = '\0';
 
-    // Split on assignment whitespace separators.
     tok = strtok(tmp, " \t\r\n");
-    while (tok != NULL && count < max_fields)
+    while (tok != NULL && c < max_fields)
     {
-        strncpy(out[count], tok, MAX_VAL - 1);
-        out[count][MAX_VAL - 1] = '\0';
-        count++;
+        strncpy(out[c], tok, MAX_TOKEN - 1);
+        out[c][MAX_TOKEN - 1] = '\0';
+        c++;
         tok = strtok(NULL, " \t\r\n");
     }
-
-    return count;
+    return c;
 }
 
-/* Returns non-zero when s is a valid integer literal. */
 static int str_is_int(const char *s)
 {
     int i = 0;
@@ -197,114 +128,49 @@ static int str_is_int(const char *s)
     return 1;
 }
 
-/* Ensures relation row storage is large enough for need tuples. */
-static void ensure_capacity(relation_t *rel, int need)
+/* --- Disk I/O --- */
+static void diskread(int blocknum, unsigned char *buffer)
 {
-    if (need <= rel->row_cap)
+    if (blocknum < 0 || blocknum >= DISKSIZE)
     {
         return;
     }
-
-    int new_cap = (rel->row_cap == 0) ? 16 : rel->row_cap;
-    while (new_cap < need)
-    {
-        // Grow geometrically to keep amortized append cost low.
-        new_cap *= 2;
-    }
-
-    tuple_t *new_rows = (tuple_t *)realloc(rel->rows, (size_t)new_cap * sizeof(tuple_t));
-    if (new_rows == NULL)
-    {
-        fprintf(stderr, "ERROR: out of memory\n");
-        exit(1);
-    }
-
-    rel->rows = new_rows;
-    rel->row_cap = new_cap;
+    memcpy(buffer, virtual_disk[blocknum], BLKSIZE);
 }
 
-/* Compares two tuples value-by-value using relation arity. */
-static int tuple_equal(const relation_t *rel, const tuple_t *a, const tuple_t *b)
+static void diskwrite(int blocknum, const unsigned char *buffer)
 {
-    for (int i = 0; i < rel->num_attrs; i++)
+    if (blocknum < 0 || blocknum >= DISKSIZE)
     {
-        if (strcmp(a->values[i], b->values[i]) != 0)
-        {
-            return 0;
-        }
+        return;
     }
-    return 1;
+    memcpy(virtual_disk[blocknum], buffer, BLKSIZE);
 }
 
-/* Checks whether tuple t already exists in relation rel. */
-static int tuple_exists(const relation_t *rel, const tuple_t *t)
+static int allocate_block(void)
 {
-    for (int i = 0; i < rel->row_count; i++)
+    for (int i = 0; i < DISKSIZE; i++)
     {
-        if (tuple_equal(rel, &rel->rows[i], t))
+        if (bitmapblk[i] == 0)
         {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-/* Parses a tuple text line and validates per-attribute domain constraints. */
-static int tuple_from_line(relation_t *rel, const char *line, tuple_t *out)
-{
-    char fields[MAX_ATTR][MAX_VAL];
-    int got = parse_fields(line, fields, MAX_ATTR);
-
-    if (got != rel->num_attrs)
-    {
-        return 0;
-    }
-
-    for (int i = 0; i < rel->num_attrs; i++)
-    {
-        if (rel->attrs[i].domain == 'I' && !str_is_int(fields[i]))
-        {
-            return 0;
-        }
-        strncpy(out->values[i], fields[i], MAX_VAL - 1);
-        out->values[i][MAX_VAL - 1] = '\0';
-    }
-
-    return 1;
-}
-
-/* Finds tuple index by matching all key attributes; returns -1 if not found. */
-static int find_row_by_key(const relation_t *rel, char key_vals[][MAX_VAL], int key_count)
-{
-    // Key arity must match the relation's primary-key width.
-    if (key_count != rel->keysize)
-    {
-        return -1;
-    }
-
-    for (int i = 0; i < rel->row_count; i++)
-    {
-        // Compare all key components in order.
-        int match = 1;
-        for (int k = 0; k < rel->keysize; k++)
-        {
-            if (strcmp(rel->rows[i].values[k], key_vals[k]) != 0)
-            {
-                match = 0;
-                break;
-            }
-        }
-        if (match)
-        {
+            bitmapblk[i] = 1;
+            diskwrite(0, bitmapblk);
             return i;
         }
     }
-
     return -1;
 }
 
-/* --- Relation registry --- */
-/* Returns registry index for a relation name, or -1 when absent. */
+static void free_block(int b)
+{
+    if (b >= 0 && b < DISKSIZE)
+    {
+        bitmapblk[b] = 0;
+        diskwrite(0, bitmapblk);
+    }
+}
+
+/* --- Relation Metadata --- */
 static int find_relation_index(const char *name)
 {
     for (int i = 0; i < MAX_REL; i++)
@@ -317,8 +183,7 @@ static int find_relation_index(const char *name)
     return -1;
 }
 
-/* Returns a pointer to a relation by name, or NULL when absent. */
-static relation_t *find_relation(const char *name)
+static relation_meta_t *find_relation(const char *name)
 {
     int idx = find_relation_index(name);
     if (idx < 0)
@@ -328,439 +193,509 @@ static relation_t *find_relation(const char *name)
     return &g_relations[idx];
 }
 
-/* Convenience existence check for relation name. */
-static int relation_exists(const char *name)
-{
-    return find_relation_index(name) >= 0;
-}
-
-/* Disallows user creation/redefinition of dictionary relation names. */
-static int is_reserved_name(const char *name)
+static int is_reserved_relation(const char *name)
 {
     return (strcmp(name, "catalog") == 0 || strcmp(name, "columns") == 0);
 }
 
-/*
- * Creates and registers a relation object.
- * Optionally writes metadata rows into catalog/columns dictionaries.
- */
-static int create_relation_internal(const char *name, int is_base, attr_info_t *attrs, int num_attrs,
-                                    int keysize, int is_dictionary, int add_to_dictionary)
+static int create_relation_meta(const char *name, int is_base, int is_dictionary,
+                                attr_info_t *attrs, int nattrs, int keysize,
+                                int header_block)
 {
-    if (relation_exists(name))
-    {
-        return 0;
-    }
-
-    // Find an unused slot in the global relation registry.
-    int idx = -1;
     for (int i = 0; i < MAX_REL; i++)
     {
         if (!g_relations[i].in_use)
         {
-            idx = i;
-            break;
+            g_relations[i].in_use = 1;
+            g_relations[i].is_base = is_base;
+            g_relations[i].is_dictionary = is_dictionary;
+            strncpy(g_relations[i].name, name, MAX_NAME - 1);
+            g_relations[i].name[MAX_NAME - 1] = '\0';
+            g_relations[i].num_attrs = nattrs;
+            g_relations[i].keysize = keysize;
+            g_relations[i].header_block = header_block;
+            for (int a = 0; a < nattrs; a++)
+            {
+                g_relations[i].attrs[a] = attrs[a];
+            }
+            return 1;
         }
     }
-    if (idx < 0)
+    return 0;
+}
+
+/* --- Tuple Helpers --- */
+static int tuple_key_equals(const relation_meta_t *rel, const char *tuple_text, char key_vals[][MAX_TOKEN], int key_count)
+{
+    char fields[MAX_ATTR][MAX_TOKEN];
+    int got = parse_fields(tuple_text, fields, MAX_ATTR);
+    if (key_count != rel->keysize || got < rel->keysize)
     {
         return 0;
     }
-
-    // Allocate one simulated header block for this relation.
-    int ptr = allocate_block();
-    if (ptr < 0)
+    for (int i = 0; i < rel->keysize; i++)
     {
-        return 0;
+        if (strcmp(fields[i], key_vals[i]) != 0)
+        {
+            return 0;
+        }
     }
-
-    relation_t *r = &g_relations[idx];
-    memset(r, 0, sizeof(*r));
-
-    r->in_use = 1;
-    r->is_base = is_base;
-    r->is_dictionary = is_dictionary;
-    strncpy(r->name, name, MAX_NAME - 1);
-    r->name[MAX_NAME - 1] = '\0';
-    r->num_attrs = num_attrs;
-    r->keysize = keysize;
-    r->relptr = ptr;
-    for (int i = 0; i < num_attrs; i++)
-    {
-        r->attrs[i] = attrs[i];
-    }
-
-    if (add_to_dictionary)
-    {
-        dict_add_relation_row(r);
-        dict_add_columns_rows(r);
-    }
-
     return 1;
 }
 
-/* Deletes one non-dictionary relation and optionally cleans dictionary rows. */
-static int delete_relation_internal(const char *name, int update_dictionary)
+static int validate_tuple_domains(const relation_meta_t *rel, const char *tuple_line)
 {
-    int idx = find_relation_index(name);
-    if (idx < 0)
+    char f[MAX_ATTR][MAX_TOKEN];
+    int got = parse_fields(tuple_line, f, MAX_ATTR);
+    if (got != rel->num_attrs)
     {
         return 0;
     }
-
-    relation_t *rel = &g_relations[idx];
-
-    if (rel->is_dictionary)
-    {
-        return 0;
-    }
-
-    if (update_dictionary)
-    {
-        dict_remove_relation_rows(rel->name);
-        dict_remove_columns_rows(rel->name);
-    }
-
-    free(rel->rows);
-    rel->rows = NULL;
-    rel->row_count = 0;
-    rel->row_cap = 0;
-
-    free_block(rel->relptr);
-    memset(rel, 0, sizeof(*rel));
-
-    return 1;
-}
-
-/* --- Data dictionary maintenance --- */
-/* Adds one tuple to catalog describing a relation's metadata. */
-static void dict_add_relation_row(const relation_t *rel)
-{
-    relation_t *catalog = find_relation("catalog");
-    if (catalog == NULL)
-    {
-        return;
-    }
-
-    tuple_t row;
-    // catalog schema order: Relname Kind Attsize Keysize Relsize Relptr.
-    snprintf(row.values[0], MAX_VAL, "%s", rel->name);
-    snprintf(row.values[1], MAX_VAL, "%d", rel->is_base ? 0 : 1);
-    snprintf(row.values[2], MAX_VAL, "%d", rel->num_attrs);
-    snprintf(row.values[3], MAX_VAL, "%d", rel->keysize);
-    snprintf(row.values[4], MAX_VAL, "%d", rel->row_count);
-    snprintf(row.values[5], MAX_VAL, "%d", rel->relptr);
-
-    ensure_capacity(catalog, catalog->row_count + 1);
-    catalog->rows[catalog->row_count++] = row;
-}
-
-/* Adds one tuple per attribute into columns dictionary. */
-static void dict_add_columns_rows(const relation_t *rel)
-{
-    relation_t *columns = find_relation("columns");
-    if (columns == NULL)
-    {
-        return;
-    }
-
     for (int i = 0; i < rel->num_attrs; i++)
     {
-        tuple_t row;
-        // columns schema order: Relname Attname Attdomain Attposition.
-        snprintf(row.values[0], MAX_VAL, "%s", rel->name);
-        snprintf(row.values[1], MAX_VAL, "%s", rel->attrs[i].name);
-        snprintf(row.values[2], MAX_VAL, "%d", rel->attrs[i].domain == 'S' ? 0 : 1);
-        snprintf(row.values[3], MAX_VAL, "%d", i + 1);
-
-        ensure_capacity(columns, columns->row_count + 1);
-        columns->rows[columns->row_count++] = row;
-    }
-}
-
-/* Removes all catalog tuples for a relation name. */
-static void dict_remove_relation_rows(const char *relname)
-{
-    relation_t *catalog = find_relation("catalog");
-    if (catalog == NULL)
-    {
-        return;
-    }
-
-    int w = 0;
-    // Compact rows in place while skipping matching relation name.
-    for (int i = 0; i < catalog->row_count; i++)
-    {
-        if (strcmp(catalog->rows[i].values[0], relname) != 0)
+        if (rel->attrs[i].domain == 'I' && !str_is_int(f[i]))
         {
-            if (w != i)
-            {
-                catalog->rows[w] = catalog->rows[i];
-            }
-            w++;
+            return 0;
         }
     }
-    catalog->row_count = w;
+    return 1;
 }
 
-/* Removes all columns tuples for a relation name. */
-static void dict_remove_columns_rows(const char *relname)
+static int hash_key_from_tuple(const relation_meta_t *rel, const char *tuple_line)
 {
-    relation_t *columns = find_relation("columns");
-    if (columns == NULL)
-    {
-        return;
-    }
-
-    int w = 0;
-    // Compact rows in place while skipping matching relation name.
-    for (int i = 0; i < columns->row_count; i++)
-    {
-        if (strcmp(columns->rows[i].values[0], relname) != 0)
-        {
-            if (w != i)
-            {
-                columns->rows[w] = columns->rows[i];
-            }
-            w++;
-        }
-    }
-    columns->row_count = w;
-}
-
-/* Updates catalog.Relsize for a relation after tuple-count changes. */
-static void dict_update_relsize(const relation_t *rel)
-{
-    relation_t *catalog = find_relation("catalog");
-    if (catalog == NULL)
-    {
-        return;
-    }
-
-    for (int i = 0; i < catalog->row_count; i++)
-    {
-        if (strcmp(catalog->rows[i].values[0], rel->name) == 0)
-        {
-            snprintf(catalog->rows[i].values[4], MAX_VAL, "%d", rel->row_count);
-            return;
-        }
-    }
-}
-
-/* --- Command implementations --- */
-/* Implements CR: create a new base relation and dictionary entries. */
-static int do_create(const char *name, int n_attrs, int keysize, attr_info_t *attrs)
-{
-    // Reject reserved names and duplicate relation names.
-    if (is_reserved_name(name) || relation_exists(name))
+    char f[MAX_ATTR][MAX_TOKEN];
+    int got = parse_fields(tuple_line, f, MAX_ATTR);
+    int sum = 0;
+    if (got < rel->keysize)
     {
         return 0;
     }
-
-    // Validate schema and key constraints.
-    if (n_attrs <= 0 || n_attrs > MAX_ATTR || keysize <= 0 || keysize > n_attrs)
+    for (int i = 0; i < rel->keysize; i++)
     {
-        return 0;
+        for (int j = 0; f[i][j] != '\0'; j++)
+        {
+            sum += (unsigned char)f[i][j];
+        }
     }
-
-    return create_relation_internal(name, 1, attrs, n_attrs, keysize, 0, 1);
+    return sum % BLKMAX;
 }
 
-/* Implements DE: delete an existing non-dictionary relation. */
-static int do_delete(const char *name)
+/* --- Header helpers --- */
+static void read_header(const relation_meta_t *rel, header_block_t *hdr)
 {
-    // Delete relation and prune dictionary entries.
-    return delete_relation_internal(name, 1);
+    unsigned char buf[BLKSIZE];
+    memset(buf, 0, sizeof(buf));
+    diskread(rel->header_block, buf);
+    memcpy(hdr, buf, sizeof(*hdr));
 }
 
-/*
- * Implements IN: insert n tuples into a base relation.
- * Duplicate primary keys are ignored to enforce key uniqueness.
- */
-static int do_insert(const char *name, int n, FILE *in)
+static void write_header(const relation_meta_t *rel, const header_block_t *hdr)
 {
-    relation_t *rel = find_relation(name);
-    char line[LINE_BUF];
+    unsigned char buf[BLKSIZE];
+    memset(buf, 0, sizeof(buf));
+    memcpy(buf, hdr, sizeof(*hdr));
+    diskwrite(rel->header_block, buf);
+}
 
-    if (rel == NULL || !rel->is_base || rel->is_dictionary)
+static void clear_block_and_write(int blocknum)
+{
+    block_t blk;
+    memset(&blk, 0, sizeof(blk));
+    diskwrite(blocknum, (unsigned char *)blk.raw);
+}
+
+/* --- Primitive access --- */
+static int find_free_slot_in_block(int blocknum, int *slot_idx)
+{
+    block_t blk;
+    diskread(blocknum, (unsigned char *)blk.raw);
+    for (int s = 0; s < BLKFAC; s++)
     {
-        // Consume tuple payload lines even when command cannot execute.
-        for (int i = 0; i < n; i++)
+        if (blk.slots[s].flag == 0)
         {
-            if (fgets(line, sizeof(line), in) == NULL)
-            {
-                break;
-            }
+            *slot_idx = s;
+            return 1;
         }
-        return 0;
     }
+    return 0;
+}
 
-    for (int i = 0; i < n; i++)
+static void write_tuple_to_slot(int blocknum, int slot_idx, const char *tuple_text)
+{
+    block_t blk;
+    diskread(blocknum, (unsigned char *)blk.raw);
+    blk.slots[slot_idx].flag = 1;
+    memset(blk.slots[slot_idx].tuple, 0, RECSIZE);
+    strncpy(blk.slots[slot_idx].tuple, tuple_text, RECSIZE - 1);
+    diskwrite(blocknum, (unsigned char *)blk.raw);
+}
+
+static int tuple_exists_full_scan(const relation_meta_t *rel, const char *tuple_text)
+{
+    header_block_t hdr;
+    read_header(rel, &hdr);
+
+    for (int i = 0; i < BLKMAX; i++)
     {
-        tuple_t t;
-        int duplicate = 0;
-
-        if (fgets(line, sizeof(line), in) == NULL)
-        {
-            break;
-        }
-        trim_newline(line);
-
-        // Skip malformed tuples or domain mismatches.
-        if (!tuple_from_line(rel, line, &t))
+        if (hdr.data_blocks[i] == 0)
         {
             continue;
         }
-
-        // Enforce primary-key uniqueness using leading key attributes.
-        for (int r = 0; r < rel->row_count && !duplicate; r++)
+        block_t blk;
+        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        for (int s = 0; s < BLKFAC; s++)
         {
-            int same_key = 1;
-            for (int k = 0; k < rel->keysize; k++)
+            if (blk.slots[s].flag == 1 && strcmp(blk.slots[s].tuple, tuple_text) == 0)
             {
-                if (strcmp(rel->rows[r].values[k], t.values[k]) != 0)
+                return 1;
+            }
+        }
+    }
+
+    if (rel->is_base)
+    {
+        for (int i = 0; i < OVBLKMAX; i++)
+        {
+            if (hdr.overflow_blocks[i] == 0)
+            {
+                continue;
+            }
+            block_t blk;
+            diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+            for (int s = 0; s < BLKFAC; s++)
+            {
+                if (blk.slots[s].flag == 1 && strcmp(blk.slots[s].tuple, tuple_text) == 0)
                 {
-                    same_key = 0;
-                    break;
+                    return 1;
                 }
             }
-            if (same_key)
-            {
-                duplicate = 1;
-            }
         }
-
-        if (duplicate)
-        {
-            continue;
-        }
-
-        ensure_capacity(rel, rel->row_count + 1);
-        rel->rows[rel->row_count++] = t;
     }
 
-    dict_update_relsize(rel);
-    return 1;
+    return 0;
 }
 
-/* Implements RM: remove n tuples addressed by primary key values. */
-static int do_remove(const char *name, int n, FILE *in)
+static int find_base_tuple_by_key(const relation_meta_t *rel, char key_vals[][MAX_TOKEN], int key_count,
+                                  int *out_block, int *out_slot)
 {
-    relation_t *rel = find_relation(name);
-    char line[LINE_BUF];
+    header_block_t hdr;
+    read_header(rel, &hdr);
 
-    if (rel == NULL || !rel->is_base || rel->is_dictionary)
+    if (key_count != rel->keysize)
     {
-        for (int i = 0; i < n; i++)
-        {
-            if (fgets(line, sizeof(line), in) == NULL)
-            {
-                break;
-            }
-        }
         return 0;
     }
 
-    for (int i = 0; i < n; i++)
+    /* Search all hash buckets and overflow blocks. */
+    for (int i = 0; i < BLKMAX; i++)
     {
-        char keys[MAX_ATTR][MAX_VAL];
-        int kcount;
-        int pos;
-
-        if (fgets(line, sizeof(line), in) == NULL)
-        {
-            break;
-        }
-        trim_newline(line);
-
-        kcount = parse_fields(line, keys, MAX_ATTR);
-        // Only remove if the provided key exists.
-        pos = find_row_by_key(rel, keys, kcount);
-        if (pos < 0)
+        if (hdr.data_blocks[i] == 0)
         {
             continue;
         }
-
-        // Shift subsequent tuples left to fill deleted slot.
-        for (int j = pos + 1; j < rel->row_count; j++)
+        block_t blk;
+        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        for (int s = 0; s < BLKFAC; s++)
         {
-            rel->rows[j - 1] = rel->rows[j];
+            if (blk.slots[s].flag == 1 && tuple_key_equals(rel, blk.slots[s].tuple, key_vals, key_count))
+            {
+                *out_block = hdr.data_blocks[i];
+                *out_slot = s;
+                return 1;
+            }
         }
-        rel->row_count--;
     }
 
-    dict_update_relsize(rel);
-    return 1;
+    for (int i = 0; i < OVBLKMAX; i++)
+    {
+        if (hdr.overflow_blocks[i] == 0)
+        {
+            continue;
+        }
+        block_t blk;
+        diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+        for (int s = 0; s < BLKFAC; s++)
+        {
+            if (blk.slots[s].flag == 1 && tuple_key_equals(rel, blk.slots[s].tuple, key_vals, key_count))
+            {
+                *out_block = hdr.overflow_blocks[i];
+                *out_slot = s;
+                return 1;
+            }
+        }
+    }
+
+    return 0;
 }
 
-/* Implements UP: replace existing tuples identified by primary key. */
-static int do_update(const char *name, int n, FILE *in)
+static int insert_base_tuple(const relation_meta_t *rel, const char *tuple_text)
 {
-    relation_t *rel = find_relation(name);
-    char line[LINE_BUF];
+    header_block_t hdr;
+    read_header(rel, &hdr);
 
-    if (rel == NULL || !rel->is_base || rel->is_dictionary)
+    int bucket = hash_key_from_tuple(rel, tuple_text);
+    int blocknum = hdr.data_blocks[bucket];
+
+    if (blocknum == 0)
     {
-        for (int i = 0; i < n; i++)
+        blocknum = allocate_block();
+        if (blocknum < 0)
         {
-            if (fgets(line, sizeof(line), in) == NULL)
+            return 0;
+        }
+        clear_block_and_write(blocknum);
+        hdr.data_blocks[bucket] = blocknum;
+        hdr.num_data_blocks++;
+        write_header(rel, &hdr);
+    }
+
+    int slot = -1;
+    if (find_free_slot_in_block(blocknum, &slot))
+    {
+        write_tuple_to_slot(blocknum, slot, tuple_text);
+        return 1;
+    }
+
+    /* Existing overflow blocks first. */
+    for (int i = 0; i < OVBLKMAX; i++)
+    {
+        if (hdr.overflow_blocks[i] != 0 && find_free_slot_in_block(hdr.overflow_blocks[i], &slot))
+        {
+            write_tuple_to_slot(hdr.overflow_blocks[i], slot, tuple_text);
+            return 1;
+        }
+    }
+
+    /* Allocate new overflow block if capacity remains. */
+    if (hdr.num_overflow_blocks < OVBLKMAX)
+    {
+        int ov = allocate_block();
+        if (ov < 0)
+        {
+            return 0;
+        }
+        clear_block_and_write(ov);
+        for (int i = 0; i < OVBLKMAX; i++)
+        {
+            if (hdr.overflow_blocks[i] == 0)
             {
+                hdr.overflow_blocks[i] = ov;
+                hdr.num_overflow_blocks++;
                 break;
             }
         }
+        write_header(rel, &hdr);
+        write_tuple_to_slot(ov, 0, tuple_text);
+        return 1;
+    }
+
+    return 0;
+}
+
+static int insert_heap_tuple(const relation_meta_t *rel, const char *tuple_text)
+{
+    header_block_t hdr;
+    read_header(rel, &hdr);
+
+    int slot = -1;
+    for (int i = 0; i < BLKMAX; i++)
+    {
+        if (hdr.data_blocks[i] == 0)
+        {
+            continue;
+        }
+        if (find_free_slot_in_block(hdr.data_blocks[i], &slot))
+        {
+            write_tuple_to_slot(hdr.data_blocks[i], slot, tuple_text);
+            return 1;
+        }
+    }
+
+    if (hdr.num_data_blocks >= BLKMAX)
+    {
         return 0;
     }
 
-    for (int i = 0; i < n; i++)
+    int b = allocate_block();
+    if (b < 0)
     {
-        tuple_t t;
-        char keys[MAX_ATTR][MAX_VAL];
-        int pos;
+        return 0;
+    }
+    clear_block_and_write(b);
 
-        if (fgets(line, sizeof(line), in) == NULL)
+    for (int i = 0; i < BLKMAX; i++)
+    {
+        if (hdr.data_blocks[i] == 0)
         {
+            hdr.data_blocks[i] = b;
+            hdr.num_data_blocks++;
             break;
         }
-        trim_newline(line);
-
-        if (!tuple_from_line(rel, line, &t))
-        {
-            continue;
-        }
-
-        // Extract key values from incoming tuple for lookup.
-        for (int k = 0; k < rel->keysize; k++)
-        {
-            strncpy(keys[k], t.values[k], MAX_VAL - 1);
-            keys[k][MAX_VAL - 1] = '\0';
-        }
-
-        pos = find_row_by_key(rel, keys, rel->keysize);
-        if (pos < 0)
-        {
-            continue;
-        }
-
-        // Replace the matched tuple in place.
-        rel->rows[pos] = t;
     }
+    write_header(rel, &hdr);
 
-    dict_update_relsize(rel);
+    write_tuple_to_slot(b, 0, tuple_text);
     return 1;
 }
 
-/* Implements PR: print relation name, heading row, then tuple rows. */
+static int append_tuple(const relation_meta_t *rel, const char *tuple_text)
+{
+    if (rel->is_base)
+    {
+        return insert_base_tuple(rel, tuple_text);
+    }
+    return insert_heap_tuple(rel, tuple_text);
+}
+
+static void remove_tuple_slot(int blocknum, int slot)
+{
+    block_t blk;
+    diskread(blocknum, (unsigned char *)blk.raw);
+    blk.slots[slot].flag = 0;
+    memset(blk.slots[slot].tuple, 0, RECSIZE);
+    diskwrite(blocknum, (unsigned char *)blk.raw);
+}
+
+static void update_tuple_slot(int blocknum, int slot, const char *tuple_text)
+{
+    write_tuple_to_slot(blocknum, slot, tuple_text);
+}
+
+/* --- Iteration --- */
+typedef int (*tuple_cb_t)(const relation_meta_t *rel, const char *tuple_text, void *ctx);
+
+static int scan_relation(const relation_meta_t *rel, tuple_cb_t cb, void *ctx)
+{
+    header_block_t hdr;
+    read_header(rel, &hdr);
+
+    for (int i = 0; i < BLKMAX; i++)
+    {
+        if (hdr.data_blocks[i] == 0)
+        {
+            continue;
+        }
+        block_t blk;
+        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        for (int s = 0; s < BLKFAC; s++)
+        {
+            if (blk.slots[s].flag == 1)
+            {
+                if (!cb(rel, blk.slots[s].tuple, ctx))
+                {
+                    return 0;
+                }
+            }
+        }
+    }
+
+    if (rel->is_base)
+    {
+        for (int i = 0; i < OVBLKMAX; i++)
+        {
+            if (hdr.overflow_blocks[i] == 0)
+            {
+                continue;
+            }
+            block_t blk;
+            diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+            for (int s = 0; s < BLKFAC; s++)
+            {
+                if (blk.slots[s].flag == 1)
+                {
+                    if (!cb(rel, blk.slots[s].tuple, ctx))
+                    {
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+
+    return 1;
+}
+
+/* --- Create/Delete relation physical storage --- */
+static int create_relation(const char *name, int is_base, int is_dictionary,
+                           attr_info_t *attrs, int nattrs, int keysize)
+{
+    if (find_relation(name) != NULL)
+    {
+        return 0;
+    }
+
+    int hb = allocate_block();
+    if (hb < 0)
+    {
+        return 0;
+    }
+
+    header_block_t hdr;
+    memset(&hdr, 0, sizeof(hdr));
+    hdr.is_base = is_base;
+
+    unsigned char buf[BLKSIZE];
+    memset(buf, 0, sizeof(buf));
+    memcpy(buf, &hdr, sizeof(hdr));
+    diskwrite(hb, buf);
+
+    if (!create_relation_meta(name, is_base, is_dictionary, attrs, nattrs, keysize, hb))
+    {
+        free_block(hb);
+        return 0;
+    }
+    return 1;
+}
+
+static int delete_relation(const char *name)
+{
+    relation_meta_t *rel = find_relation(name);
+    if (rel == NULL || rel->is_dictionary)
+    {
+        return 0;
+    }
+
+    header_block_t hdr;
+    read_header(rel, &hdr);
+
+    for (int i = 0; i < BLKMAX; i++)
+    {
+        if (hdr.data_blocks[i] != 0)
+        {
+            free_block(hdr.data_blocks[i]);
+        }
+    }
+    for (int i = 0; i < OVBLKMAX; i++)
+    {
+        if (hdr.overflow_blocks[i] != 0)
+        {
+            free_block(hdr.overflow_blocks[i]);
+        }
+    }
+    free_block(rel->header_block);
+
+    memset(rel, 0, sizeof(*rel));
+    return 1;
+}
+
+/* --- Command Operations --- */
+static int print_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
+{
+    (void)rel;
+    (void)ctx;
+    printf("%s\n", tuple_text);
+    return 1;
+}
+
 static int do_print(const char *name)
 {
-    relation_t *rel = find_relation(name);
+    relation_meta_t *rel = find_relation(name);
     if (rel == NULL)
     {
         return 0;
     }
 
-    // Print relation name first.
     printf("%s\n", rel->name);
-    // Print header row with attribute names.
     for (int i = 0; i < rel->num_attrs; i++)
     {
         if (i > 0)
@@ -771,47 +706,17 @@ static int do_print(const char *name)
     }
     printf("\n");
 
-    // Print each tuple on its own line.
-    for (int r = 0; r < rel->row_count; r++)
-    {
-        for (int c = 0; c < rel->num_attrs; c++)
-        {
-            if (c > 0)
-            {
-                printf(" ");
-            }
-            printf("%s", rel->rows[r].values[c]);
-        }
-        printf("\n");
-    }
+    scan_relation(rel, print_cb, NULL);
     printf("\n");
-
     return 1;
 }
 
-/* Resolves attribute name to positional index in a relation schema. */
-static int find_attr_index(const relation_t *rel, const char *name)
+static int do_insert(const char *name, int n, FILE *in)
 {
-    for (int i = 0; i < rel->num_attrs; i++)
-    {
-        if (strcmp(rel->attrs[i].name, name) == 0)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-/* Implements PJ: project selected attributes and suppress duplicates. */
-static int do_project(const char *src, const char *dst, int n, FILE *in)
-{
-    relation_t *p = find_relation(src);
+    relation_meta_t *rel = find_relation(name);
     char line[LINE_BUF];
-    char proj_names[MAX_ATTR][MAX_NAME];
-    int proj_idx[MAX_ATTR];
-    attr_info_t out_attrs[MAX_ATTR];
 
-    if (p == NULL || relation_exists(dst) || is_reserved_name(dst) || n <= 0 || n > p->num_attrs)
+    if (rel == NULL || !rel->is_base || rel->is_dictionary)
     {
         for (int i = 0; i < n; i++)
         {
@@ -823,110 +728,301 @@ static int do_project(const char *src, const char *dst, int n, FILE *in)
         return 0;
     }
 
-    // Read the requested projection attributes.
     for (int i = 0; i < n; i++)
     {
+        char key_vals[MAX_ATTR][MAX_TOKEN];
+        int b, s;
+
+        if (fgets(line, sizeof(line), in) == NULL)
+        {
+            break;
+        }
+        trim_newline(line);
+
+        if (!validate_tuple_domains(rel, line))
+        {
+            continue;
+        }
+
+        /* Uniqueness of key */
+        parse_fields(line, key_vals, MAX_ATTR);
+        if (find_base_tuple_by_key(rel, key_vals, rel->keysize, &b, &s))
+        {
+            continue;
+        }
+
+        append_tuple(rel, line);
+    }
+
+    return 1;
+}
+
+static int do_remove(const char *name, int n, FILE *in)
+{
+    relation_meta_t *rel = find_relation(name);
+    char line[LINE_BUF];
+
+    if (rel == NULL || !rel->is_base || rel->is_dictionary)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (fgets(line, sizeof(line), in) == NULL)
+            {
+                break;
+            }
+        }
+        return 0;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        char key_vals[MAX_ATTR][MAX_TOKEN];
+        int key_count, b, s;
+
+        if (fgets(line, sizeof(line), in) == NULL)
+        {
+            break;
+        }
+        trim_newline(line);
+
+        key_count = parse_fields(line, key_vals, MAX_ATTR);
+        if (find_base_tuple_by_key(rel, key_vals, key_count, &b, &s))
+        {
+            remove_tuple_slot(b, s);
+        }
+    }
+    return 1;
+}
+
+static int do_update(const char *name, int n, FILE *in)
+{
+    relation_meta_t *rel = find_relation(name);
+    char line[LINE_BUF];
+
+    if (rel == NULL || !rel->is_base || rel->is_dictionary)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (fgets(line, sizeof(line), in) == NULL)
+            {
+                break;
+            }
+        }
+        return 0;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        char key_vals[MAX_ATTR][MAX_TOKEN];
+        int b, s;
+
+        if (fgets(line, sizeof(line), in) == NULL)
+        {
+            break;
+        }
+        trim_newline(line);
+
+        if (!validate_tuple_domains(rel, line))
+        {
+            continue;
+        }
+
+        parse_fields(line, key_vals, MAX_ATTR);
+        if (find_base_tuple_by_key(rel, key_vals, rel->keysize, &b, &s))
+        {
+            update_tuple_slot(b, s, line);
+        }
+    }
+    return 1;
+}
+
+static int build_projected_tuple(const relation_meta_t *src, const char *tuple_text,
+                                 int proj_idx[], int nproj,
+                                 char *out, size_t out_sz)
+{
+    char fields[MAX_ATTR][MAX_TOKEN];
+    int got = parse_fields(tuple_text, fields, MAX_ATTR);
+    out[0] = '\0';
+
+    if (got < src->num_attrs)
+    {
+        return 0;
+    }
+
+    for (int i = 0; i < nproj; i++)
+    {
+        if (i > 0)
+        {
+            strncat(out, " ", out_sz - strlen(out) - 1);
+        }
+        strncat(out, fields[proj_idx[i]], out_sz - strlen(out) - 1);
+    }
+    return 1;
+}
+
+typedef struct proj_ctx
+{
+    relation_meta_t *dst;
+    relation_meta_t *src;
+    int proj_idx[MAX_ATTR];
+    int nproj;
+} proj_ctx_t;
+
+static int project_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
+{
+    char out[RECSIZE];
+    proj_ctx_t *pc = (proj_ctx_t *)ctx;
+    (void)rel;
+
+    if (build_projected_tuple(pc->src, tuple_text, pc->proj_idx, pc->nproj, out, sizeof(out)))
+    {
+        if (!tuple_exists_full_scan(pc->dst, out))
+        {
+            append_tuple(pc->dst, out);
+        }
+    }
+    return 1;
+}
+
+static int do_project(const char *src_name, const char *dst_name, int n, FILE *in)
+{
+    relation_meta_t *src = find_relation(src_name);
+    char line[LINE_BUF];
+    int proj_idx[MAX_ATTR];
+    attr_info_t attrs[MAX_ATTR];
+
+    if (src == NULL || find_relation(dst_name) != NULL || is_reserved_relation(dst_name) || n <= 0 || n > src->num_attrs)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (fgets(line, sizeof(line), in) == NULL)
+            {
+                break;
+            }
+        }
+        return 0;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        int idx;
+        char aname[MAX_NAME];
         if (fgets(line, sizeof(line), in) == NULL)
         {
             return 0;
         }
         trim_newline(line);
-        strncpy(proj_names[i], line, MAX_NAME - 1);
-        proj_names[i][MAX_NAME - 1] = '\0';
-    }
+        strncpy(aname, line, sizeof(aname) - 1);
+        aname[sizeof(aname) - 1] = '\0';
 
-    // Resolve each projection attribute to its source column index.
-    for (int i = 0; i < n; i++)
-    {
-        proj_idx[i] = find_attr_index(p, proj_names[i]);
-        if (proj_idx[i] < 0)
+        idx = -1;
+        for (int a = 0; a < src->num_attrs; a++)
+        {
+            if (strcmp(src->attrs[a].name, aname) == 0)
+            {
+                idx = a;
+                break;
+            }
+        }
+        if (idx < 0)
         {
             return 0;
         }
-        out_attrs[i] = p->attrs[proj_idx[i]];
+        proj_idx[i] = idx;
+        attrs[i] = src->attrs[idx];
     }
 
-    if (!create_relation_internal(dst, 0, out_attrs, n, n, 0, 1))
+    if (!create_relation(dst_name, 0, 0, attrs, n, n))
     {
         return 0;
     }
 
-    relation_t *q = find_relation(dst);
-    if (q == NULL)
+    proj_ctx_t pc;
+    memset(&pc, 0, sizeof(pc));
+    pc.dst = find_relation(dst_name);
+    pc.src = src;
+    pc.nproj = n;
+    for (int i = 0; i < n; i++)
     {
-        return 0;
+        pc.proj_idx[i] = proj_idx[i];
     }
 
-    for (int i = 0; i < p->row_count; i++)
-    {
-        tuple_t t;
-        for (int c = 0; c < n; c++)
-        {
-            strncpy(t.values[c], p->rows[i].values[proj_idx[c]], MAX_VAL - 1);
-            t.values[c][MAX_VAL - 1] = '\0';
-        }
-        // Projection result is a set, so suppress duplicates.
-        if (!tuple_exists(q, &t))
-        {
-            ensure_capacity(q, q->row_count + 1);
-            q->rows[q->row_count++] = t;
-        }
-    }
-
-    dict_update_relsize(q);
+    scan_relation(src, project_cb, &pc);
     return 1;
 }
 
-/* Evaluates one comparison operation for either integer or string domain. */
-static int compare_value(char domain, const char *lhs, const char *op, const char *rhs)
+static int eval_cmp(char domain, const char *lhs, const char *op, const char *rhs)
 {
     if (domain == 'I')
     {
-        // Integer comparisons should use numeric values, not lexical order.
         long a = strtol(lhs, NULL, 10);
         long b = strtol(rhs, NULL, 10);
-        if (strcmp(op, "==") == 0)
-            return a == b;
-        if (strcmp(op, "!=") == 0)
-            return a != b;
-        if (strcmp(op, ">") == 0)
-            return a > b;
-        if (strcmp(op, ">=") == 0)
-            return a >= b;
-        if (strcmp(op, "<") == 0)
-            return a < b;
-        if (strcmp(op, "<=") == 0)
-            return a <= b;
+        if (strcmp(op, "==") == 0) return a == b;
+        if (strcmp(op, "!=") == 0) return a != b;
+        if (strcmp(op, ">") == 0) return a > b;
+        if (strcmp(op, ">=") == 0) return a >= b;
+        if (strcmp(op, "<") == 0) return a < b;
+        if (strcmp(op, "<=") == 0) return a <= b;
         return 0;
     }
 
-    // String comparisons use lexical order for inequalities.
-    int cmp = strcmp(lhs, rhs);
-    if (strcmp(op, "==") == 0)
-        return cmp == 0;
-    if (strcmp(op, "!=") == 0)
-        return cmp != 0;
-    if (strcmp(op, ">") == 0)
-        return cmp > 0;
-    if (strcmp(op, ">=") == 0)
-        return cmp >= 0;
-    if (strcmp(op, "<") == 0)
-        return cmp < 0;
-    if (strcmp(op, "<=") == 0)
-        return cmp <= 0;
+    int c = strcmp(lhs, rhs);
+    if (strcmp(op, "==") == 0) return c == 0;
+    if (strcmp(op, "!=") == 0) return c != 0;
+    if (strcmp(op, ">") == 0) return c > 0;
+    if (strcmp(op, ">=") == 0) return c >= 0;
+    if (strcmp(op, "<") == 0) return c < 0;
+    if (strcmp(op, "<=") == 0) return c <= 0;
     return 0;
 }
 
-/* Implements SL: selection by conjunction of n predicates. */
-static int do_select(const char *src, const char *dst, int n, FILE *in)
+typedef struct sel_cond
 {
-    relation_t *p = find_relation(src);
-    char line[LINE_BUF];
-    condition_t conds[MAX_ATTR];
+    int attr_idx;
+    char op[3];
+    char value[MAX_TOKEN];
+} sel_cond_t;
 
-    if (p == NULL || relation_exists(dst) || is_reserved_name(dst) || n < 0 || n > MAX_ATTR)
+typedef struct sel_ctx
+{
+    relation_meta_t *src;
+    relation_meta_t *dst;
+    int nconds;
+    sel_cond_t conds[MAX_ATTR];
+} sel_ctx_t;
+
+static int select_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
+{
+    sel_ctx_t *sc = (sel_ctx_t *)ctx;
+    char f[MAX_ATTR][MAX_TOKEN];
+    (void)rel;
+
+    if (parse_fields(tuple_text, f, MAX_ATTR) < sc->src->num_attrs)
     {
-        // Keep stream aligned by consuming all predicate lines.
+        return 1;
+    }
+
+    for (int i = 0; i < sc->nconds; i++)
+    {
+        int idx = sc->conds[i].attr_idx;
+        if (!eval_cmp(sc->src->attrs[idx].domain, f[idx], sc->conds[i].op, sc->conds[i].value))
+        {
+            return 1;
+        }
+    }
+
+    append_tuple(sc->dst, tuple_text);
+    return 1;
+}
+
+static int do_select(const char *src_name, const char *dst_name, int n, FILE *in)
+{
+    relation_meta_t *src = find_relation(src_name);
+    char line[LINE_BUF];
+    sel_ctx_t sc;
+
+    if (src == NULL || find_relation(dst_name) != NULL || is_reserved_relation(dst_name) || n < 0 || n > MAX_ATTR)
+    {
         for (int i = 0; i < n; i++)
         {
             if (fgets(line, sizeof(line), in) == NULL)
@@ -937,10 +1033,15 @@ static int do_select(const char *src, const char *dst, int n, FILE *in)
         return 0;
     }
 
-    // Parse all predicates before scanning tuples.
+    memset(&sc, 0, sizeof(sc));
+    sc.src = src;
+    sc.nconds = n;
+
     for (int i = 0; i < n; i++)
     {
-        char att[MAX_NAME], op[3], val[MAX_VAL];
+        char att[MAX_NAME], op[3], val[MAX_TOKEN];
+        int idx = -1;
+
         if (fgets(line, sizeof(line), in) == NULL)
         {
             return 0;
@@ -950,60 +1051,37 @@ static int do_select(const char *src, const char *dst, int n, FILE *in)
         {
             return 0;
         }
-        conds[i].attr_idx = find_attr_index(p, att);
-        if (conds[i].attr_idx < 0)
+
+        for (int a = 0; a < src->num_attrs; a++)
         {
-            return 0;
-        }
-        strncpy(conds[i].op, op, sizeof(conds[i].op) - 1);
-        conds[i].op[sizeof(conds[i].op) - 1] = '\0';
-        strncpy(conds[i].value, val, MAX_VAL - 1);
-        conds[i].value[MAX_VAL - 1] = '\0';
-    }
-
-    if (!create_relation_internal(dst, 0, p->attrs, p->num_attrs, p->num_attrs, 0, 1))
-    {
-        return 0;
-    }
-
-    relation_t *q = find_relation(dst);
-    if (q == NULL)
-    {
-        return 0;
-    }
-
-    // Keep tuple only when all predicates in the conjunction are true.
-    for (int i = 0; i < p->row_count; i++)
-    {
-        int ok = 1;
-        for (int c = 0; c < n; c++)
-        {
-            int idx = conds[c].attr_idx;
-            char domain = p->attrs[idx].domain;
-            if (!compare_value(domain, p->rows[i].values[idx], conds[c].op, conds[c].value))
+            if (strcmp(src->attrs[a].name, att) == 0)
             {
-                ok = 0;
+                idx = a;
                 break;
             }
         }
-        if (ok)
+        if (idx < 0)
         {
-            ensure_capacity(q, q->row_count + 1);
-            q->rows[q->row_count++] = p->rows[i];
+            return 0;
         }
+
+        sc.conds[i].attr_idx = idx;
+        strncpy(sc.conds[i].op, op, sizeof(sc.conds[i].op) - 1);
+        strncpy(sc.conds[i].value, val, sizeof(sc.conds[i].value) - 1);
     }
 
-    dict_update_relsize(q);
+    if (!create_relation(dst_name, 0, 0, src->attrs, src->num_attrs, src->num_attrs))
+    {
+        return 0;
+    }
+
+    sc.dst = find_relation(dst_name);
+    scan_relation(src, select_cb, &sc);
     return 1;
 }
 
-/*
- * Checks union/difference compatibility and builds q->p attribute mapping.
- * Mapping enables same-name attributes in different column orders.
- */
-static int compatible_relations(const relation_t *p, const relation_t *q, int map_q_to_p[])
+static int map_compatible(const relation_meta_t *p, const relation_meta_t *q, int qmap[])
 {
-    // Relations must have identical number of attributes.
     if (p->num_attrs != q->num_attrs)
     {
         return 0;
@@ -1011,155 +1089,420 @@ static int compatible_relations(const relation_t *p, const relation_t *q, int ma
 
     for (int i = 0; i < p->num_attrs; i++)
     {
-        // Match by attribute name so different orders are allowed.
-        int idx = find_attr_index(q, p->attrs[i].name);
-        if (idx < 0)
+        int idx = -1;
+        for (int j = 0; j < q->num_attrs; j++)
+        {
+            if (strcmp(p->attrs[i].name, q->attrs[j].name) == 0)
+            {
+                idx = j;
+                break;
+            }
+        }
+        if (idx < 0 || p->attrs[i].domain != q->attrs[idx].domain)
         {
             return 0;
         }
-        if (q->attrs[idx].domain != p->attrs[i].domain)
-        {
-            return 0;
-        }
-        map_q_to_p[i] = idx;
+        qmap[i] = idx;
     }
-
     return 1;
 }
 
-/* Implements UN: set union of compatible relations with duplicate suppression. */
+typedef struct pass_ctx
+{
+    relation_meta_t *dst;
+} pass_ctx_t;
+
+static int union_seed_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
+{
+    pass_ctx_t *pc = (pass_ctx_t *)ctx;
+    (void)rel;
+    if (!tuple_exists_full_scan(pc->dst, tuple_text))
+    {
+        append_tuple(pc->dst, tuple_text);
+    }
+    return 1;
+}
+
+typedef struct map_ctx
+{
+    relation_meta_t *q;
+    relation_meta_t *dst;
+    int qmap[MAX_ATTR];
+} map_ctx_t;
+
+static int union_q_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
+{
+    map_ctx_t *mc = (map_ctx_t *)ctx;
+    char out[RECSIZE];
+    char f[MAX_ATTR][MAX_TOKEN];
+    (void)rel;
+
+    if (parse_fields(tuple_text, f, MAX_ATTR) < mc->q->num_attrs)
+    {
+        return 1;
+    }
+
+    out[0] = '\0';
+    for (int i = 0; i < mc->dst->num_attrs; i++)
+    {
+        if (i > 0)
+        {
+            strncat(out, " ", sizeof(out) - strlen(out) - 1);
+        }
+        strncat(out, f[mc->qmap[i]], sizeof(out) - strlen(out) - 1);
+    }
+
+    if (!tuple_exists_full_scan(mc->dst, out))
+    {
+        append_tuple(mc->dst, out);
+    }
+    return 1;
+}
+
 static int do_union(const char *pname, const char *qname, const char *rname)
 {
-    relation_t *p = find_relation(pname);
-    relation_t *q = find_relation(qname);
+    relation_meta_t *p = find_relation(pname);
+    relation_meta_t *q = find_relation(qname);
     int qmap[MAX_ATTR];
 
-    if (p == NULL || q == NULL || relation_exists(rname) || is_reserved_name(rname))
+    if (p == NULL || q == NULL || find_relation(rname) != NULL || is_reserved_relation(rname))
     {
         return 0;
     }
-    if (!compatible_relations(p, q, qmap))
-    {
-        return 0;
-    }
-
-    if (!create_relation_internal(rname, 0, p->attrs, p->num_attrs, p->num_attrs, 0, 1))
+    if (!map_compatible(p, q, qmap))
     {
         return 0;
     }
 
-    relation_t *r = find_relation(rname);
-    if (r == NULL)
+    if (!create_relation(rname, 0, 0, p->attrs, p->num_attrs, p->num_attrs))
     {
         return 0;
     }
 
-    // Seed result with all tuples from p.
-    for (int i = 0; i < p->row_count; i++)
-    {
-        if (!tuple_exists(r, &p->rows[i]))
-        {
-            ensure_capacity(r, r->row_count + 1);
-            r->rows[r->row_count++] = p->rows[i];
-        }
-    }
+    relation_meta_t *r = find_relation(rname);
+    pass_ctx_t pc;
+    map_ctx_t mc;
 
-    // Reorder q into p's schema order before duplicate checks.
-    for (int i = 0; i < q->row_count; i++)
-    {
-        tuple_t t;
-        for (int c = 0; c < p->num_attrs; c++)
-        {
-            strncpy(t.values[c], q->rows[i].values[qmap[c]], MAX_VAL - 1);
-            t.values[c][MAX_VAL - 1] = '\0';
-        }
-        if (!tuple_exists(r, &t))
-        {
-            ensure_capacity(r, r->row_count + 1);
-            r->rows[r->row_count++] = t;
-        }
-    }
+    pc.dst = r;
+    scan_relation(p, union_seed_cb, &pc);
 
-    dict_update_relsize(r);
+    memset(&mc, 0, sizeof(mc));
+    mc.q = q;
+    mc.dst = r;
+    for (int i = 0; i < p->num_attrs; i++)
+    {
+        mc.qmap[i] = qmap[i];
+    }
+    scan_relation(q, union_q_cb, &mc);
     return 1;
 }
 
-/* Implements DF: set difference p - q for compatible relations. */
+typedef struct diff_ctx
+{
+    relation_meta_t *q;
+    relation_meta_t *dst;
+    int qmap[MAX_ATTR];
+} diff_ctx_t;
+
+static int tuple_in_q_mapped(const diff_ctx_t *dc, const char *p_tuple)
+{
+    char pf[MAX_ATTR][MAX_TOKEN];
+    int pg = parse_fields(p_tuple, pf, MAX_ATTR);
+    if (pg < dc->dst->num_attrs)
+    {
+        return 0;
+    }
+
+    header_block_t hdr;
+    read_header(dc->q, &hdr);
+
+    for (int i = 0; i < BLKMAX; i++)
+    {
+        if (hdr.data_blocks[i] == 0)
+        {
+            continue;
+        }
+        block_t blk;
+        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        for (int s = 0; s < BLKFAC; s++)
+        {
+            if (blk.slots[s].flag == 1)
+            {
+                char qf[MAX_ATTR][MAX_TOKEN];
+                int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+                int same = 1;
+                if (qg < dc->q->num_attrs)
+                {
+                    continue;
+                }
+                for (int a = 0; a < dc->dst->num_attrs; a++)
+                {
+                    if (strcmp(pf[a], qf[dc->qmap[a]]) != 0)
+                    {
+                        same = 0;
+                        break;
+                    }
+                }
+                if (same)
+                {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    if (dc->q->is_base)
+    {
+        for (int i = 0; i < OVBLKMAX; i++)
+        {
+            if (hdr.overflow_blocks[i] == 0)
+            {
+                continue;
+            }
+            block_t blk;
+            diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+            for (int s = 0; s < BLKFAC; s++)
+            {
+                if (blk.slots[s].flag == 1)
+                {
+                    char qf[MAX_ATTR][MAX_TOKEN];
+                    int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+                    int same = 1;
+                    if (qg < dc->q->num_attrs)
+                    {
+                        continue;
+                    }
+                    for (int a = 0; a < dc->dst->num_attrs; a++)
+                    {
+                        if (strcmp(pf[a], qf[dc->qmap[a]]) != 0)
+                        {
+                            same = 0;
+                            break;
+                        }
+                    }
+                    if (same)
+                    {
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int diff_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
+{
+    diff_ctx_t *dc = (diff_ctx_t *)ctx;
+    (void)rel;
+    if (!tuple_in_q_mapped(dc, tuple_text))
+    {
+        append_tuple(dc->dst, tuple_text);
+    }
+    return 1;
+}
+
 static int do_difference(const char *pname, const char *qname, const char *rname)
 {
-    relation_t *p = find_relation(pname);
-    relation_t *q = find_relation(qname);
+    relation_meta_t *p = find_relation(pname);
+    relation_meta_t *q = find_relation(qname);
     int qmap[MAX_ATTR];
 
-    if (p == NULL || q == NULL || relation_exists(rname) || is_reserved_name(rname))
+    if (p == NULL || q == NULL || find_relation(rname) != NULL || is_reserved_relation(rname))
     {
         return 0;
     }
-    if (!compatible_relations(p, q, qmap))
-    {
-        return 0;
-    }
-
-    if (!create_relation_internal(rname, 0, p->attrs, p->num_attrs, p->num_attrs, 0, 1))
+    if (!map_compatible(p, q, qmap))
     {
         return 0;
     }
 
-    relation_t *r = find_relation(rname);
-    if (r == NULL)
+    if (!create_relation(rname, 0, 0, p->attrs, p->num_attrs, p->num_attrs))
     {
         return 0;
     }
 
-    // Keep only tuples present in p but absent in q.
-    for (int i = 0; i < p->row_count; i++)
+    diff_ctx_t dc;
+    memset(&dc, 0, sizeof(dc));
+    dc.q = q;
+    dc.dst = find_relation(rname);
+    for (int i = 0; i < p->num_attrs; i++)
     {
-        int found = 0;
-        for (int j = 0; j < q->row_count && !found; j++)
+        dc.qmap[i] = qmap[i];
+    }
+
+    scan_relation(p, diff_cb, &dc);
+    return 1;
+}
+
+typedef struct join_ctx
+{
+    relation_meta_t *p;
+    relation_meta_t *q;
+    relation_meta_t *r;
+    int njoin;
+    int pjoin[MAX_ATTR];
+    int qjoin[MAX_ATTR];
+    int q_is_join[MAX_ATTR];
+} join_ctx_t;
+
+static int join_with_p_tuple(const char *p_tuple, join_ctx_t *jc)
+{
+    char pf[MAX_ATTR][MAX_TOKEN];
+    int pg = parse_fields(p_tuple, pf, MAX_ATTR);
+    if (pg < jc->p->num_attrs)
+    {
+        return 1;
+    }
+
+    header_block_t hdr;
+    read_header(jc->q, &hdr);
+
+    for (int bi = 0; bi < BLKMAX; bi++)
+    {
+        if (hdr.data_blocks[bi] == 0)
         {
-            int same = 1;
-            for (int c = 0; c < p->num_attrs; c++)
+            continue;
+        }
+        block_t blk;
+        diskread(hdr.data_blocks[bi], (unsigned char *)blk.raw);
+        for (int s = 0; s < BLKFAC; s++)
+        {
+            if (blk.slots[s].flag != 1)
             {
-                if (strcmp(p->rows[i].values[c], q->rows[j].values[qmap[c]]) != 0)
+                continue;
+            }
+
+            char qf[MAX_ATTR][MAX_TOKEN];
+            int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+            int ok = 1;
+            char out[RECSIZE];
+
+            if (qg < jc->q->num_attrs)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < jc->njoin; j++)
+            {
+                if (strcmp(pf[jc->pjoin[j]], qf[jc->qjoin[j]]) != 0)
                 {
-                    same = 0;
+                    ok = 0;
                     break;
                 }
             }
-            if (same)
+            if (!ok)
             {
-                found = 1;
+                continue;
             }
-        }
-        if (!found)
-        {
-            ensure_capacity(r, r->row_count + 1);
-            r->rows[r->row_count++] = p->rows[i];
+
+            out[0] = '\0';
+            for (int i = 0; i < jc->p->num_attrs; i++)
+            {
+                if (i > 0)
+                {
+                    strncat(out, " ", sizeof(out) - strlen(out) - 1);
+                }
+                strncat(out, pf[i], sizeof(out) - strlen(out) - 1);
+            }
+            for (int i = 0; i < jc->q->num_attrs; i++)
+            {
+                if (!jc->q_is_join[i])
+                {
+                    strncat(out, " ", sizeof(out) - strlen(out) - 1);
+                    strncat(out, qf[i], sizeof(out) - strlen(out) - 1);
+                }
+            }
+
+            append_tuple(jc->r, out);
         }
     }
 
-    dict_update_relsize(r);
+    if (jc->q->is_base)
+    {
+        for (int oi = 0; oi < OVBLKMAX; oi++)
+        {
+            if (hdr.overflow_blocks[oi] == 0)
+            {
+                continue;
+            }
+            block_t blk;
+            diskread(hdr.overflow_blocks[oi], (unsigned char *)blk.raw);
+            for (int s = 0; s < BLKFAC; s++)
+            {
+                if (blk.slots[s].flag != 1)
+                {
+                    continue;
+                }
+
+                char qf[MAX_ATTR][MAX_TOKEN];
+                int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+                int ok = 1;
+                char out[RECSIZE];
+
+                if (qg < jc->q->num_attrs)
+                {
+                    continue;
+                }
+
+                for (int j = 0; j < jc->njoin; j++)
+                {
+                    if (strcmp(pf[jc->pjoin[j]], qf[jc->qjoin[j]]) != 0)
+                    {
+                        ok = 0;
+                        break;
+                    }
+                }
+                if (!ok)
+                {
+                    continue;
+                }
+
+                out[0] = '\0';
+                for (int i = 0; i < jc->p->num_attrs; i++)
+                {
+                    if (i > 0)
+                    {
+                        strncat(out, " ", sizeof(out) - strlen(out) - 1);
+                    }
+                    strncat(out, pf[i], sizeof(out) - strlen(out) - 1);
+                }
+                for (int i = 0; i < jc->q->num_attrs; i++)
+                {
+                    if (!jc->q_is_join[i])
+                    {
+                        strncat(out, " ", sizeof(out) - strlen(out) - 1);
+                        strncat(out, qf[i], sizeof(out) - strlen(out) - 1);
+                    }
+                }
+
+                append_tuple(jc->r, out);
+            }
+        }
+    }
+
     return 1;
 }
 
-/*
- * Implements NJ: natural join using caller-provided common attribute names.
- * Result keeps all attributes of p first, then non-join attributes of q.
- */
+static int join_p_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
+{
+    join_ctx_t *jc = (join_ctx_t *)ctx;
+    (void)rel;
+    return join_with_p_tuple(tuple_text, jc);
+}
+
 static int do_natural_join(const char *pname, const char *qname, const char *rname, int n, FILE *in)
 {
-    relation_t *p = find_relation(pname);
-    relation_t *q = find_relation(qname);
+    relation_meta_t *p = find_relation(pname);
+    relation_meta_t *q = find_relation(qname);
     char line[LINE_BUF];
-    int p_join_idx[MAX_ATTR];
-    int q_join_idx[MAX_ATTR];
-    int q_use[MAX_ATTR] = {0};
+    int pjoin[MAX_ATTR], qjoin[MAX_ATTR], q_is_join[MAX_ATTR] = {0};
     attr_info_t out_attrs[MAX_ATTR];
     int out_n = 0;
 
-    if (p == NULL || q == NULL || relation_exists(rname) || is_reserved_name(rname) || n < 0 || n > MAX_ATTR)
+    if (p == NULL || q == NULL || find_relation(rname) != NULL || is_reserved_relation(rname) || n < 0 || n > MAX_ATTR)
     {
-        // Keep stream aligned by consuming join-attribute lines.
         for (int i = 0; i < n; i++)
         {
             if (fgets(line, sizeof(line), in) == NULL)
@@ -1170,178 +1513,133 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
         return 0;
     }
 
-    // Resolve join attributes in both schemas and validate compatibility.
     for (int i = 0; i < n; i++)
     {
+        int pi = -1, qi = -1;
         char aname[MAX_NAME];
-        int pi, qi;
-
         if (fgets(line, sizeof(line), in) == NULL)
         {
             return 0;
         }
         trim_newline(line);
-        strncpy(aname, line, MAX_NAME - 1);
-        aname[MAX_NAME - 1] = '\0';
+        strncpy(aname, line, sizeof(aname) - 1);
+        aname[sizeof(aname) - 1] = '\0';
 
-        pi = find_attr_index(p, aname);
-        qi = find_attr_index(q, aname);
-        if (pi < 0 || qi < 0)
+        for (int a = 0; a < p->num_attrs; a++)
+        {
+            if (strcmp(p->attrs[a].name, aname) == 0)
+            {
+                pi = a;
+                break;
+            }
+        }
+        for (int a = 0; a < q->num_attrs; a++)
+        {
+            if (strcmp(q->attrs[a].name, aname) == 0)
+            {
+                qi = a;
+                break;
+            }
+        }
+
+        if (pi < 0 || qi < 0 || p->attrs[pi].domain != q->attrs[qi].domain)
         {
             return 0;
         }
-        if (p->attrs[pi].domain != q->attrs[qi].domain)
-        {
-            return 0;
-        }
 
-        p_join_idx[i] = pi;
-        q_join_idx[i] = qi;
-        q_use[qi] = 1;
+        pjoin[i] = pi;
+        qjoin[i] = qi;
+        q_is_join[qi] = 1;
     }
 
-    // Output layout starts with every attribute from p.
     for (int i = 0; i < p->num_attrs; i++)
     {
         out_attrs[out_n++] = p->attrs[i];
     }
-    // Then append only non-join attributes from q.
     for (int i = 0; i < q->num_attrs; i++)
     {
-        if (!q_use[i])
+        if (!q_is_join[i])
         {
             out_attrs[out_n++] = q->attrs[i];
         }
     }
 
-    if (!create_relation_internal(rname, 0, out_attrs, out_n, out_n, 0, 1))
+    if (!create_relation(rname, 0, 0, out_attrs, out_n, out_n))
     {
         return 0;
     }
 
-    relation_t *r = find_relation(rname);
-    if (r == NULL)
+    join_ctx_t jc;
+    memset(&jc, 0, sizeof(jc));
+    jc.p = p;
+    jc.q = q;
+    jc.r = find_relation(rname);
+    jc.njoin = n;
+    for (int i = 0; i < n; i++)
     {
-        return 0;
+        jc.pjoin[i] = pjoin[i];
+        jc.qjoin[i] = qjoin[i];
+    }
+    for (int i = 0; i < q->num_attrs; i++)
+    {
+        jc.q_is_join[i] = q_is_join[i];
     }
 
-    // Nested-loop join across tuples from p and q.
-    for (int i = 0; i < p->row_count; i++)
-    {
-        for (int j = 0; j < q->row_count; j++)
-        {
-            int ok = 1;
-            tuple_t t;
-            int c = 0;
-
-            // Join succeeds only when all named join attributes match.
-            for (int k = 0; k < n; k++)
-            {
-                if (strcmp(p->rows[i].values[p_join_idx[k]], q->rows[j].values[q_join_idx[k]]) != 0)
-                {
-                    ok = 0;
-                    break;
-                }
-            }
-            if (!ok)
-            {
-                // This tuple pair does not satisfy the join condition.
-                continue;
-            }
-
-            for (int a = 0; a < p->num_attrs; a++)
-            {
-                strncpy(t.values[c], p->rows[i].values[a], MAX_VAL - 1);
-                t.values[c][MAX_VAL - 1] = '\0';
-                c++;
-            }
-            for (int a = 0; a < q->num_attrs; a++)
-            {
-                if (!q_use[a])
-                {
-                    strncpy(t.values[c], q->rows[j].values[a], MAX_VAL - 1);
-                    t.values[c][MAX_VAL - 1] = '\0';
-                    c++;
-                }
-            }
-
-            ensure_capacity(r, r->row_count + 1);
-            r->rows[r->row_count++] = t;
-        }
-    }
-
-    dict_update_relsize(r);
+    scan_relation(p, join_p_cb, &jc);
     return 1;
 }
 
-/* --- Initialization --- */
-/* Bootstraps bitmap and initializes dictionary relations with self-descriptions. */
+/* --- Init --- */
 static void init_system(void)
 {
-    // Initialize bitmap and relation registry to all-zero state.
+    memset(virtual_disk, 0, sizeof(virtual_disk));
     memset(bitmapblk, 0, sizeof(bitmapblk));
+    memset(catalog_header, 0, sizeof(catalog_header));
+    memset(columns_header, 0, sizeof(columns_header));
+    memset(data_buffers, 0, sizeof(data_buffers));
+    memset(header_buffers, 0, sizeof(header_buffers));
     memset(g_relations, 0, sizeof(g_relations));
 
-    /* Reserve first three blocks to follow assignment layout. */
+    /* Reserve bitmap + dictionary header blocks by spec. */
     bitmapblk[0] = 1;
     bitmapblk[1] = 1;
     bitmapblk[2] = 1;
+    diskwrite(0, bitmapblk);
 
-    attr_info_t cat_attrs[6] = {
-        {"Relname", 'S'},
-        {"Kind", 'I'},
-        {"Attsize", 'I'},
-        {"Keysize", 'I'},
-        {"Relsize", 'I'},
-        {"Relptr", 'I'}};
+    /* Create dictionary relations as base relations. */
+    {
+        attr_info_t cat_attrs[6] = {
+            {"Relname", 'S'},
+            {"Kind", 'I'},
+            {"Attsize", 'I'},
+            {"Keysize", 'I'},
+            {"Relsize", 'I'},
+            {"Relptr", 'I'}};
 
-    attr_info_t col_attrs[4] = {
-        {"Relname", 'S'},
-        {"Attname", 'S'},
-        {"Attdomain", 'I'},
-        {"Attpos", 'I'}};
+        attr_info_t col_attrs[4] = {
+            {"Relname", 'S'},
+            {"Attname", 'S'},
+            {"Attdomain", 'I'},
+            {"Attpos", 'I'}};
 
-    create_relation_internal("catalog", 1, cat_attrs, 6, 1, 1, 0);
-    create_relation_internal("columns", 1, col_attrs, 4, 2, 1, 0);
+        header_block_t hdr;
+        memset(&hdr, 0, sizeof(hdr));
+        hdr.is_base = 1;
+        memcpy(catalog_header, &hdr, sizeof(hdr));
+        memcpy(columns_header, &hdr, sizeof(hdr));
+        diskwrite(1, catalog_header);
+        diskwrite(2, columns_header);
 
-    relation_t *catalog = find_relation("catalog");
-    relation_t *columns = find_relation("columns");
-
-    // Add dictionary self-descriptions into catalog and columns.
-    if (catalog != NULL)
-    {
-        dict_add_relation_row(catalog);
-    }
-    if (columns != NULL)
-    {
-        dict_add_relation_row(columns);
-    }
-    if (catalog != NULL)
-    {
-        dict_add_columns_rows(catalog);
-    }
-    if (columns != NULL)
-    {
-        dict_add_columns_rows(columns);
-    }
-
-    if (catalog != NULL)
-    {
-        dict_update_relsize(catalog);
-    }
-    if (columns != NULL)
-    {
-        dict_update_relsize(columns);
+        create_relation_meta("catalog", 1, 1, cat_attrs, 6, 1, 1);
+        create_relation_meta("columns", 1, 1, col_attrs, 4, 2, 2);
     }
 }
 
-/* --- Command parser --- */
-/* Main command loop: parses each verb line and dispatches to handlers. */
+/* --- Parser --- */
 static void process_commands(FILE *in)
 {
     char line[LINE_BUF];
 
-    // Process command stream line-by-line until EOF.
     while (fgets(line, sizeof(line), in) != NULL)
     {
         char verb[3] = {0};
@@ -1349,17 +1647,13 @@ static void process_commands(FILE *in)
 
         if (line[0] == '\0')
         {
-            // Ignore empty lines.
             continue;
         }
-
         if (sscanf(line, "%2s", verb) != 1)
         {
-            // Ignore malformed command lines.
             continue;
         }
 
-        // Dispatch to the command handler by two-letter verb.
         if (strcmp(verb, "CR") == 0)
         {
             char name[MAX_NAME];
@@ -1367,25 +1661,27 @@ static void process_commands(FILE *in)
             if (sscanf(line, "CR %31s %d %d", name, &n, &k) == 3)
             {
                 attr_info_t attrs[MAX_ATTR];
-                // CR is followed by n schema lines: <name> <domain>.
                 for (int i = 0; i < n; i++)
                 {
-                    char a_line[LINE_BUF];
-                    char aname[MAX_NAME], d;
-                    if (fgets(a_line, sizeof(a_line), in) == NULL)
+                    char al[LINE_BUF], an[MAX_NAME], d;
+                    if (fgets(al, sizeof(al), in) == NULL)
                     {
                         break;
                     }
-                    trim_newline(a_line);
-                    if (sscanf(a_line, "%31s %c", aname, &d) != 2)
+                    trim_newline(al);
+                    if (sscanf(al, "%31s %c", an, &d) != 2)
                     {
                         continue;
                     }
-                    attrs[i].domain = (char)toupper((unsigned char)d);
-                    strncpy(attrs[i].name, aname, MAX_NAME - 1);
+                    strncpy(attrs[i].name, an, MAX_NAME - 1);
                     attrs[i].name[MAX_NAME - 1] = '\0';
+                    attrs[i].domain = (char)toupper((unsigned char)d);
                 }
-                do_create(name, n, k, attrs);
+
+                if (!is_reserved_relation(name) && find_relation(name) == NULL)
+                {
+                    create_relation(name, 1, 0, attrs, n, k);
+                }
             }
         }
         else if (strcmp(verb, "DE") == 0)
@@ -1393,7 +1689,7 @@ static void process_commands(FILE *in)
             char name[MAX_NAME];
             if (sscanf(line, "DE %31s", name) == 1)
             {
-                do_delete(name);
+                delete_relation(name);
             }
         }
         else if (strcmp(verb, "IN") == 0)
@@ -1477,20 +1773,9 @@ static void process_commands(FILE *in)
     }
 }
 
-/* Program entry point: initialize system, process stdin commands, release memory. */
 int main(void)
 {
     init_system();
     process_commands(stdin);
-
-    for (int i = 0; i < MAX_REL; i++)
-    {
-        if (g_relations[i].in_use)
-        {
-            free(g_relations[i].rows);
-            g_relations[i].rows = NULL;
-        }
-    }
-
     return 0;
 }
