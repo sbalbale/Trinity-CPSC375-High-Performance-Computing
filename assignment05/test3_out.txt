@@ -1,0 +1,18 @@
+parts
+pid pname color weight
+101 bolt red 12
+102 nut blue 5
+103 gear green 45
+104 pin red 2
+105 cam blue 18
+
+heavyred
+pid pname color weight
+101 bolt red 12
+
+notblue
+pid pname color weight
+101 bolt red 12
+103 gear green 45
+104 pin red 2
+

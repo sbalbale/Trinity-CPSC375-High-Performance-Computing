@@ -1,0 +1,19 @@
+CR parts 4 1
+pid I
+pname S
+color S
+weight I
+IN parts 5
+101 bolt red 12
+102 nut blue 5
+103 gear green 45
+104 pin red 2
+105 cam blue 18
+PR parts
+SL parts heavyred 2
+color == red
+weight >= 12
+PR heavyred
+SL parts notblue 1
+color != blue
+PR notblue
