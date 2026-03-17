@@ -193,6 +193,21 @@ static relation_meta_t *find_relation(const char *name)
     return &g_relations[idx];
 }
 
+static int relsize_of(const relation_meta_t *rel)
+{
+    // Relsize is payload bytes per tuple: sum of attribute sizes.
+    int total = 0;
+    for (int i = 0; i < rel->num_attrs; i++)
+    {
+        total += (rel->attrs[i].domain == 'I') ? 11 : MAX_TOKEN;
+    }
+    if (total > RECSIZE)
+    {
+        total = RECSIZE;
+    }
+    return total;
+}
+
 static int is_reserved_relation(const char *name)
 {
     return (strcmp(name, "catalog") == 0 || strcmp(name, "columns") == 0);
@@ -287,38 +302,35 @@ static int hash_key_from_tuple(const relation_meta_t *rel, const char *tuple_lin
 static void read_header(const relation_meta_t *rel, header_block_t *hdr)
 {
     // Read relation header block from simulated disk into struct form.
-    unsigned char buf[BLKSIZE];
-    memset(buf, 0, sizeof(buf));
-    diskread(rel->header_block, buf);
-    memcpy(hdr, buf, sizeof(*hdr));
+    memset(header_buffers[0], 0, BLKSIZE);
+    diskread(rel->header_block, header_buffers[0]);
+    memcpy(hdr, header_buffers[0], sizeof(*hdr));
 }
 
 static void write_header(const relation_meta_t *rel, const header_block_t *hdr)
 {
     // Persist relation header struct back to its header block.
-    unsigned char buf[BLKSIZE];
-    memset(buf, 0, sizeof(buf));
-    memcpy(buf, hdr, sizeof(*hdr));
-    diskwrite(rel->header_block, buf);
+    memset(header_buffers[0], 0, BLKSIZE);
+    memcpy(header_buffers[0], hdr, sizeof(*hdr));
+    diskwrite(rel->header_block, header_buffers[0]);
 }
 
 static void clear_block_and_write(int blocknum)
 {
     // Fresh blocks are zeroed before first use.
-    block_t blk;
-    memset(&blk, 0, sizeof(blk));
-    diskwrite(blocknum, (unsigned char *)blk.raw);
+    memset(data_buffers[0].raw, 0, BLKSIZE);
+    diskwrite(blocknum, (unsigned char *)data_buffers[0].raw);
 }
 
 /* --- Primitive access --- */
 static int find_free_slot_in_block(int blocknum, int *slot_idx)
 {
     // Return first free slot among the 4 fixed slots in a block.
-    block_t blk;
-    diskread(blocknum, (unsigned char *)blk.raw);
+    block_t *blk = &data_buffers[0];
+    diskread(blocknum, (unsigned char *)blk->raw);
     for (int s = 0; s < BLKFAC; s++)
     {
-        if (blk.slots[s].flag == 0)
+        if (blk->slots[s].flag == 0)
         {
             *slot_idx = s;
             return 1;
@@ -330,12 +342,12 @@ static int find_free_slot_in_block(int blocknum, int *slot_idx)
 static void write_tuple_to_slot(int blocknum, int slot_idx, const char *tuple_text)
 {
     // Materialize tuple text inside slot payload and set occupancy flag.
-    block_t blk;
-    diskread(blocknum, (unsigned char *)blk.raw);
-    blk.slots[slot_idx].flag = 1;
-    memset(blk.slots[slot_idx].tuple, 0, RECSIZE);
-    strncpy(blk.slots[slot_idx].tuple, tuple_text, RECSIZE - 1);
-    diskwrite(blocknum, (unsigned char *)blk.raw);
+    block_t *blk = &data_buffers[0];
+    diskread(blocknum, (unsigned char *)blk->raw);
+    blk->slots[slot_idx].flag = 1;
+    memset(blk->slots[slot_idx].tuple, 0, RECSIZE);
+    strncpy(blk->slots[slot_idx].tuple, tuple_text, RECSIZE - 1);
+    diskwrite(blocknum, (unsigned char *)blk->raw);
 }
 
 static int tuple_exists_full_scan(const relation_meta_t *rel, const char *tuple_text)
@@ -350,11 +362,11 @@ static int tuple_exists_full_scan(const relation_meta_t *rel, const char *tuple_
         {
             continue;
         }
-        block_t blk;
-        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        block_t *blk = &data_buffers[0];
+        diskread(hdr.data_blocks[i], (unsigned char *)blk->raw);
         for (int s = 0; s < BLKFAC; s++)
         {
-            if (blk.slots[s].flag == 1 && strcmp(blk.slots[s].tuple, tuple_text) == 0)
+            if (blk->slots[s].flag == 1 && strcmp(blk->slots[s].tuple, tuple_text) == 0)
             {
                 return 1;
             }
@@ -369,11 +381,11 @@ static int tuple_exists_full_scan(const relation_meta_t *rel, const char *tuple_
             {
                 continue;
             }
-            block_t blk;
-            diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+            block_t *blk = &data_buffers[0];
+            diskread(hdr.overflow_blocks[i], (unsigned char *)blk->raw);
             for (int s = 0; s < BLKFAC; s++)
             {
-                if (blk.slots[s].flag == 1 && strcmp(blk.slots[s].tuple, tuple_text) == 0)
+                if (blk->slots[s].flag == 1 && strcmp(blk->slots[s].tuple, tuple_text) == 0)
                 {
                     return 1;
                 }
@@ -403,11 +415,11 @@ static int find_base_tuple_by_key(const relation_meta_t *rel, char key_vals[][MA
         {
             continue;
         }
-        block_t blk;
-        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        block_t *blk = &data_buffers[0];
+        diskread(hdr.data_blocks[i], (unsigned char *)blk->raw);
         for (int s = 0; s < BLKFAC; s++)
         {
-            if (blk.slots[s].flag == 1 && tuple_key_equals(rel, blk.slots[s].tuple, key_vals, key_count))
+            if (blk->slots[s].flag == 1 && tuple_key_equals(rel, blk->slots[s].tuple, key_vals, key_count))
             {
                 *out_block = hdr.data_blocks[i];
                 *out_slot = s;
@@ -422,11 +434,11 @@ static int find_base_tuple_by_key(const relation_meta_t *rel, char key_vals[][MA
         {
             continue;
         }
-        block_t blk;
-        diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+        block_t *blk = &data_buffers[0];
+        diskread(hdr.overflow_blocks[i], (unsigned char *)blk->raw);
         for (int s = 0; s < BLKFAC; s++)
         {
-            if (blk.slots[s].flag == 1 && tuple_key_equals(rel, blk.slots[s].tuple, key_vals, key_count))
+            if (blk->slots[s].flag == 1 && tuple_key_equals(rel, blk->slots[s].tuple, key_vals, key_count))
             {
                 *out_block = hdr.overflow_blocks[i];
                 *out_slot = s;
@@ -563,11 +575,11 @@ static int append_tuple(const relation_meta_t *rel, const char *tuple_text)
 static void remove_tuple_slot(int blocknum, int slot)
 {
     // Logical delete clears the slot and data bytes.
-    block_t blk;
-    diskread(blocknum, (unsigned char *)blk.raw);
-    blk.slots[slot].flag = 0;
-    memset(blk.slots[slot].tuple, 0, RECSIZE);
-    diskwrite(blocknum, (unsigned char *)blk.raw);
+    block_t *blk = &data_buffers[0];
+    diskread(blocknum, (unsigned char *)blk->raw);
+    blk->slots[slot].flag = 0;
+    memset(blk->slots[slot].tuple, 0, RECSIZE);
+    diskwrite(blocknum, (unsigned char *)blk->raw);
 }
 
 static void update_tuple_slot(int blocknum, int slot, const char *tuple_text)
@@ -590,13 +602,13 @@ static int scan_relation(const relation_meta_t *rel, tuple_cb_t cb, void *ctx)
         {
             continue;
         }
-        block_t blk;
-        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        block_t *blk = &data_buffers[2];
+        diskread(hdr.data_blocks[i], (unsigned char *)blk->raw);
         for (int s = 0; s < BLKFAC; s++)
         {
-            if (blk.slots[s].flag == 1)
+            if (blk->slots[s].flag == 1)
             {
-                if (!cb(rel, blk.slots[s].tuple, ctx))
+                if (!cb(rel, blk->slots[s].tuple, ctx))
                 {
                     return 0;
                 }
@@ -612,13 +624,13 @@ static int scan_relation(const relation_meta_t *rel, tuple_cb_t cb, void *ctx)
             {
                 continue;
             }
-            block_t blk;
-            diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+            block_t *blk = &data_buffers[2];
+            diskread(hdr.overflow_blocks[i], (unsigned char *)blk->raw);
             for (int s = 0; s < BLKFAC; s++)
             {
-                if (blk.slots[s].flag == 1)
+                if (blk->slots[s].flag == 1)
                 {
-                    if (!cb(rel, blk.slots[s].tuple, ctx))
+                    if (!cb(rel, blk->slots[s].tuple, ctx))
                     {
                         return 0;
                     }
@@ -650,16 +662,47 @@ static int create_relation(const char *name, int is_base, int is_dictionary,
     memset(&hdr, 0, sizeof(hdr));
     hdr.is_base = is_base;
 
-    unsigned char buf[BLKSIZE];
-    memset(buf, 0, sizeof(buf));
-    memcpy(buf, &hdr, sizeof(hdr));
-    diskwrite(hb, buf);
+    memset(header_buffers[1], 0, BLKSIZE);
+    memcpy(header_buffers[1], &hdr, sizeof(hdr));
+    diskwrite(hb, header_buffers[1]);
 
     if (!create_relation_meta(name, is_base, is_dictionary, attrs, nattrs, keysize, hb))
     {
         free_block(hb);
         return 0;
     }
+
+    if (!is_dictionary)
+    {
+        // Persist dictionary tuples so catalog/columns live on disk like base relations.
+        relation_meta_t *new_rel = find_relation(name);
+        relation_meta_t *catalog = find_relation("catalog");
+        relation_meta_t *columns = find_relation("columns");
+        char tuple_line[LINE_BUF];
+
+        if (new_rel != NULL && catalog != NULL && columns != NULL)
+        {
+            snprintf(tuple_line, sizeof(tuple_line), "%s %d %d %d %d %d",
+                     new_rel->name,
+                     new_rel->is_base ? 1 : 0,
+                     relsize_of(new_rel),
+                     new_rel->keysize,
+                     0,
+                     new_rel->header_block);
+            append_tuple(catalog, tuple_line);
+
+            for (int i = 0; i < new_rel->num_attrs; i++)
+            {
+                snprintf(tuple_line, sizeof(tuple_line), "%s %s %d %d",
+                         new_rel->name,
+                         new_rel->attrs[i].name,
+                         (new_rel->attrs[i].domain == 'I') ? 1 : 0,
+                         i);
+                append_tuple(columns, tuple_line);
+            }
+        }
+    }
+
     return 1;
 }
 
@@ -690,6 +733,107 @@ static int delete_relation(const char *name)
         }
     }
     free_block(rel->header_block);
+
+    // Remove dictionary rows that describe this relation.
+    {
+        relation_meta_t *catalog = find_relation("catalog");
+        relation_meta_t *columns = find_relation("columns");
+        header_block_t hdr;
+
+        if (catalog != NULL)
+        {
+            read_header(catalog, &hdr);
+            for (int i = 0; i < BLKMAX; i++)
+            {
+                if (hdr.data_blocks[i] == 0)
+                {
+                    continue;
+                }
+                block_t *blk = &data_buffers[0];
+                diskread(hdr.data_blocks[i], (unsigned char *)blk->raw);
+                for (int s = 0; s < BLKFAC; s++)
+                {
+                    char fields[MAX_ATTR][MAX_TOKEN];
+                    if (blk->slots[s].flag != 1)
+                    {
+                        continue;
+                    }
+                    if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
+                    {
+                        remove_tuple_slot(hdr.data_blocks[i], s);
+                    }
+                }
+            }
+            for (int i = 0; i < OVBLKMAX; i++)
+            {
+                if (hdr.overflow_blocks[i] == 0)
+                {
+                    continue;
+                }
+                block_t *blk = &data_buffers[0];
+                diskread(hdr.overflow_blocks[i], (unsigned char *)blk->raw);
+                for (int s = 0; s < BLKFAC; s++)
+                {
+                    char fields[MAX_ATTR][MAX_TOKEN];
+                    if (blk->slots[s].flag != 1)
+                    {
+                        continue;
+                    }
+                    if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
+                    {
+                        remove_tuple_slot(hdr.overflow_blocks[i], s);
+                    }
+                }
+            }
+        }
+
+        if (columns != NULL)
+        {
+            read_header(columns, &hdr);
+            for (int i = 0; i < BLKMAX; i++)
+            {
+                if (hdr.data_blocks[i] == 0)
+                {
+                    continue;
+                }
+                block_t *blk = &data_buffers[0];
+                diskread(hdr.data_blocks[i], (unsigned char *)blk->raw);
+                for (int s = 0; s < BLKFAC; s++)
+                {
+                    char fields[MAX_ATTR][MAX_TOKEN];
+                    if (blk->slots[s].flag != 1)
+                    {
+                        continue;
+                    }
+                    if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
+                    {
+                        remove_tuple_slot(hdr.data_blocks[i], s);
+                    }
+                }
+            }
+            for (int i = 0; i < OVBLKMAX; i++)
+            {
+                if (hdr.overflow_blocks[i] == 0)
+                {
+                    continue;
+                }
+                block_t *blk = &data_buffers[0];
+                diskread(hdr.overflow_blocks[i], (unsigned char *)blk->raw);
+                for (int s = 0; s < BLKFAC; s++)
+                {
+                    char fields[MAX_ATTR][MAX_TOKEN];
+                    if (blk->slots[s].flag != 1)
+                    {
+                        continue;
+                    }
+                    if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
+                    {
+                        remove_tuple_slot(hdr.overflow_blocks[i], s);
+                    }
+                }
+            }
+        }
+    }
 
     memset(rel, 0, sizeof(*rel));
     return 1;
@@ -1254,14 +1398,14 @@ static int tuple_in_q_mapped(const diff_ctx_t *dc, const char *p_tuple)
         {
             continue;
         }
-        block_t blk;
-        diskread(hdr.data_blocks[i], (unsigned char *)blk.raw);
+        block_t *blk = &data_buffers[0];
+        diskread(hdr.data_blocks[i], (unsigned char *)blk->raw);
         for (int s = 0; s < BLKFAC; s++)
         {
-            if (blk.slots[s].flag == 1)
+            if (blk->slots[s].flag == 1)
             {
                 char qf[MAX_ATTR][MAX_TOKEN];
-                int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+                int qg = parse_fields(blk->slots[s].tuple, qf, MAX_ATTR);
                 int same = 1;
                 if (qg < dc->q->num_attrs)
                 {
@@ -1291,14 +1435,14 @@ static int tuple_in_q_mapped(const diff_ctx_t *dc, const char *p_tuple)
             {
                 continue;
             }
-            block_t blk;
-            diskread(hdr.overflow_blocks[i], (unsigned char *)blk.raw);
+            block_t *blk = &data_buffers[0];
+            diskread(hdr.overflow_blocks[i], (unsigned char *)blk->raw);
             for (int s = 0; s < BLKFAC; s++)
             {
-                if (blk.slots[s].flag == 1)
+                if (blk->slots[s].flag == 1)
                 {
                     char qf[MAX_ATTR][MAX_TOKEN];
-                    int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+                    int qg = parse_fields(blk->slots[s].tuple, qf, MAX_ATTR);
                     int same = 1;
                     if (qg < dc->q->num_attrs)
                     {
@@ -1399,17 +1543,17 @@ static int join_with_p_tuple(const char *p_tuple, join_ctx_t *jc)
         {
             continue;
         }
-        block_t blk;
-        diskread(hdr.data_blocks[bi], (unsigned char *)blk.raw);
+        block_t *blk = &data_buffers[0];
+        diskread(hdr.data_blocks[bi], (unsigned char *)blk->raw);
         for (int s = 0; s < BLKFAC; s++)
         {
-            if (blk.slots[s].flag != 1)
+            if (blk->slots[s].flag != 1)
             {
                 continue;
             }
 
             char qf[MAX_ATTR][MAX_TOKEN];
-            int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+            int qg = parse_fields(blk->slots[s].tuple, qf, MAX_ATTR);
             int ok = 1;
             char out[RECSIZE];
 
@@ -1461,17 +1605,17 @@ static int join_with_p_tuple(const char *p_tuple, join_ctx_t *jc)
             {
                 continue;
             }
-            block_t blk;
-            diskread(hdr.overflow_blocks[oi], (unsigned char *)blk.raw);
+            block_t *blk = &data_buffers[0];
+            diskread(hdr.overflow_blocks[oi], (unsigned char *)blk->raw);
             for (int s = 0; s < BLKFAC; s++)
             {
-                if (blk.slots[s].flag != 1)
+                if (blk->slots[s].flag != 1)
                 {
                     continue;
                 }
 
                 char qf[MAX_ATTR][MAX_TOKEN];
-                int qg = parse_fields(blk.slots[s].tuple, qf, MAX_ATTR);
+                int qg = parse_fields(blk->slots[s].tuple, qf, MAX_ATTR);
                 int ok = 1;
                 char out[RECSIZE];
 
