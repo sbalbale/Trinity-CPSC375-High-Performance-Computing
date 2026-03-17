@@ -131,33 +131,40 @@ static int str_is_int(const char *s)
 /* --- Disk I/O --- */
 static void diskread(int blocknum, unsigned char *buffer)
 {
+    // Ignore invalid block requests instead of crashing.
     if (blocknum < 0 || blocknum >= DISKSIZE)
     {
         return;
     }
+    // Copy one full block from simulated disk to caller buffer.
     memcpy(buffer, virtual_disk[blocknum], BLKSIZE);
 }
 
 static void diskwrite(int blocknum, const unsigned char *buffer)
 {
+    // Ignore invalid block requests instead of crashing.
     if (blocknum < 0 || blocknum >= DISKSIZE)
     {
         return;
     }
+    // Copy one full block from caller buffer to simulated disk.
     memcpy(virtual_disk[blocknum], buffer, BLKSIZE);
 }
 
 static int allocate_block(void)
 {
+    // First-fit allocation from the bitmap.
     for (int i = 0; i < DISKSIZE; i++)
     {
         if (bitmapblk[i] == 0)
         {
             bitmapblk[i] = 1;
+            // Persist bitmap immediately so block ownership survives later operations.
             diskwrite(0, bitmapblk);
             return i;
         }
     }
+    // No free blocks remain.
     return -1;
 }
 
@@ -165,6 +172,7 @@ static void free_block(int b)
 {
     if (b >= 0 && b < DISKSIZE)
     {
+        // Mark block available and persist bitmap update.
         bitmapblk[b] = 0;
         diskwrite(0, bitmapblk);
     }
@@ -217,6 +225,7 @@ static int create_relation_meta(const char *name, int is_base, int is_dictionary
                                 attr_info_t *attrs, int nattrs, int keysize,
                                 int header_block)
 {
+    // Find a free metadata slot in the in-memory relation table.
     for (int i = 0; i < MAX_REL; i++)
     {
         if (!g_relations[i].in_use)
@@ -229,6 +238,8 @@ static int create_relation_meta(const char *name, int is_base, int is_dictionary
             g_relations[i].num_attrs = nattrs;
             g_relations[i].keysize = keysize;
             g_relations[i].header_block = header_block;
+
+            // Copy schema definition into the metadata record.
             for (int a = 0; a < nattrs; a++)
             {
                 g_relations[i].attrs[a] = attrs[a];
@@ -236,6 +247,7 @@ static int create_relation_meta(const char *name, int is_base, int is_dictionary
             return 1;
         }
     }
+    // Metadata table is full.
     return 0;
 }
 
@@ -567,8 +579,10 @@ static int append_tuple(const relation_meta_t *rel, const char *tuple_text)
     // Dispatch insertion policy based on relation kind.
     if (rel->is_base)
     {
+        // Base relations use hash + overflow strategy.
         return insert_base_tuple(rel, tuple_text);
     }
+    // Derived relations use heap append strategy.
     return insert_heap_tuple(rel, tuple_text);
 }
 
@@ -649,9 +663,11 @@ static int create_relation(const char *name, int is_base, int is_dictionary,
     // Create physical header block, then register relation metadata.
     if (find_relation(name) != NULL)
     {
+        // Relation names must be unique.
         return 0;
     }
 
+    // Reserve one header block for this relation.
     int hb = allocate_block();
     if (hb < 0)
     {
@@ -662,6 +678,7 @@ static int create_relation(const char *name, int is_base, int is_dictionary,
     memset(&hdr, 0, sizeof(hdr));
     hdr.is_base = is_base;
 
+    // Initialize header on disk.
     memset(header_buffers[1], 0, BLKSIZE);
     memcpy(header_buffers[1], &hdr, sizeof(hdr));
     diskwrite(hb, header_buffers[1]);
@@ -682,6 +699,7 @@ static int create_relation(const char *name, int is_base, int is_dictionary,
 
         if (new_rel != NULL && catalog != NULL && columns != NULL)
         {
+            // Insert one catalog tuple for relation-level metadata.
             snprintf(tuple_line, sizeof(tuple_line), "%s %d %d %d %d %d",
                      new_rel->name,
                      new_rel->is_base ? 1 : 0,
@@ -691,6 +709,7 @@ static int create_relation(const char *name, int is_base, int is_dictionary,
                      new_rel->header_block);
             append_tuple(catalog, tuple_line);
 
+            // Insert one columns tuple per attribute in schema order.
             for (int i = 0; i < new_rel->num_attrs; i++)
             {
                 snprintf(tuple_line, sizeof(tuple_line), "%s %s %d %d",
@@ -722,6 +741,7 @@ static int delete_relation(const char *name)
     {
         if (hdr.data_blocks[i] != 0)
         {
+            // Free all primary data blocks.
             free_block(hdr.data_blocks[i]);
         }
     }
@@ -729,9 +749,11 @@ static int delete_relation(const char *name)
     {
         if (hdr.overflow_blocks[i] != 0)
         {
+            // Free all overflow blocks.
             free_block(hdr.overflow_blocks[i]);
         }
     }
+    // Free the header block last.
     free_block(rel->header_block);
 
     // Remove dictionary rows that describe this relation.
@@ -760,6 +782,7 @@ static int delete_relation(const char *name)
                     }
                     if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
                     {
+                        // Remove matching dictionary row.
                         remove_tuple_slot(hdr.data_blocks[i], s);
                     }
                 }
@@ -781,6 +804,7 @@ static int delete_relation(const char *name)
                     }
                     if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
                     {
+                        // Remove matching dictionary row.
                         remove_tuple_slot(hdr.overflow_blocks[i], s);
                     }
                 }
@@ -807,6 +831,7 @@ static int delete_relation(const char *name)
                     }
                     if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
                     {
+                        // Remove matching dictionary row.
                         remove_tuple_slot(hdr.data_blocks[i], s);
                     }
                 }
@@ -828,6 +853,7 @@ static int delete_relation(const char *name)
                     }
                     if (parse_fields(blk->slots[s].tuple, fields, MAX_ATTR) > 0 && strcmp(fields[0], name) == 0)
                     {
+                        // Remove matching dictionary row.
                         remove_tuple_slot(hdr.overflow_blocks[i], s);
                     }
                 }
@@ -857,6 +883,7 @@ static int do_print(const char *name)
         return 0;
     }
 
+    // Print relation title line, then the column header line.
     printf("%s\n", rel->name);
     for (int i = 0; i < rel->num_attrs; i++)
     {
@@ -869,6 +896,7 @@ static int do_print(const char *name)
     printf("\n");
 
     scan_relation(rel, print_cb, NULL);
+    // Keep a blank line between PR outputs.
     printf("\n");
     return 1;
 }
@@ -881,6 +909,7 @@ static int do_insert(const char *name, int n, FILE *in)
 
     if (rel == NULL || !rel->is_base || rel->is_dictionary)
     {
+        // Consume and discard tuple lines to keep parser stream aligned.
         for (int i = 0; i < n; i++)
         {
             if (fgets(line, sizeof(line), in) == NULL)
@@ -904,6 +933,7 @@ static int do_insert(const char *name, int n, FILE *in)
 
         if (!validate_tuple_domains(rel, line))
         {
+            // Skip tuples that violate schema types.
             continue;
         }
 
@@ -911,9 +941,11 @@ static int do_insert(const char *name, int n, FILE *in)
         parse_fields(line, key_vals, MAX_ATTR);
         if (find_base_tuple_by_key(rel, key_vals, rel->keysize, &b, &s))
         {
+            // Skip duplicate keys for base relations.
             continue;
         }
 
+        // Physical insertion into hash/overflow storage.
         append_tuple(rel, line);
     }
 
@@ -928,6 +960,7 @@ static int do_remove(const char *name, int n, FILE *in)
 
     if (rel == NULL || !rel->is_base || rel->is_dictionary)
     {
+        // Consume and discard key lines to keep parser stream aligned.
         for (int i = 0; i < n; i++)
         {
             if (fgets(line, sizeof(line), in) == NULL)
@@ -952,6 +985,7 @@ static int do_remove(const char *name, int n, FILE *in)
         key_count = parse_fields(line, key_vals, MAX_ATTR);
         if (find_base_tuple_by_key(rel, key_vals, key_count, &b, &s))
         {
+            // Logical delete by clearing the matched slot.
             remove_tuple_slot(b, s);
         }
     }
@@ -966,6 +1000,7 @@ static int do_update(const char *name, int n, FILE *in)
 
     if (rel == NULL || !rel->is_base || rel->is_dictionary)
     {
+        // Consume and discard replacement lines to keep parser stream aligned.
         for (int i = 0; i < n; i++)
         {
             if (fgets(line, sizeof(line), in) == NULL)
@@ -989,12 +1024,14 @@ static int do_update(const char *name, int n, FILE *in)
 
         if (!validate_tuple_domains(rel, line))
         {
+            // Skip updates that violate schema types.
             continue;
         }
 
         parse_fields(line, key_vals, MAX_ATTR);
         if (find_base_tuple_by_key(rel, key_vals, rel->keysize, &b, &s))
         {
+            // In-place replacement of tuple payload in the matched slot.
             update_tuple_slot(b, s, line);
         }
     }
@@ -1220,6 +1257,7 @@ static int do_select(const char *src_name, const char *dst_name, int n, FILE *in
     sc.src = src;
     sc.nconds = n;
 
+    // Parse each "attr op value" predicate line.
     for (int i = 0; i < n; i++)
     {
         char att[MAX_NAME], op[3], val[MAX_TOKEN];
@@ -1258,6 +1296,7 @@ static int do_select(const char *src_name, const char *dst_name, int n, FILE *in
         return 0;
     }
 
+    // Run filtered scan and append matching tuples into destination.
     sc.dst = find_relation(dst_name);
     scan_relation(src, select_cb, &sc);
     return 1;
@@ -1370,6 +1409,7 @@ static int do_union(const char *pname, const char *qname, const char *rname)
     pass_ctx_t pc;
     map_ctx_t mc;
 
+    // Seed result with p tuples first.
     pc.dst = r;
     scan_relation(p, union_seed_cb, &pc);
 
@@ -1380,6 +1420,7 @@ static int do_union(const char *pname, const char *qname, const char *rname)
     {
         mc.qmap[i] = qmap[i];
     }
+    // Merge q tuples using attribute-name mapping.
     scan_relation(q, union_q_cb, &mc);
     return 1;
 }
@@ -1521,6 +1562,7 @@ static int do_difference(const char *pname, const char *qname, const char *rname
         dc.qmap[i] = qmap[i];
     }
 
+    // Emit tuples that are present in p but not present in q.
     scan_relation(p, diff_cb, &dc);
     return 1;
 }
@@ -1705,6 +1747,7 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
         return 0;
     }
 
+    // Read and validate each join attribute listed after NJ command.
     for (int i = 0; i < n; i++)
     {
         int pi = -1, qi = -1;
@@ -1746,12 +1789,14 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
 
     for (int i = 0; i < p->num_attrs; i++)
     {
+        // Include all attributes from p first.
         out_attrs[out_n++] = p->attrs[i];
     }
     for (int i = 0; i < q->num_attrs; i++)
     {
         if (!q_is_join[i])
         {
+            // Add non-join attributes from q.
             out_attrs[out_n++] = q->attrs[i];
         }
     }
@@ -1777,6 +1822,7 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
         jc.q_is_join[i] = q_is_join[i];
     }
 
+    // Nested-loop join over p with full scans of q.
     scan_relation(p, join_p_cb, &jc);
     return 1;
 }
@@ -1797,6 +1843,7 @@ static void init_system(void)
     bitmapblk[0] = 1;
     bitmapblk[1] = 1;
     bitmapblk[2] = 1;
+    // Block 0 stores bitmap; blocks 1 and 2 are dictionary headers.
     diskwrite(0, bitmapblk);
 
     /* Create dictionary relations as base relations. */
@@ -1823,6 +1870,7 @@ static void init_system(void)
         diskwrite(1, catalog_header);
         diskwrite(2, columns_header);
 
+        // Register dictionary metadata in the in-memory relation table.
         create_relation_meta("catalog", 1, 1, cat_attrs, 6, 1, 1);
         create_relation_meta("columns", 1, 1, col_attrs, 4, 2, 2);
     }
@@ -1883,6 +1931,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "DE") == 0)
         {
+            // DE command removes one relation and its physical blocks.
             char name[MAX_NAME];
             if (sscanf(line, "DE %31s", name) == 1)
             {
@@ -1921,6 +1970,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "PR") == 0)
         {
+            // PR command prints relation name, schema, and tuples.
             char name[MAX_NAME];
             if (sscanf(line, "PR %31s", name) == 1)
             {
@@ -1947,6 +1997,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "UN") == 0)
         {
+            // UN command materializes union(p, q) into r.
             char p[MAX_NAME], q[MAX_NAME], r[MAX_NAME];
             if (sscanf(line, "UN %31s %31s %31s", p, q, r) == 3)
             {
@@ -1955,6 +2006,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "DF") == 0)
         {
+            // DF command materializes p - q into r.
             char p[MAX_NAME], q[MAX_NAME], r[MAX_NAME];
             if (sscanf(line, "DF %31s %31s %31s", p, q, r) == 3)
             {
@@ -1963,6 +2015,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "NJ") == 0)
         {
+            // NJ command joins p and q on named attributes into r.
             char p[MAX_NAME], q[MAX_NAME], r[MAX_NAME];
             int n;
             if (sscanf(line, "NJ %31s %31s %31s %d", p, q, r, &n) == 4)
