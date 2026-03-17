@@ -227,6 +227,7 @@ static int create_relation_meta(const char *name, int is_base, int is_dictionary
 /* --- Tuple Helpers --- */
 static int tuple_key_equals(const relation_meta_t *rel, const char *tuple_text, char key_vals[][MAX_TOKEN], int key_count)
 {
+    // Parse tuple text and compare only the leading key attributes.
     char fields[MAX_ATTR][MAX_TOKEN];
     int got = parse_fields(tuple_text, fields, MAX_ATTR);
     if (key_count != rel->keysize || got < rel->keysize)
@@ -245,6 +246,7 @@ static int tuple_key_equals(const relation_meta_t *rel, const char *tuple_text, 
 
 static int validate_tuple_domains(const relation_meta_t *rel, const char *tuple_line)
 {
+    // Validate each token against the declared schema domain.
     char f[MAX_ATTR][MAX_TOKEN];
     int got = parse_fields(tuple_line, f, MAX_ATTR);
     if (got != rel->num_attrs)
@@ -263,6 +265,7 @@ static int validate_tuple_domains(const relation_meta_t *rel, const char *tuple_
 
 static int hash_key_from_tuple(const relation_meta_t *rel, const char *tuple_line)
 {
+    // Hash function: ASCII sum of key fields modulo BLKMAX.
     char f[MAX_ATTR][MAX_TOKEN];
     int got = parse_fields(tuple_line, f, MAX_ATTR);
     int sum = 0;
@@ -283,6 +286,7 @@ static int hash_key_from_tuple(const relation_meta_t *rel, const char *tuple_lin
 /* --- Header helpers --- */
 static void read_header(const relation_meta_t *rel, header_block_t *hdr)
 {
+    // Read relation header block from simulated disk into struct form.
     unsigned char buf[BLKSIZE];
     memset(buf, 0, sizeof(buf));
     diskread(rel->header_block, buf);
@@ -291,6 +295,7 @@ static void read_header(const relation_meta_t *rel, header_block_t *hdr)
 
 static void write_header(const relation_meta_t *rel, const header_block_t *hdr)
 {
+    // Persist relation header struct back to its header block.
     unsigned char buf[BLKSIZE];
     memset(buf, 0, sizeof(buf));
     memcpy(buf, hdr, sizeof(*hdr));
@@ -299,6 +304,7 @@ static void write_header(const relation_meta_t *rel, const header_block_t *hdr)
 
 static void clear_block_and_write(int blocknum)
 {
+    // Fresh blocks are zeroed before first use.
     block_t blk;
     memset(&blk, 0, sizeof(blk));
     diskwrite(blocknum, (unsigned char *)blk.raw);
@@ -307,6 +313,7 @@ static void clear_block_and_write(int blocknum)
 /* --- Primitive access --- */
 static int find_free_slot_in_block(int blocknum, int *slot_idx)
 {
+    // Return first free slot among the 4 fixed slots in a block.
     block_t blk;
     diskread(blocknum, (unsigned char *)blk.raw);
     for (int s = 0; s < BLKFAC; s++)
@@ -322,6 +329,7 @@ static int find_free_slot_in_block(int blocknum, int *slot_idx)
 
 static void write_tuple_to_slot(int blocknum, int slot_idx, const char *tuple_text)
 {
+    // Materialize tuple text inside slot payload and set occupancy flag.
     block_t blk;
     diskread(blocknum, (unsigned char *)blk.raw);
     blk.slots[slot_idx].flag = 1;
@@ -332,6 +340,7 @@ static void write_tuple_to_slot(int blocknum, int slot_idx, const char *tuple_te
 
 static int tuple_exists_full_scan(const relation_meta_t *rel, const char *tuple_text)
 {
+    // Full physical scan used by duplicate suppression logic.
     header_block_t hdr;
     read_header(rel, &hdr);
 
@@ -378,6 +387,7 @@ static int tuple_exists_full_scan(const relation_meta_t *rel, const char *tuple_
 static int find_base_tuple_by_key(const relation_meta_t *rel, char key_vals[][MAX_TOKEN], int key_count,
                                   int *out_block, int *out_slot)
 {
+    // Locate a base-relation tuple by key and return its block/slot position.
     header_block_t hdr;
     read_header(rel, &hdr);
 
@@ -430,6 +440,7 @@ static int find_base_tuple_by_key(const relation_meta_t *rel, char key_vals[][MA
 
 static int insert_base_tuple(const relation_meta_t *rel, const char *tuple_text)
 {
+    // Base insertion: hash bucket first, then overflow blocks as needed.
     header_block_t hdr;
     read_header(rel, &hdr);
 
@@ -494,6 +505,7 @@ static int insert_base_tuple(const relation_meta_t *rel, const char *tuple_text)
 
 static int insert_heap_tuple(const relation_meta_t *rel, const char *tuple_text)
 {
+    // Heap insertion for derived relations: first fit, then allocate block.
     header_block_t hdr;
     read_header(rel, &hdr);
 
@@ -540,6 +552,7 @@ static int insert_heap_tuple(const relation_meta_t *rel, const char *tuple_text)
 
 static int append_tuple(const relation_meta_t *rel, const char *tuple_text)
 {
+    // Dispatch insertion policy based on relation kind.
     if (rel->is_base)
     {
         return insert_base_tuple(rel, tuple_text);
@@ -549,6 +562,7 @@ static int append_tuple(const relation_meta_t *rel, const char *tuple_text)
 
 static void remove_tuple_slot(int blocknum, int slot)
 {
+    // Logical delete clears the slot and data bytes.
     block_t blk;
     diskread(blocknum, (unsigned char *)blk.raw);
     blk.slots[slot].flag = 0;
@@ -566,6 +580,7 @@ typedef int (*tuple_cb_t)(const relation_meta_t *rel, const char *tuple_text, vo
 
 static int scan_relation(const relation_meta_t *rel, tuple_cb_t cb, void *ctx)
 {
+    // Generic relation scan used by PR and relational operators.
     header_block_t hdr;
     read_header(rel, &hdr);
 
@@ -619,6 +634,7 @@ static int scan_relation(const relation_meta_t *rel, tuple_cb_t cb, void *ctx)
 static int create_relation(const char *name, int is_base, int is_dictionary,
                            attr_info_t *attrs, int nattrs, int keysize)
 {
+    // Create physical header block, then register relation metadata.
     if (find_relation(name) != NULL)
     {
         return 0;
@@ -649,6 +665,7 @@ static int create_relation(const char *name, int is_base, int is_dictionary,
 
 static int delete_relation(const char *name)
 {
+    // Delete all allocated blocks for the relation and clear metadata slot.
     relation_meta_t *rel = find_relation(name);
     if (rel == NULL || rel->is_dictionary)
     {
@@ -689,6 +706,7 @@ static int print_cb(const relation_meta_t *rel, const char *tuple_text, void *ct
 
 static int do_print(const char *name)
 {
+    // PR command prints schema heading and all live tuple strings.
     relation_meta_t *rel = find_relation(name);
     if (rel == NULL)
     {
@@ -713,6 +731,7 @@ static int do_print(const char *name)
 
 static int do_insert(const char *name, int n, FILE *in)
 {
+    // IN command: allowed only for base, non-dictionary relations.
     relation_meta_t *rel = find_relation(name);
     char line[LINE_BUF];
 
@@ -759,6 +778,7 @@ static int do_insert(const char *name, int n, FILE *in)
 
 static int do_remove(const char *name, int n, FILE *in)
 {
+    // RM command: each input line is a key identifying one tuple.
     relation_meta_t *rel = find_relation(name);
     char line[LINE_BUF];
 
@@ -796,6 +816,7 @@ static int do_remove(const char *name, int n, FILE *in)
 
 static int do_update(const char *name, int n, FILE *in)
 {
+    // UP command: replace tuple payload at existing key location.
     relation_meta_t *rel = find_relation(name);
     char line[LINE_BUF];
 
@@ -840,6 +861,7 @@ static int build_projected_tuple(const relation_meta_t *src, const char *tuple_t
                                  int proj_idx[], int nproj,
                                  char *out, size_t out_sz)
 {
+    // Build projected tuple text using selected source attribute indexes.
     char fields[MAX_ATTR][MAX_TOKEN];
     int got = parse_fields(tuple_text, fields, MAX_ATTR);
     out[0] = '\0';
@@ -870,6 +892,7 @@ typedef struct proj_ctx
 
 static int project_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
+    // Projection callback suppresses duplicates in destination relation.
     char out[RECSIZE];
     proj_ctx_t *pc = (proj_ctx_t *)ctx;
     (void)rel;
@@ -886,6 +909,7 @@ static int project_cb(const relation_meta_t *rel, const char *tuple_text, void *
 
 static int do_project(const char *src_name, const char *dst_name, int n, FILE *in)
 {
+    // PJ command: read attribute list, build derived projection relation.
     relation_meta_t *src = find_relation(src_name);
     char line[LINE_BUF];
     int proj_idx[MAX_ATTR];
@@ -953,6 +977,7 @@ static int do_project(const char *src_name, const char *dst_name, int n, FILE *i
 
 static int eval_cmp(char domain, const char *lhs, const char *op, const char *rhs)
 {
+    // Evaluate a single boolean predicate for integer/string domain.
     if (domain == 'I')
     {
         long a = strtol(lhs, NULL, 10);
@@ -993,6 +1018,7 @@ typedef struct sel_ctx
 
 static int select_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
+    // Selection callback applies conjunction of all parsed conditions.
     sel_ctx_t *sc = (sel_ctx_t *)ctx;
     char f[MAX_ATTR][MAX_TOKEN];
     (void)rel;
@@ -1017,6 +1043,7 @@ static int select_cb(const relation_meta_t *rel, const char *tuple_text, void *c
 
 static int do_select(const char *src_name, const char *dst_name, int n, FILE *in)
 {
+    // SL command: parse n conditions then filter source relation.
     relation_meta_t *src = find_relation(src_name);
     char line[LINE_BUF];
     sel_ctx_t sc;
@@ -1082,6 +1109,7 @@ static int do_select(const char *src_name, const char *dst_name, int n, FILE *in
 
 static int map_compatible(const relation_meta_t *p, const relation_meta_t *q, int qmap[])
 {
+    // Compatibility for UN/DF with attribute-name based reordering.
     if (p->num_attrs != q->num_attrs)
     {
         return 0;
@@ -1114,6 +1142,7 @@ typedef struct pass_ctx
 
 static int union_seed_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
+    // Seed result with tuples from first input relation.
     pass_ctx_t *pc = (pass_ctx_t *)ctx;
     (void)rel;
     if (!tuple_exists_full_scan(pc->dst, tuple_text))
@@ -1132,6 +1161,7 @@ typedef struct map_ctx
 
 static int union_q_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
+    // Add second relation tuples after column re-mapping.
     map_ctx_t *mc = (map_ctx_t *)ctx;
     char out[RECSIZE];
     char f[MAX_ATTR][MAX_TOKEN];
@@ -1161,6 +1191,7 @@ static int union_q_cb(const relation_meta_t *rel, const char *tuple_text, void *
 
 static int do_union(const char *pname, const char *qname, const char *rname)
 {
+    // UN command preserves attribute order from first operand p.
     relation_meta_t *p = find_relation(pname);
     relation_meta_t *q = find_relation(qname);
     int qmap[MAX_ATTR];
@@ -1206,6 +1237,7 @@ typedef struct diff_ctx
 
 static int tuple_in_q_mapped(const diff_ctx_t *dc, const char *p_tuple)
 {
+    // DF helper: check whether mapped-equivalent tuple exists in q.
     char pf[MAX_ATTR][MAX_TOKEN];
     int pg = parse_fields(p_tuple, pf, MAX_ATTR);
     if (pg < dc->dst->num_attrs)
@@ -1305,6 +1337,7 @@ static int diff_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx
 
 static int do_difference(const char *pname, const char *qname, const char *rname)
 {
+    // DF command computes p - q using compatibility mapping.
     relation_meta_t *p = find_relation(pname);
     relation_meta_t *q = find_relation(qname);
     int qmap[MAX_ATTR];
@@ -1349,6 +1382,7 @@ typedef struct join_ctx
 
 static int join_with_p_tuple(const char *p_tuple, join_ctx_t *jc)
 {
+    // For one tuple in p, scan q and emit all join matches.
     char pf[MAX_ATTR][MAX_TOKEN];
     int pg = parse_fields(p_tuple, pf, MAX_ATTR);
     if (pg < jc->p->num_attrs)
@@ -1487,6 +1521,7 @@ static int join_with_p_tuple(const char *p_tuple, join_ctx_t *jc)
 
 static int join_p_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
+    // Callback driver for nested-loop natural join.
     join_ctx_t *jc = (join_ctx_t *)ctx;
     (void)rel;
     return join_with_p_tuple(tuple_text, jc);
@@ -1494,6 +1529,7 @@ static int join_p_cb(const relation_meta_t *rel, const char *tuple_text, void *c
 
 static int do_natural_join(const char *pname, const char *qname, const char *rname, int n, FILE *in)
 {
+    // NJ command parses join columns and builds joined output schema.
     relation_meta_t *p = find_relation(pname);
     relation_meta_t *q = find_relation(qname);
     char line[LINE_BUF];
@@ -1592,6 +1628,7 @@ static int do_natural_join(const char *pname, const char *qname, const char *rna
 /* --- Init --- */
 static void init_system(void)
 {
+    // Reset all simulated disk pages and in-memory control structures.
     memset(virtual_disk, 0, sizeof(virtual_disk));
     memset(bitmapblk, 0, sizeof(bitmapblk));
     memset(catalog_header, 0, sizeof(catalog_header));
@@ -1638,6 +1675,7 @@ static void init_system(void)
 /* --- Parser --- */
 static void process_commands(FILE *in)
 {
+    // Main command loop reads one command per line from stdin.
     char line[LINE_BUF];
 
     while (fgets(line, sizeof(line), in) != NULL)
@@ -1647,15 +1685,18 @@ static void process_commands(FILE *in)
 
         if (line[0] == '\0')
         {
+            // Skip blank lines.
             continue;
         }
         if (sscanf(line, "%2s", verb) != 1)
         {
+            // Skip malformed command lines that do not begin with a verb.
             continue;
         }
 
         if (strcmp(verb, "CR") == 0)
         {
+            // CR command is followed by n schema lines.
             char name[MAX_NAME];
             int n, k;
             if (sscanf(line, "CR %31s %d %d", name, &n, &k) == 3)
@@ -1694,6 +1735,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "IN") == 0)
         {
+            // IN command reads n tuple payload lines.
             char name[MAX_NAME];
             int n;
             if (sscanf(line, "IN %31s %d", name, &n) == 2)
@@ -1703,6 +1745,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "RM") == 0)
         {
+            // RM command reads n key lines.
             char name[MAX_NAME];
             int n;
             if (sscanf(line, "RM %31s %d", name, &n) == 2)
@@ -1712,6 +1755,7 @@ static void process_commands(FILE *in)
         }
         else if (strcmp(verb, "UP") == 0)
         {
+            // UP command reads n replacement tuple lines.
             char name[MAX_NAME];
             int n;
             if (sscanf(line, "UP %31s %d", name, &n) == 2)
@@ -1775,6 +1819,7 @@ static void process_commands(FILE *in)
 
 int main(void)
 {
+    // Initialize the DB system, then process command stream until EOF.
     init_system();
     process_commands(stdin);
     return 0;
