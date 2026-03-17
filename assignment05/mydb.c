@@ -868,8 +868,8 @@ static int delete_relation(const char *name)
 /* --- Command Operations --- */
 static int print_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
-    (void)rel; // Unused in this callback, but could be used for more complex formatting.
-    (void)ctx; // Unused in this callback, but could be used to pass additional state if needed.
+    (void)rel; // suppress unused warning.
+    (void)ctx; // suppress unused warning.
     printf("%s\n", tuple_text);
     return 1;
 }
@@ -1076,7 +1076,7 @@ static int project_cb(const relation_meta_t *rel, const char *tuple_text, void *
     // Projection callback suppresses duplicates in destination relation.
     char out[RECSIZE];
     proj_ctx_t *pc = (proj_ctx_t *)ctx;
-    (void)rel; // Unused in this callback, but could be used for more complex logic if needed.
+    (void)rel; // suppress unused warning.
 
     if (build_projected_tuple(pc->src, tuple_text, pc->proj_idx, pc->nproj, out, sizeof(out)))
     {
@@ -1214,7 +1214,7 @@ static int select_cb(const relation_meta_t *rel, const char *tuple_text, void *c
     // Selection callback applies conjunction of all parsed conditions.
     sel_ctx_t *sc = (sel_ctx_t *)ctx;
     char f[MAX_ATTR][MAX_TOKEN];
-    (void)rel; // Unused in this callback, but could be used for more complex logic if needed.
+    (void)rel; // suppress unused warning.
 
     if (parse_fields(tuple_text, f, MAX_ATTR) < sc->src->num_attrs)
     {
@@ -1339,7 +1339,7 @@ static int union_seed_cb(const relation_meta_t *rel, const char *tuple_text, voi
 {
     // Seed result with tuples from first input relation.
     pass_ctx_t *pc = (pass_ctx_t *)ctx;
-    (void)rel; // Unused in this callback, but could be used for more complex logic if needed.
+    (void)rel; // suppress unused warning.
     if (!tuple_exists_full_scan(pc->dst, tuple_text))
     {
         append_tuple(pc->dst, tuple_text);
@@ -1360,7 +1360,7 @@ static int union_q_cb(const relation_meta_t *rel, const char *tuple_text, void *
     map_ctx_t *mc = (map_ctx_t *)ctx;
     char out[RECSIZE];
     char f[MAX_ATTR][MAX_TOKEN];
-    (void)rel; // Unused in this callback, but could be used for more complex logic if needed.
+    (void)rel; // suppress unused warning
 
     if (parse_fields(tuple_text, f, MAX_ATTR) < mc->q->num_attrs)
     {
@@ -1524,7 +1524,7 @@ static int tuple_in_q_mapped(const diff_ctx_t *dc, const char *p_tuple)
 static int diff_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
     diff_ctx_t *dc = (diff_ctx_t *)ctx;
-    (void)rel; // Unused in this callback, but could be used for more complex logic if needed.
+    (void)rel; // suppress unused warning.
     if (!tuple_in_q_mapped(dc, tuple_text))
     {
         append_tuple(dc->dst, tuple_text);
@@ -1723,7 +1723,7 @@ static int join_p_cb(const relation_meta_t *rel, const char *tuple_text, void *c
 {
     // Callback driver for nested-loop natural join.
     join_ctx_t *jc = (join_ctx_t *)ctx;
-    (void)rel; // Unused in this callback, but could be used for more complex logic if needed.
+    (void)rel; // suppress unused warning.
     return join_with_p_tuple(tuple_text, jc);
 }
 
