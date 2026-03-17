@@ -1597,7 +1597,8 @@ static int join_with_p_tuple(const char *p_tuple, join_ctx_t *jc)
         {
             continue;
         }
-        block_t *blk = &data_buffers[0];
+        // Use a dedicated scan buffer so append_tuple() cannot clobber q-block contents mid-loop.
+        block_t *blk = &data_buffers[1];
         diskread(hdr.data_blocks[bi], (unsigned char *)blk->raw);
         for (int s = 0; s < BLKFAC; s++)
         {
@@ -1659,7 +1660,8 @@ static int join_with_p_tuple(const char *p_tuple, join_ctx_t *jc)
             {
                 continue;
             }
-            block_t *blk = &data_buffers[0];
+            // Keep overflow scan on the same dedicated scan buffer.
+            block_t *blk = &data_buffers[1];
             diskread(hdr.overflow_blocks[oi], (unsigned char *)blk->raw);
             for (int s = 0; s < BLKFAC; s++)
             {
