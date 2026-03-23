@@ -1,6 +1,7 @@
 /*
  * File: mydb.c
- * Purpose: Block-based DBMS simulator for Assignment 5
+ * Purpose: A database engine with a simple on-disk format and in-memory metadata catalog.
+ *         Supports base relations with hash + overflow storage and derived relations with heap storage.
  * Author: Sean Balbale
  * Date: 3/25/2026
  */
