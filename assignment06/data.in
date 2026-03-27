@@ -1,0 +1,134 @@
+T11 CR flights 5 1
+fid I
+orig S
+dest S
+dist I
+price I
+
+T11 IN flights 5
+4821 BOS MIA 1258 200
+1934 BOS JFK 215 100
+8750 BOS DEN 1971 240
+6502 BOS ATL 946 180
+7318 BOS ORD 867 170
+
+T11 C
+
+T21 CR planes 3 1
+pid I
+type S
+cap I
+
+T21 IN planes 3
+101 B737 160
+102 A320 150
+103 B787 240
+
+T21 C
+
+T31 CR weather 3 2
+orig S
+dest S
+temp I
+
+T31 IN weather 3
+BOS MIA 85
+BOS DEN 30
+BOS JFK 45
+
+T31 C
+
+T41 CR crew 3 1
+fid I
+pilot S
+copilot S
+
+T41 IN crew 3
+4821 SMITH JONES
+1934 DAVIS WHITE
+8750 CLARK BROWN
+
+T41 C
+
+T12 SL flights expensive 1
+price > 150
+
+T12 PR expensive
+T12 C
+
+T22 UP flights 1
+4821 BOS MIA 1258 350
+
+T22 C
+
+T32 RM flights 1
+6502
+
+T32 C
+
+T42 PJ crew pilots 1
+pilot
+
+T42 PR pilots
+T42 C
+
+T13 NJ flights weather fltweat
+T13 PR fltweat
+T13 C
+
+T23 NJ fltweat crew fullinfo
+T23 PR fullinfo
+T23 C
+
+T33 SL fullinfo hotflts 1
+temp > 80
+
+T33 PR hotflts
+T33 C
+
+T43 CR altflts 5 1
+fid I
+price I
+dist I
+dest S
+orig S
+
+T43 IN altflts 2
+5555 500 3000 LAX BOS
+9999 150 400 BDL JFK
+
+T43 C
+
+T14 UN flights altflts uresult
+T14 PR uresult
+T14 C
+
+T24 DF uresult altflts dresult
+T24 PR dresult
+T24 C
+
+T34 SL planes bigplane 1
+cap > 200
+
+T34 PR bigplane
+T34 C
+
+T44 UP weather 1
+BOS DEN 30 35
+
+T44 C
+
+T15 SL dresult finalres 1
+dist > 500
+
+T15 PR finalres
+T15 C
+
+T25 DE fullinfo
+T25 C
+
+T35 DE fltweat
+T35 C
+
+T45 DE altflts
+T45 C
