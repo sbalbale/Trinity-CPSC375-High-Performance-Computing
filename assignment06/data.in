@@ -72,11 +72,14 @@ pilot
 T42 PR pilots
 T42 C
 
-T13 NJ flights weather fltweat
+T13 NJ flights weather fltweat 2
+orig
+dest
 T13 PR fltweat
 T13 C
 
-T23 NJ fltweat crew fullinfo
+T23 NJ fltweat crew fullinfo 1
+fid
 T23 PR fullinfo
 T23 C
 
