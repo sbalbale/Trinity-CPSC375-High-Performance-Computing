@@ -128,7 +128,7 @@ static int txn_client_id(int tid)
     {
         return 0;
     }
-    return tid / 10;
+    return tid / 10; // Transaction encoding uses client in the tens place.
 }
 
 static int txn_phase_id(int tid)
@@ -137,7 +137,7 @@ static int txn_phase_id(int tid)
     {
         return 0;
     }
-    return tid % 10;
+    return tid % 10; // Transaction encoding uses phase in the ones place.
 }
 
 static int phase_is_ready(int tid)
@@ -155,11 +155,11 @@ static int phase_is_ready(int tid)
     client = txn_client_id(tid);
     if (phase <= 0)
     {
-        return 1;
+        return 1; // Non-phased work is always eligible to run.
     }
 
     pthread_mutex_lock(&g_phase_mutex);
-    ready = (phase < g_current_phase) || (phase == g_current_phase && client == g_current_client);
+    ready = (phase < g_current_phase) || (phase == g_current_phase && client == g_current_client); // Enforce deterministic client/phase order.
     pthread_mutex_unlock(&g_phase_mutex);
 
     return ready;
@@ -179,19 +179,19 @@ static void advance_turn_on_commit(int tid)
     client = txn_client_id(tid);
     if (phase <= 0 || phase >= MAX_PHASES || client <= 0 || client >= MAX_CLIENTS)
     {
-        return;
+        return; // Ignore malformed transaction IDs.
     }
 
     pthread_mutex_lock(&g_phase_mutex);
     if (phase == g_current_phase && client == g_current_client)
     {
-        g_current_client++;
+        g_current_client++; // Move to the next client in the same phase.
         if (g_current_client > EXPECTED_SHUTDOWNS)
         {
             g_current_client = 1;
-            g_current_phase++;
+            g_current_phase++; // Wrap clients and advance to the next phase.
         }
-        pthread_cond_broadcast(&g_phase_cond);
+        pthread_cond_broadcast(&g_phase_cond); // Wake workers waiting for their turn.
     }
     pthread_mutex_unlock(&g_phase_mutex);
 }
@@ -215,7 +215,7 @@ static int send_all(int fd, const void *buf, size_t len)
             return 0;
         }
         p += (size_t)n;
-        len -= (size_t)n;
+        len -= (size_t)n; // Continue until the entire response buffer is transmitted.
     }
     return 1;
 }
@@ -239,7 +239,7 @@ static int recv_all(int fd, void *buf, size_t len)
             return 0;
         }
         p += (size_t)n;
-        len -= (size_t)n;
+        len -= (size_t)n; // Continue until a full fixed-size request is received.
     }
     return 1;
 }
@@ -250,10 +250,10 @@ static txn_state_t *get_txn_state(int tid)
     txn_state_t *tx = &txn_states[idx];
     if (!tx->active || tx->tid != tid)
     {
-        memset(tx, 0, sizeof(*tx));
+        memset(tx, 0, sizeof(*tx)); // Reinitialize reused hash slot for a new TID.
         tx->active = 1;
         tx->tid = tid;
-        tx->max_block = -1;
+        tx->max_block = -1; // Sentinel: no lock acquired yet.
     }
     return tx;
 }
@@ -288,17 +288,17 @@ static int lock_can_grant(lock_entry_t *e, int tid, int mode)
 {
     if (e->holder_count == 0)
     {
-        return 1;
+        return 1; // No holders means lock is immediately available.
     }
 
     if (mode == READ_LOCK)
     {
-        return (e->lock_mode == READ_LOCK);
+        return (e->lock_mode == READ_LOCK); // Shared reads can coexist.
     }
 
     if (e->lock_mode == READ_LOCK)
     {
-        return (e->holder_count == 1 && e->holders[0] == tid);
+        return (e->holder_count == 1 && e->holders[0] == tid); // Allow safe read->write upgrade only when requester is sole reader.
     }
 
     return (e->holder_count == 1 && e->holders[0] == tid);
@@ -312,17 +312,17 @@ static void lock_grant(lock_entry_t *e, int tid, int mode)
     {
         if (e->holder_count < (int)(sizeof(e->holders) / sizeof(e->holders[0])))
         {
-            e->holders[e->holder_count++] = tid;
+            e->holders[e->holder_count++] = tid; // Track this transaction as a lock holder.
         }
     }
 
     if (mode == WRITE_LOCK)
     {
-        e->lock_mode = WRITE_LOCK;
+        e->lock_mode = WRITE_LOCK; // Any granted writer makes the entry exclusive.
     }
     else if (e->lock_mode == FREE_LOCK)
     {
-        e->lock_mode = READ_LOCK;
+        e->lock_mode = READ_LOCK; // First reader sets shared mode.
     }
 }
 
@@ -343,18 +343,18 @@ static void lock_release_locked(int tid, int blockno)
         int j;
         for (j = i; j < e->holder_count - 1; j++)
         {
-            e->holders[j] = e->holders[j + 1];
+            e->holders[j] = e->holders[j + 1]; // Compact holder list after removal.
         }
         e->holder_count--;
         if (e->holder_count == 0)
         {
-            e->lock_mode = FREE_LOCK;
+            e->lock_mode = FREE_LOCK; // No holders left; lock is now free.
         }
         else if (e->lock_mode == WRITE_LOCK)
         {
-            e->lock_mode = READ_LOCK;
+            e->lock_mode = READ_LOCK; // Conservatively fall back to shared mode.
         }
-        pthread_cond_broadcast(&e->cond);
+        pthread_cond_broadcast(&e->cond); // Wake waiters to re-check grant conditions.
     }
 }
 
@@ -365,11 +365,11 @@ static void release_all_locks_locked(int tid)
 
     for (i = 0; i < tx->held_count; i++)
     {
-        lock_release_locked(tid, tx->held[i].blockno);
+        lock_release_locked(tid, tx->held[i].blockno); // Release each block tracked by this transaction.
     }
 
-    tx->held_count = 0;
-    tx->max_block = -1;
+    tx->held_count = 0; // Clear per-transaction lock bookkeeping.
+    tx->max_block = -1; // Reset monotonic ordering state.
 }
 
 static int lock_acquire(int tid, int blockno, int mode)
@@ -388,17 +388,17 @@ static int lock_acquire(int tid, int blockno, int mode)
     tx = get_txn_state(tid);
     if (tx->held_count > 0 && blockno < tx->max_block)
     {
-        release_all_locks_locked(tid);
+        release_all_locks_locked(tid); // Enforce ordered locking to avoid cycles.
     }
 
     if (txn_find_held(tx, blockno) >= 0)
     {
         pthread_mutex_unlock(&g_lock_mutex);
-        return 1;
+        return 1; // Already owns this block lock.
     }
 
     e = &lock_table[blockno];
-    node = (lock_request_t *)calloc(1, sizeof(*node));
+    node = (lock_request_t *)calloc(1, sizeof(*node)); // Queue node used for FIFO admission.
     if (node == NULL)
     {
         pthread_mutex_unlock(&g_lock_mutex);
@@ -411,7 +411,7 @@ static int lock_acquire(int tid, int blockno, int mode)
 
     if (e->waiting == NULL)
     {
-        e->waiting = node;
+        e->waiting = node; // First waiter becomes queue head.
     }
     else
     {
@@ -420,7 +420,7 @@ static int lock_acquire(int tid, int blockno, int mode)
         {
             tail = tail->next;
         }
-        tail->next = node;
+        tail->next = node; // Append at tail to preserve fairness.
     }
 
     for (;;)
@@ -428,7 +428,7 @@ static int lock_acquire(int tid, int blockno, int mode)
         if (e->waiting == node && lock_can_grant(e, tid, mode))
         {
             int idx;
-            e->waiting = node->next;
+            e->waiting = node->next; // Pop this request from queue head.
             lock_grant(e, tid, mode);
             free(node);
 
@@ -437,18 +437,18 @@ static int lock_acquire(int tid, int blockno, int mode)
             {
                 tx->held[tx->held_count].blockno = blockno;
                 tx->held[tx->held_count].mode = mode;
-                tx->held_count++;
+                tx->held_count++; // Record granted lock in transaction state.
             }
             if (blockno > tx->max_block)
             {
-                tx->max_block = blockno;
+                tx->max_block = blockno; // Track highest block to enforce lock ordering.
             }
-            pthread_cond_broadcast(&e->cond);
+            pthread_cond_broadcast(&e->cond); // Let next waiter re-evaluate immediately.
             pthread_mutex_unlock(&g_lock_mutex);
             return 1;
         }
 
-        pthread_cond_wait(&e->cond, &g_lock_mutex);
+        pthread_cond_wait(&e->cond, &g_lock_mutex); // Sleep until lock state changes.
     }
 }
 
@@ -467,7 +467,7 @@ static int rel_to_block(const char *name)
     {
         sum += (unsigned char)name[i];
     }
-    return sum % DISKSIZE;
+    return sum % DISKSIZE; // Deterministic mapping from relation name to lock bucket.
 }
 
 static int tokenize_line(const char *line, char out[][64], int max_tokens)
@@ -478,7 +478,7 @@ static int tokenize_line(const char *line, char out[][64], int max_tokens)
 
     strncpy(tmp, line, sizeof(tmp) - 1);
     tmp[sizeof(tmp) - 1] = '\0';
-    tok = strtok(tmp, " \t\r\n");
+    tok = strtok(tmp, " \t\r\n"); // Split on all common ASCII whitespace.
 
     while (tok != NULL && c < max_tokens)
     {
@@ -500,7 +500,7 @@ static void add_lock_target(int *blocks, int *modes, int *count, int block, int 
         {
             if (mode == WRITE_LOCK)
             {
-                modes[i] = WRITE_LOCK;
+                modes[i] = WRITE_LOCK; // Upgrade existing target to strongest required mode.
             }
             return;
         }
@@ -510,7 +510,7 @@ static void add_lock_target(int *blocks, int *modes, int *count, int block, int 
     {
         blocks[*count] = block;
         modes[*count] = mode;
-        (*count)++;
+        (*count)++; // Append unique lock target.
     }
 }
 
@@ -549,7 +549,7 @@ static int parse_first_line(const char *payload, char *line, size_t cap)
     }
     if (n >= cap)
     {
-        n = cap - 1;
+        n = cap - 1; // Truncate safely to guarantee null termination.
     }
     memcpy(line, payload, n);
     line[n] = '\0';
@@ -563,8 +563,8 @@ static void derive_lock_plan(const char *payload, int *blocks, int *modes, int *
     int n;
     *count = 0;
 
-    parse_first_line(payload, first, sizeof(first));
-    n = tokenize_line(first, tok, 8);
+    parse_first_line(payload, first, sizeof(first)); // Parse only the command header.
+    n = tokenize_line(first, tok, 8); // Tokenize opcode and arguments.
 
     if (n <= 0)
     {
@@ -573,7 +573,7 @@ static void derive_lock_plan(const char *payload, int *blocks, int *modes, int *
 
     if (strcmp(tok[0], "CR") == 0 && n >= 2)
     {
-        add_lock_target(blocks, modes, count, rel_to_block(tok[1]), WRITE_LOCK);
+        add_lock_target(blocks, modes, count, rel_to_block(tok[1]), WRITE_LOCK); // Create relation mutates metadata.
     }
     else if (strcmp(tok[0], "DE") == 0 && n >= 2)
     {
@@ -618,7 +618,7 @@ static int parse_required_relations(const char *payload, char names[][MAX_NAME],
     n = tokenize_line(first, tok, 8);
     if (n <= 0)
     {
-        return 1;
+        return 1; // Empty command means no relation dependencies.
     }
 
     if ((strcmp(tok[0], "IN") == 0 || strcmp(tok[0], "RM") == 0 || strcmp(tok[0], "UP") == 0 || strcmp(tok[0], "PR") == 0 || strcmp(tok[0], "DE") == 0) && n >= 2)
@@ -648,7 +648,7 @@ static int wait_for_required_relations(const char *payload)
     parse_required_relations(payload, reqs, &count);
     if (count == 0)
     {
-        return 1;
+        return 1; // No prerequisite relation names to wait on.
     }
 
     for (tries = 0; tries < 50; tries++)
@@ -668,7 +668,7 @@ static int wait_for_required_relations(const char *payload)
 
         if (ok)
         {
-            return 1;
+            return 1; // All required relations are visible.
         }
 
         pthread_mutex_lock(&g_rel_mutex);
@@ -686,7 +686,7 @@ static int wait_for_required_relations(const char *payload)
         pthread_mutex_unlock(&g_rel_mutex);
     }
 
-    return 0;
+    return 0; // Timed out waiting for relation creation by peers.
 }
 
 static int render_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
@@ -702,7 +702,7 @@ static int render_cb(const relation_meta_t *rel, const char *tuple_text, void *c
         pc->buf[pc->len] = '\0';
     }
 
-    return 1;
+    return 1; // Continue scanning remaining tuples.
 }
 
 static int render_relation(const char *name, char *out, size_t out_sz)
@@ -741,7 +741,7 @@ static int render_relation(const char *name, char *out, size_t out_sz)
     pc.cap = out_sz;
     pc.len = strlen(out);
 
-    scan_relation(rel, render_cb, &pc);
+    scan_relation(rel, render_cb, &pc); // Append each tuple line via callback.
 
     if (pc.len + 1 < pc.cap)
     {
@@ -770,7 +770,7 @@ static int execute_payload(const char *payload, response_t *resp)
     {
         int ok;
         pthread_mutex_lock(&g_db_mutex);
-        ok = render_relation(tok[1], resp->buffer, sizeof(resp->buffer));
+        ok = render_relation(tok[1], resp->buffer, sizeof(resp->buffer)); // PR returns textual relation dump in response body.
         pthread_mutex_unlock(&g_db_mutex);
         if (!ok)
         {
@@ -783,7 +783,7 @@ static int execute_payload(const char *payload, response_t *resp)
     {
         FILE *fp;
         pthread_mutex_lock(&g_db_mutex);
-        fp = fmemopen((void *)payload, strlen(payload), "r");
+        fp = fmemopen((void *)payload, strlen(payload), "r"); // Run payload through existing mydb parser unchanged.
         if (fp == NULL)
         {
             pthread_mutex_unlock(&g_db_mutex);
@@ -811,7 +811,7 @@ static void process_request(work_item_t *item)
 
     if (item->req.type == EXEC_REQ)
     {
-        derive_lock_plan(item->req.buffer, blocks, modes, &count);
+        derive_lock_plan(item->req.buffer, blocks, modes, &count); // Infer required relation locks from command opcode.
         for (i = 0; i < count; i++)
         {
             if (!lock_acquire(item->req.tid, blocks[i], modes[i]))
@@ -836,7 +836,7 @@ static void process_request(work_item_t *item)
                 txn_state_t *tx;
                 pthread_mutex_lock(&g_lock_mutex);
                 tx = get_txn_state(item->req.tid);
-                tx->created_relation = 1;
+                tx->created_relation = 1; // Trigger relation-available broadcast at commit.
                 pthread_mutex_unlock(&g_lock_mutex);
             }
 
@@ -854,20 +854,20 @@ static void process_request(work_item_t *item)
         {
             txn_state_t *tx = get_txn_state(item->req.tid);
             should_broadcast = tx->created_relation;
-            tx->created_relation = 0;
+            tx->created_relation = 0; // Consume flag so only one broadcast happens per set of creates.
         }
         pthread_mutex_unlock(&g_lock_mutex);
 
-        release_all_locks(item->req.tid);
+        release_all_locks(item->req.tid); // Commit releases every lock owned by this TID.
 
         if (should_broadcast)
         {
             pthread_mutex_lock(&g_rel_mutex);
-            pthread_cond_broadcast(&g_rel_cond);
+            pthread_cond_broadcast(&g_rel_cond); // Wake transactions waiting for newly created relations.
             pthread_mutex_unlock(&g_rel_mutex);
         }
 
-        advance_turn_on_commit(item->req.tid);
+        advance_turn_on_commit(item->req.tid); // Hand off deterministic execution turn.
 
         resp.status = 1;
         resp.datalen = 0;
@@ -875,12 +875,12 @@ static void process_request(work_item_t *item)
     else if (item->req.type == SHUTDOWN_REQ)
     {
         pthread_mutex_lock(&g_shutdown_mutex);
-        g_shutdown_count++;
+        g_shutdown_count++; // Count graceful shutdown votes from clients.
         if (g_shutdown_count >= EXPECTED_SHUTDOWNS)
         {
             g_running = 0;
             if (g_listen_fd >= 0) {
-                shutdown(g_listen_fd, SHUT_RDWR);
+                shutdown(g_listen_fd, SHUT_RDWR); // Force accept() to unblock and exit loop.
             }
         }
         pthread_mutex_unlock(&g_shutdown_mutex);
@@ -907,7 +907,7 @@ static void *worker_main(void *arg)
     while (1)
     {
         work_item_t item;
-        ssize_t n = mq_receive(g_mqd, (char *)&item, sizeof(item), NULL);
+        ssize_t n = mq_receive(g_mqd, (char *)&item, sizeof(item), NULL); // Pull next request from global work queue.
 
         if (n < 0)
         {
@@ -932,12 +932,12 @@ static void *worker_main(void *arg)
                 }
                 continue;
             }
-            usleep(1000);
+            usleep(1000); // Back off briefly before retrying phase-gated work.
             continue;
         }
 
         if (item.client_fd != -1) {
-            process_request(&item);
+            process_request(&item); // Sentinel messages use client_fd == -1 and are ignored.
         }
 
         if (!g_running)
@@ -952,7 +952,7 @@ static void *worker_main(void *arg)
 static void *reader_main(void *arg)
 {
     int fd = *(int *)arg;
-    free(arg);
+    free(arg); // Reader owns heap argument after thread starts.
 
     for (;;)
     {
@@ -979,7 +979,7 @@ static void *reader_main(void *arg)
         }
     }
 
-    close(fd);
+    close(fd); // Close socket when peer disconnects or server stops.
     return NULL;
 }
 
@@ -995,7 +995,7 @@ static int start_listener(void)
         return -1;
     }
 
-    setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)); // Speed up restarts during testing.
 
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -1023,7 +1023,7 @@ int main(void)
     pthread_t workers[WORKER_COUNT];
     struct mq_attr attr;
 
-    init_system();
+    init_system(); // Initialize underlying mydb global state.
 
     for (i = 0; i < DISKSIZE; i++)
     {
@@ -1031,13 +1031,13 @@ int main(void)
         lock_table[i].lock_mode = FREE_LOCK;
         lock_table[i].holder_count = 0;
         lock_table[i].waiting = NULL;
-        pthread_cond_init(&lock_table[i].cond, NULL);
+        pthread_cond_init(&lock_table[i].cond, NULL); // One condition variable per lock bucket.
     }
 
     snprintf(g_mq_name, sizeof(g_mq_name), "/dbreq_%ld", (long)getpid());
     memset(&attr, 0, sizeof(attr));
     attr.mq_maxmsg = 10;
-    attr.mq_msgsize = sizeof(work_item_t);
+    attr.mq_msgsize = sizeof(work_item_t); // Queue entries are fixed-size work items.
 
     g_mqd = mq_open(g_mq_name, O_CREAT | O_RDWR, 0600, &attr);
     if (g_mqd == (mqd_t)-1)
@@ -1048,7 +1048,7 @@ int main(void)
 
     for (i = 0; i < WORKER_COUNT; i++)
     {
-        pthread_create(&workers[i], NULL, worker_main, NULL);
+        pthread_create(&workers[i], NULL, worker_main, NULL); // Start background worker pool.
     }
 
     g_listen_fd = start_listener();
@@ -1066,7 +1066,7 @@ int main(void)
         int *fd_arg;
         pthread_t t;
 
-        cfd = accept(g_listen_fd, (struct sockaddr *)&caddr, &clen);
+        cfd = accept(g_listen_fd, (struct sockaddr *)&caddr, &clen); // Accept incoming client connection.
         if (cfd < 0)
         {
             if (errno == EINTR)
@@ -1088,8 +1088,8 @@ int main(void)
         }
         *fd_arg = cfd;
 
-        pthread_create(&t, NULL, reader_main, fd_arg);
-        pthread_detach(t);
+        pthread_create(&t, NULL, reader_main, fd_arg); // Spawn per-connection reader thread.
+        pthread_detach(t); // Reader cleans itself up when finished.
     }
 
     if (g_listen_fd >= 0)
@@ -1103,7 +1103,7 @@ int main(void)
         work_item_t item;
         memset(&item, 0, sizeof(item));
         item.client_fd = -1;
-        mq_send(g_mqd, (const char *)&item, sizeof(item), 0);
+        mq_send(g_mqd, (const char *)&item, sizeof(item), 0); // Send sentinel to unblock worker receive.
     }
 
     for (i = 0; i < WORKER_COUNT; i++)
@@ -1111,8 +1111,8 @@ int main(void)
         pthread_join(workers[i], NULL);
     }
 
-    mq_close(g_mqd);
-    mq_unlink(g_mq_name);
+    mq_close(g_mqd); // Close this process descriptor.
+    mq_unlink(g_mq_name); // Remove named queue from kernel namespace.
 
     return 0;
 }
