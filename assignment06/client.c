@@ -1,3 +1,12 @@
+/*
+ * File: client.c
+ * Purpose: A simple database client implementation. 
+ *          Connects to the database server, sends requests, 
+ *          and receives responses.
+ * Author: Sean Balbale
+ * Date: 4/3/2026
+*/
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>

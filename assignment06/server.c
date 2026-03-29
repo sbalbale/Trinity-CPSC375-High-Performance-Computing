@@ -1,3 +1,13 @@
+/*
+ * File: server.c
+ * Purpose: A simple database server implementation. 
+ *          Accepts client connections, processes requests 
+ *          with locking and transaction management, and executes 
+ *          database commands using the mydb engine.
+ * Author: Sean Balbale
+ * Date: 4/3/2026
+*/
+
 #define _GNU_SOURCE
 
 #include <arpa/inet.h>
