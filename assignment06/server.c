@@ -109,7 +109,7 @@ static int g_running = 1;
 static mqd_t g_mqd = (mqd_t)-1;
 static char g_mq_name[64];
 static int g_current_phase = 1;
-static unsigned char g_phase_committed[MAX_PHASES][MAX_CLIENTS];
+static int g_current_client = 1;
 
 static int txn_client_id(int tid)
 {
@@ -132,6 +132,7 @@ static int txn_phase_id(int tid)
 static int phase_is_ready(int tid)
 {
     int phase;
+    int client;
     int ready;
 
     if (tid <= 0)
@@ -140,19 +141,20 @@ static int phase_is_ready(int tid)
     }
 
     phase = txn_phase_id(tid);
+    client = txn_client_id(tid);
     if (phase <= 0)
     {
         return 1;
     }
 
     pthread_mutex_lock(&g_phase_mutex);
-    ready = (phase <= g_current_phase);
+    ready = (phase < g_current_phase) || (phase == g_current_phase && client == g_current_client);
     pthread_mutex_unlock(&g_phase_mutex);
 
     return ready;
 }
 
-static void phase_commit_arrived(int tid)
+static void advance_turn_on_commit(int tid)
 {
     int phase;
     int client;
@@ -170,25 +172,15 @@ static void phase_commit_arrived(int tid)
     }
 
     pthread_mutex_lock(&g_phase_mutex);
-    if (!g_phase_committed[phase][client])
+    if (phase == g_current_phase && client == g_current_client)
     {
-        int c;
-        int done = 0;
-        g_phase_committed[phase][client] = 1;
-
-        for (c = 1; c <= EXPECTED_SHUTDOWNS; c++)
+        g_current_client++;
+        if (g_current_client > EXPECTED_SHUTDOWNS)
         {
-            if (g_phase_committed[phase][c])
-            {
-                done++;
-            }
-        }
-
-        if (phase == g_current_phase && done >= EXPECTED_SHUTDOWNS)
-        {
+            g_current_client = 1;
             g_current_phase++;
-            pthread_cond_broadcast(&g_phase_cond);
         }
+        pthread_cond_broadcast(&g_phase_cond);
     }
     pthread_mutex_unlock(&g_phase_mutex);
 }
@@ -864,7 +856,7 @@ static void process_request(work_item_t *item)
             pthread_mutex_unlock(&g_rel_mutex);
         }
 
-        phase_commit_arrived(item->req.tid);
+        advance_turn_on_commit(item->req.tid);
 
         resp.status = 1;
         resp.datalen = 0;
