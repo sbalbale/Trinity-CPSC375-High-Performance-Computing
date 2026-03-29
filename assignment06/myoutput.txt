@@ -1,0 +1,39 @@
+expensive
+fid orig dest dist price
+7318 BOS ORD 867 170
+8750 BOS DEN 1971 240
+6502 BOS ATL 946 180
+4821 BOS MIA 1258 200
+
+uresult
+fid orig dest dist price
+1934 BOS JFK 215 100
+7318 BOS ORD 867 170
+8750 BOS DEN 1971 240
+4821 BOS MIA 1258 350
+5555 BOS LAX 3000 500
+9999 JFK BDL 400 150
+
+finalres
+fid orig dest dist price
+7318 BOS ORD 867 170
+8750 BOS DEN 1971 240
+4821 BOS MIA 1258 350
+
+dresult
+fid orig dest dist price
+1934 BOS JFK 215 100
+7318 BOS ORD 867 170
+8750 BOS DEN 1971 240
+4821 BOS MIA 1258 350
+
+bigplane
+pid type cap
+103 B787 240
+
+pilots
+pilot
+DAVIS
+CLARK
+SMITH
+
