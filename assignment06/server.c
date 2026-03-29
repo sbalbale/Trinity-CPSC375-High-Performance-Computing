@@ -108,6 +108,7 @@ static int g_shutdown_count = 0;
 static int g_running = 1;
 static mqd_t g_mqd = (mqd_t)-1;
 static char g_mq_name[64];
+static int g_listen_fd = -1;
 static int g_current_phase = 1;
 static int g_current_client = 1;
 
@@ -868,6 +869,9 @@ static void process_request(work_item_t *item)
         if (g_shutdown_count >= EXPECTED_SHUTDOWNS)
         {
             g_running = 0;
+            if (g_listen_fd >= 0) {
+                shutdown(g_listen_fd, SHUT_RDWR);
+            }
         }
         pthread_mutex_unlock(&g_shutdown_mutex);
 
@@ -922,7 +926,9 @@ static void *worker_main(void *arg)
             continue;
         }
 
-        process_request(&item);
+        if (item.client_fd != -1) {
+            process_request(&item);
+        }
 
         if (!g_running)
         {
@@ -1004,7 +1010,6 @@ static int start_listener(void)
 int main(void)
 {
     int i;
-    int listen_fd;
     pthread_t workers[WORKER_COUNT];
     struct mq_attr attr;
 
@@ -1036,8 +1041,8 @@ int main(void)
         pthread_create(&workers[i], NULL, worker_main, NULL);
     }
 
-    listen_fd = start_listener();
-    if (listen_fd < 0)
+    g_listen_fd = start_listener();
+    if (g_listen_fd < 0)
     {
         perror("listen");
         g_running = 0;
@@ -1051,7 +1056,7 @@ int main(void)
         int *fd_arg;
         pthread_t t;
 
-        cfd = accept(listen_fd, (struct sockaddr *)&caddr, &clen);
+        cfd = accept(g_listen_fd, (struct sockaddr *)&caddr, &clen);
         if (cfd < 0)
         {
             if (errno == EINTR)
@@ -1077,15 +1082,17 @@ int main(void)
         pthread_detach(t);
     }
 
-    if (listen_fd >= 0)
+    if (g_listen_fd >= 0)
     {
-        close(listen_fd);
+        close(g_listen_fd);
+        g_listen_fd = -1;
     }
 
     for (i = 0; i < WORKER_COUNT; i++)
     {
         work_item_t item;
         memset(&item, 0, sizeof(item));
+        item.client_fd = -1;
         mq_send(g_mqd, (const char *)&item, sizeof(item), 0);
     }
 
