@@ -62,7 +62,7 @@ static int send_all(int fd, const void *buf, size_t len)
             return 0;
         }
         p += (size_t)n;
-        len -= (size_t)n;
+        len -= (size_t)n; // Keep sending until the full request struct is written.
     }
     return 1;
 }
@@ -86,7 +86,7 @@ static int recv_all(int fd, void *buf, size_t len)
             return 0;
         }
         p += (size_t)n;
-        len -= (size_t)n;
+        len -= (size_t)n; // Keep reading until the full response struct is received.
     }
     return 1;
 }
@@ -96,7 +96,7 @@ static void trim_newline(char *s)
     size_t n = strlen(s);
     while (n > 0 && (s[n - 1] == '\n' || s[n - 1] == '\r'))
     {
-        s[n - 1] = '\0';
+        s[n - 1] = '\0'; // Strip trailing line endings from fgets().
         n--;
     }
 }
@@ -110,7 +110,7 @@ static int parse_extra_count(const char *cmd_line)
     int n;
 
     cmd[0] = '\0';
-    n = sscanf(cmd_line, "%7s %63s %63s %63s", cmd, a, b, c);
+    n = sscanf(cmd_line, "%7s %63s %63s %63s", cmd, a, b, c); // Capture opcode and first arguments.
     if (n <= 0)
     {
         return 0;
@@ -121,7 +121,7 @@ static int parse_extra_count(const char *cmd_line)
         int attrs = 0;
         if (sscanf(cmd_line, "CR %63s %d", a, &attrs) == 2)
         {
-            return attrs;
+            return attrs; // CR consumes N attribute-definition lines.
         }
     }
     else if (strcmp(cmd, "IN") == 0 || strcmp(cmd, "RM") == 0 || strcmp(cmd, "UP") == 0)
@@ -129,7 +129,7 @@ static int parse_extra_count(const char *cmd_line)
         int rows = 0;
         if (sscanf(cmd_line, "%*s %63s %d", a, &rows) == 2)
         {
-            return rows;
+            return rows; // IN/RM/UP consume N tuple lines.
         }
     }
     else if (strcmp(cmd, "PJ") == 0 || strcmp(cmd, "SL") == 0)
@@ -137,7 +137,7 @@ static int parse_extra_count(const char *cmd_line)
         int rows = 0;
         if (sscanf(cmd_line, "%*s %63s %63s %d", a, b, &rows) == 3)
         {
-            return rows;
+            return rows; // Binary ops with one stream argument count.
         }
     }
     else if (strcmp(cmd, "NJ") == 0)
@@ -145,7 +145,7 @@ static int parse_extra_count(const char *cmd_line)
         int rows = 0;
         if (sscanf(cmd_line, "NJ %63s %63s %63s %d", a, b, c, &rows) == 4)
         {
-            return rows;
+            return rows; // NJ includes output relation and two inputs plus row count.
         }
     }
 
@@ -156,13 +156,13 @@ static int extract_tid_client(const char *tidtok)
 {
     if (tidtok[0] != 'T')
     {
-        return -1;
+        return -1; // Transaction token must start with T.
     }
     if (tidtok[1] < '0' || tidtok[1] > '9')
     {
-        return -1;
+        return -1; // Next character identifies logical client number.
     }
-    return tidtok[1] - '0';
+    return tidtok[1] - '0'; // Example: T21 belongs to client 2.
 }
 
 static int connect_server(void)
@@ -181,13 +181,13 @@ static int connect_server(void)
     addr.sin_port = htons(SERVER_PORT);
     if (inet_pton(AF_INET, SERVER_IP, &addr.sin_addr) <= 0)
     {
-        close(fd);
+        close(fd); // Invalid server IP literal.
         return -1;
     }
 
     if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) != 0)
     {
-        close(fd);
+        close(fd); // Could not establish TCP session with server.
         return -1;
     }
 
@@ -198,11 +198,11 @@ static int rpc_call(int fd, request_t *req, response_t *resp)
 {
     if (!send_all(fd, req, sizeof(*req)))
     {
-        return 0;
+        return 0; // Write failure or disconnect while sending request.
     }
     if (!recv_all(fd, resp, sizeof(*resp)))
     {
-        return 0;
+        return 0; // Read failure or disconnect while waiting for response.
     }
     return 1;
 }
@@ -246,11 +246,11 @@ int main(int argc, char **argv)
         trim_newline(line);
         if (line[0] == '\0')
         {
-            continue;
+            continue; // Ignore blank lines in command script.
         }
         if (line[0] != 'T')
         {
-            continue;
+            continue; // Ignore non-transaction lines.
         }
 
         strncpy(local, line, sizeof(local) - 1);
@@ -258,7 +258,7 @@ int main(int argc, char **argv)
 
         if (sscanf(local, "%31s %7s", tidtok, cmd) < 2)
         {
-            continue;
+            continue; // Need at least transaction token + command token.
         }
 
         txn_client = extract_tid_client(tidtok);
@@ -267,9 +267,9 @@ int main(int argc, char **argv)
         {
             continue;
         }
-        rest++;
+        rest++; // Points to command payload after Txx prefix.
 
-        extra = parse_extra_count(rest);
+        extra = parse_extra_count(rest); // Number of following data lines for this command.
 
         if (txn_client != client_id)
         {
@@ -280,7 +280,7 @@ int main(int argc, char **argv)
                     break;
                 }
             }
-            continue;
+            continue; // Skip commands that belong to other client IDs.
         }
 
         if (strcmp(cmd, "C") == 0)
@@ -289,7 +289,7 @@ int main(int argc, char **argv)
             response_t resp;
             memset(&req, 0, sizeof(req));
             req.type = COMMIT_REQ;
-            req.tid = atoi(tidtok + 1);
+            req.tid = atoi(tidtok + 1); // Strip leading 'T' and parse numeric transaction ID.
 
             if (!rpc_call(fd, &req, &resp))
             {
@@ -304,10 +304,10 @@ int main(int argc, char **argv)
 
             memset(&req, 0, sizeof(req));
             req.type = EXEC_REQ;
-            req.tid = atoi(tidtok + 1);
+            req.tid = atoi(tidtok + 1); // Same transaction ID routing as commit.
 
-            snprintf(req.buffer, sizeof(req.buffer), "%s\n", rest);
-            used = strlen(req.buffer);
+            snprintf(req.buffer, sizeof(req.buffer), "%s\n", rest); // First line is the command line itself.
+            used = strlen(req.buffer); // Track occupied payload bytes for safe appends.
 
             for (i = 0; i < extra; i++)
             {
@@ -319,11 +319,11 @@ int main(int argc, char **argv)
                 if (used + strlen(extra_line) + 1 < sizeof(req.buffer))
                 {
                     strcpy(req.buffer + used, extra_line);
-                    used += strlen(extra_line);
+                    used += strlen(extra_line); // Append each required extra data line.
                 }
             }
 
-            req.datalen = (int)strlen(req.buffer);
+            req.datalen = (int)strlen(req.buffer); // Server reads this payload via fmemopen.
 
             if (!rpc_call(fd, &req, &resp))
             {
@@ -332,8 +332,8 @@ int main(int argc, char **argv)
 
             if (resp.status && resp.datalen > 0)
             {
-                fwrite(resp.buffer, 1, (size_t)resp.datalen, stdout);
-                fflush(stdout);
+                fwrite(resp.buffer, 1, (size_t)resp.datalen, stdout); // Print query output returned by server.
+                fflush(stdout); // Flush immediately for deterministic test output.
             }
         }
     }
@@ -343,10 +343,10 @@ int main(int argc, char **argv)
         response_t resp;
         memset(&req, 0, sizeof(req));
         req.type = SHUTDOWN_REQ;
-        req.tid = client_id;
-        rpc_call(fd, &req, &resp);
+        req.tid = client_id; // Reuse field to identify shutdown sender.
+        rpc_call(fd, &req, &resp); // Best-effort graceful shutdown vote.
     }
 
-    close(fd);
+    close(fd); // Release TCP socket before exiting process.
     return 0;
 }
