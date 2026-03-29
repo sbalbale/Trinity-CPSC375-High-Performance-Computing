@@ -26,6 +26,8 @@
 #define MAX_RESP_BODY 8192
 #define MAX_HOLD 256
 #define EXPECTED_SHUTDOWNS 4
+#define MAX_PHASES 16
+#define MAX_CLIENTS 16
 
 #define EXEC_REQ 10
 #define READ_REQ 0
@@ -99,11 +101,97 @@ static pthread_mutex_t g_db_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t g_rel_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t g_rel_cond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t g_shutdown_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t g_phase_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t g_phase_cond = PTHREAD_COND_INITIALIZER;
 
 static int g_shutdown_count = 0;
 static int g_running = 1;
 static mqd_t g_mqd = (mqd_t)-1;
 static char g_mq_name[64];
+static int g_current_phase = 1;
+static unsigned char g_phase_committed[MAX_PHASES][MAX_CLIENTS];
+
+static int txn_client_id(int tid)
+{
+    if (tid <= 0)
+    {
+        return 0;
+    }
+    return tid / 10;
+}
+
+static int txn_phase_id(int tid)
+{
+    if (tid <= 0)
+    {
+        return 0;
+    }
+    return tid % 10;
+}
+
+static int phase_is_ready(int tid)
+{
+    int phase;
+    int ready;
+
+    if (tid <= 0)
+    {
+        return 1;
+    }
+
+    phase = txn_phase_id(tid);
+    if (phase <= 0)
+    {
+        return 1;
+    }
+
+    pthread_mutex_lock(&g_phase_mutex);
+    ready = (phase <= g_current_phase);
+    pthread_mutex_unlock(&g_phase_mutex);
+
+    return ready;
+}
+
+static void phase_commit_arrived(int tid)
+{
+    int phase;
+    int client;
+
+    if (tid <= 0)
+    {
+        return;
+    }
+
+    phase = txn_phase_id(tid);
+    client = txn_client_id(tid);
+    if (phase <= 0 || phase >= MAX_PHASES || client <= 0 || client >= MAX_CLIENTS)
+    {
+        return;
+    }
+
+    pthread_mutex_lock(&g_phase_mutex);
+    if (!g_phase_committed[phase][client])
+    {
+        int c;
+        int done = 0;
+        g_phase_committed[phase][client] = 1;
+
+        for (c = 1; c <= EXPECTED_SHUTDOWNS; c++)
+        {
+            if (g_phase_committed[phase][c])
+            {
+                done++;
+            }
+        }
+
+        if (phase == g_current_phase && done >= EXPECTED_SHUTDOWNS)
+        {
+            g_current_phase++;
+            pthread_cond_broadcast(&g_phase_cond);
+        }
+    }
+    pthread_mutex_unlock(&g_phase_mutex);
+}
 
 static int send_all(int fd, const void *buf, size_t len)
 {
@@ -560,7 +648,7 @@ static int wait_for_required_relations(const char *payload)
         return 1;
     }
 
-    for (tries = 0; tries < 10; tries++)
+    for (tries = 0; tries < 50; tries++)
     {
         int ok = 1;
 
@@ -670,6 +758,11 @@ static int execute_payload(const char *payload, response_t *resp)
     parse_first_line(payload, first, sizeof(first));
     n = tokenize_line(first, tok, 8);
 
+    if (!wait_for_required_relations(payload))
+    {
+        return 0;
+    }
+
     if (n > 0 && strcmp(tok[0], "PR") == 0 && n >= 2)
     {
         int ok;
@@ -682,11 +775,6 @@ static int execute_payload(const char *payload, response_t *resp)
         }
         resp->datalen = (int)strlen(resp->buffer);
         return 1;
-    }
-
-    if (!wait_for_required_relations(payload))
-    {
-        return 0;
     }
 
     {
@@ -738,7 +826,9 @@ static void process_request(work_item_t *item)
             tn = parse_first_line(item->req.buffer, first, sizeof(first));
             (void)tn;
             tn = tokenize_line(first, tok, 8);
-            if (tn > 0 && strcmp(tok[0], "CR") == 0)
+            if (tn > 0 &&
+                (strcmp(tok[0], "CR") == 0 || strcmp(tok[0], "PJ") == 0 || strcmp(tok[0], "SL") == 0 ||
+                 strcmp(tok[0], "UN") == 0 || strcmp(tok[0], "DF") == 0 || strcmp(tok[0], "NJ") == 0))
             {
                 txn_state_t *tx;
                 pthread_mutex_lock(&g_lock_mutex);
@@ -773,6 +863,9 @@ static void process_request(work_item_t *item)
             pthread_cond_broadcast(&g_rel_cond);
             pthread_mutex_unlock(&g_rel_mutex);
         }
+
+        phase_commit_arrived(item->req.tid);
+
         resp.status = 1;
         resp.datalen = 0;
     }
@@ -785,6 +878,11 @@ static void process_request(work_item_t *item)
             g_running = 0;
         }
         pthread_mutex_unlock(&g_shutdown_mutex);
+
+        pthread_mutex_lock(&g_phase_mutex);
+        pthread_cond_broadcast(&g_phase_cond);
+        pthread_mutex_unlock(&g_phase_mutex);
+
         resp.status = 1;
         resp.datalen = 0;
     }
@@ -815,6 +913,20 @@ static void *worker_main(void *arg)
             {
                 break;
             }
+            continue;
+        }
+
+        if ((item.req.type == EXEC_REQ || item.req.type == COMMIT_REQ) && !phase_is_ready(item.req.tid))
+        {
+            if (mq_send(g_mqd, (const char *)&item, sizeof(item), 0) != 0)
+            {
+                if (!g_running)
+                {
+                    break;
+                }
+                continue;
+            }
+            usleep(1000);
             continue;
         }
 
