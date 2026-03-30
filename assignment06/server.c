@@ -1,14 +1,12 @@
 /*
  * File: server.c
- * Purpose: A simple database server implementation. 
- *          Accepts client connections, processes requests 
- *          with locking and transaction management, and executes 
+ * Purpose: A simple database server implementation.
+ *          Accepts client connections, processes requests
+ *          with locking and transaction management, and executes
  *          database commands using the mydb engine.
  * Author: Sean Balbale
  * Date: 4/3/2026
-*/
-
-#define _GNU_SOURCE
+ */
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -49,7 +47,8 @@
 #define WRITE_LOCK 1
 #define FREE_LOCK -1
 
-typedef struct {
+typedef struct
+{
     int type;
     int tid;
     int blockno;
@@ -57,19 +56,22 @@ typedef struct {
     char buffer[MAX_MSG_BODY];
 } request_t;
 
-typedef struct {
+typedef struct
+{
     int status;
     int datalen;
     char buffer[MAX_RESP_BODY];
 } response_t;
 
-typedef struct lock_request {
+typedef struct lock_request
+{
     int tid;
     int mode;
     struct lock_request *next;
 } lock_request_t;
 
-typedef struct {
+typedef struct
+{
     int blockno;
     int lock_mode;
     int holder_count;
@@ -78,12 +80,14 @@ typedef struct {
     pthread_cond_t cond;
 } lock_entry_t;
 
-typedef struct {
+typedef struct
+{
     int blockno;
     int mode;
 } held_lock_t;
 
-typedef struct {
+typedef struct
+{
     int active;
     int tid;
     int held_count;
@@ -92,12 +96,14 @@ typedef struct {
     int created_relation;
 } txn_state_t;
 
-typedef struct {
+typedef struct
+{
     request_t req;
     int client_fd;
 } work_item_t;
 
-typedef struct {
+typedef struct
+{
     char *buf;
     size_t cap;
     size_t len;
@@ -564,7 +570,7 @@ static void derive_lock_plan(const char *payload, int *blocks, int *modes, int *
     *count = 0;
 
     parse_first_line(payload, first, sizeof(first)); // Parse only the command header.
-    n = tokenize_line(first, tok, 8); // Tokenize opcode and arguments.
+    n = tokenize_line(first, tok, 8);                // Tokenize opcode and arguments.
 
     if (n <= 0)
     {
@@ -879,7 +885,8 @@ static void process_request(work_item_t *item)
         if (g_shutdown_count >= EXPECTED_SHUTDOWNS)
         {
             g_running = 0;
-            if (g_listen_fd >= 0) {
+            if (g_listen_fd >= 0)
+            {
                 shutdown(g_listen_fd, SHUT_RDWR); // Force accept() to unblock and exit loop.
             }
         }
@@ -936,7 +943,8 @@ static void *worker_main(void *arg)
             continue;
         }
 
-        if (item.client_fd != -1) {
+        if (item.client_fd != -1)
+        {
             process_request(&item); // Sentinel messages use client_fd == -1 and are ignored.
         }
 
@@ -1089,7 +1097,7 @@ int main(void)
         *fd_arg = cfd;
 
         pthread_create(&t, NULL, reader_main, fd_arg); // Spawn per-connection reader thread.
-        pthread_detach(t); // Reader cleans itself up when finished.
+        pthread_detach(t);                             // Reader cleans itself up when finished.
     }
 
     if (g_listen_fd >= 0)
@@ -1111,7 +1119,7 @@ int main(void)
         pthread_join(workers[i], NULL);
     }
 
-    mq_close(g_mqd); // Close this process descriptor.
+    mq_close(g_mqd);      // Close this process descriptor.
     mq_unlink(g_mq_name); // Remove named queue from kernel namespace.
 
     return 0;

@@ -1,11 +1,11 @@
 /*
  * File: client.c
- * Purpose: A simple database client implementation. 
- *          Connects to the database server, sends requests, 
+ * Purpose: A simple database client implementation.
+ *          Connects to the database server, sends requests,
  *          and receives responses.
  * Author: Sean Balbale
  * Date: 4/3/2026
-*/
+ */
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -29,7 +29,8 @@
 #define COMMIT_REQ 2
 #define SHUTDOWN_REQ 3
 
-typedef struct {
+typedef struct
+{
     int type;
     int tid;
     int blockno;
@@ -37,7 +38,8 @@ typedef struct {
     char buffer[MAX_MSG_BODY];
 } request_t;
 
-typedef struct {
+typedef struct
+{
     int status;
     int datalen;
     char buffer[MAX_RESP_BODY];
@@ -307,7 +309,7 @@ int main(int argc, char **argv)
             req.tid = atoi(tidtok + 1); // Same transaction ID routing as commit.
 
             snprintf(req.buffer, sizeof(req.buffer), "%s\n", rest); // First line is the command line itself.
-            used = strlen(req.buffer); // Track occupied payload bytes for safe appends.
+            used = strlen(req.buffer);                              // Track occupied payload bytes for safe appends.
 
             for (i = 0; i < extra; i++)
             {
@@ -333,7 +335,7 @@ int main(int argc, char **argv)
             if (resp.status && resp.datalen > 0)
             {
                 fwrite(resp.buffer, 1, (size_t)resp.datalen, stdout); // Print query output returned by server.
-                fflush(stdout); // Flush immediately for deterministic test output.
+                fflush(stdout);                                       // Flush immediately for deterministic test output.
             }
         }
     }
@@ -343,7 +345,7 @@ int main(int argc, char **argv)
         response_t resp;
         memset(&req, 0, sizeof(req));
         req.type = SHUTDOWN_REQ;
-        req.tid = client_id; // Reuse field to identify shutdown sender.
+        req.tid = client_id;       // Reuse field to identify shutdown sender.
         rpc_call(fd, &req, &resp); // Best-effort graceful shutdown vote.
     }
 
