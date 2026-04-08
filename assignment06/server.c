@@ -128,6 +128,11 @@ static int g_listen_fd = -1;
 static int g_current_phase = 1;
 static int g_current_client = 1;
 
+/*
+ *Function: txn_client_id
+ *Purpose: Extract the client identifier encoded in a transaction ID.
+ *Returns: Client ID on valid input, 0 for non-positive transaction IDs.
+ */
 static int txn_client_id(int tid)
 {
     if (tid <= 0)
@@ -137,6 +142,11 @@ static int txn_client_id(int tid)
     return tid / 10; // Transaction encoding uses client in the tens place.
 }
 
+/*
+ *Function: txn_phase_id
+ *Purpose: Extract the phase identifier encoded in a transaction ID.
+ *Returns: Phase ID on valid input, 0 for non-positive transaction IDs.
+ */
 static int txn_phase_id(int tid)
 {
     if (tid <= 0)
@@ -146,6 +156,11 @@ static int txn_phase_id(int tid)
     return tid % 10; // Transaction encoding uses phase in the ones place.
 }
 
+/*
+ *Function: phase_is_ready
+ *Purpose: Check whether a transaction is allowed to execute in deterministic phase/client order.
+ *Returns: 1 when execution is allowed now, 0 when it must wait.
+ */
 static int phase_is_ready(int tid)
 {
     int phase;
@@ -171,6 +186,11 @@ static int phase_is_ready(int tid)
     return ready;
 }
 
+/*
+ *Function: advance_turn_on_commit
+ *Purpose: Advance global phase/client scheduling state after a successful commit.
+ *Returns: Nothing.
+ */
 static void advance_turn_on_commit(int tid)
 {
     int phase;
@@ -202,6 +222,11 @@ static void advance_turn_on_commit(int tid)
     pthread_mutex_unlock(&g_phase_mutex);
 }
 
+/*
+ *Function: send_all
+ *Purpose: Send the entire buffer to a socket, handling partial sends and interruptions.
+ *Returns: 1 on success, 0 on failure or disconnect.
+ */
 static int send_all(int fd, const void *buf, size_t len)
 {
     const char *p = (const char *)buf;
@@ -226,6 +251,11 @@ static int send_all(int fd, const void *buf, size_t len)
     return 1;
 }
 
+/*
+ *Function: recv_all
+ *Purpose: Receive a full fixed-size buffer from a socket, handling partial reads and interruptions.
+ *Returns: 1 on success, 0 on failure or disconnect.
+ */
 static int recv_all(int fd, void *buf, size_t len)
 {
     char *p = (char *)buf;
@@ -250,6 +280,11 @@ static int recv_all(int fd, void *buf, size_t len)
     return 1;
 }
 
+/*
+ *Function: get_txn_state
+ *Purpose: Retrieve or initialize transaction bookkeeping state for a transaction ID.
+ *Returns: Pointer to the transaction state entry.
+ */
 static txn_state_t *get_txn_state(int tid)
 {
     int idx = tid & 0xFF;
@@ -264,6 +299,11 @@ static txn_state_t *get_txn_state(int tid)
     return tx;
 }
 
+/*
+ *Function: txn_find_held
+ *Purpose: Find the index of a block lock already held by a transaction.
+ *Returns: Held-lock index when found, -1 when not found.
+ */
 static int txn_find_held(txn_state_t *tx, int blockno)
 {
     int i;
@@ -277,6 +317,11 @@ static int txn_find_held(txn_state_t *tx, int blockno)
     return -1;
 }
 
+/*
+ *Function: holder_index
+ *Purpose: Locate a transaction ID in a lock entry holder list.
+ *Returns: Holder index when found, -1 otherwise.
+ */
 static int holder_index(lock_entry_t *e, int tid)
 {
     int i;
@@ -290,6 +335,11 @@ static int holder_index(lock_entry_t *e, int tid)
     return -1;
 }
 
+/*
+ *Function: lock_can_grant
+ *Purpose: Determine whether a queued lock request can be granted immediately.
+ *Returns: 1 if grantable, 0 if it must continue waiting.
+ */
 static int lock_can_grant(lock_entry_t *e, int tid, int mode)
 {
     if (e->holder_count == 0)
@@ -310,6 +360,11 @@ static int lock_can_grant(lock_entry_t *e, int tid, int mode)
     return (e->holder_count == 1 && e->holders[0] == tid);
 }
 
+/*
+ *Function: lock_grant
+ *Purpose: Apply lock ownership and mode changes when granting a lock request.
+ *Returns: Nothing.
+ */
 static void lock_grant(lock_entry_t *e, int tid, int mode)
 {
     int i = holder_index(e, tid);
@@ -332,6 +387,11 @@ static void lock_grant(lock_entry_t *e, int tid, int mode)
     }
 }
 
+/*
+ *Function: lock_release_locked
+ *Purpose: Release one block lock for a transaction while lock mutex is already held.
+ *Returns: Nothing.
+ */
 static void lock_release_locked(int tid, int blockno)
 {
     lock_entry_t *e;
@@ -364,6 +424,11 @@ static void lock_release_locked(int tid, int blockno)
     }
 }
 
+/*
+ *Function: release_all_locks_locked
+ *Purpose: Release all locks tracked by a transaction while lock mutex is already held.
+ *Returns: Nothing.
+ */
 static void release_all_locks_locked(int tid)
 {
     txn_state_t *tx = get_txn_state(tid);
@@ -378,6 +443,11 @@ static void release_all_locks_locked(int tid)
     tx->max_block = -1; // Reset monotonic ordering state.
 }
 
+/*
+ *Function: lock_acquire
+ *Purpose: Queue and acquire a lock for a block with fairness and ordering enforcement.
+ *Returns: 1 on successful acquisition, 0 on invalid input or allocation failure.
+ */
 static int lock_acquire(int tid, int blockno, int mode)
 {
     lock_request_t *node;
@@ -458,6 +528,11 @@ static int lock_acquire(int tid, int blockno, int mode)
     }
 }
 
+/*
+ *Function: release_all_locks
+ *Purpose: Public wrapper that releases all locks held by a transaction.
+ *Returns: Nothing.
+ */
 static void release_all_locks(int tid)
 {
     pthread_mutex_lock(&g_lock_mutex);
@@ -465,6 +540,11 @@ static void release_all_locks(int tid)
     pthread_mutex_unlock(&g_lock_mutex);
 }
 
+/*
+ *Function: rel_to_block
+ *Purpose: Map a relation name to a deterministic lock-table bucket index.
+ *Returns: Lock bucket index in the disk-size range.
+ */
 static int rel_to_block(const char *name)
 {
     int sum = 0;
@@ -476,6 +556,11 @@ static int rel_to_block(const char *name)
     return sum % DISKSIZE; // Deterministic mapping from relation name to lock bucket.
 }
 
+/*
+ *Function: tokenize_line
+ *Purpose: Split a command line into whitespace-delimited tokens.
+ *Returns: Number of tokens extracted.
+ */
 static int tokenize_line(const char *line, char out[][64], int max_tokens)
 {
     char tmp[MAX_MSG_BODY];
@@ -497,6 +582,11 @@ static int tokenize_line(const char *line, char out[][64], int max_tokens)
     return c;
 }
 
+/*
+ *Function: add_lock_target
+ *Purpose: Add or upgrade a relation lock target in a pending lock plan.
+ *Returns: Nothing.
+ */
 static void add_lock_target(int *blocks, int *modes, int *count, int block, int mode)
 {
     int i;
@@ -520,6 +610,11 @@ static void add_lock_target(int *blocks, int *modes, int *count, int block, int 
     }
 }
 
+/*
+ *Function: sort_targets
+ *Purpose: Sort lock targets by block number to maintain deterministic acquisition order.
+ *Returns: Nothing.
+ */
 static void sort_targets(int *blocks, int *modes, int count)
 {
     int i;
@@ -541,6 +636,11 @@ static void sort_targets(int *blocks, int *modes, int count)
     }
 }
 
+/*
+ *Function: parse_first_line
+ *Purpose: Copy the first line of a payload into a bounded output buffer.
+ *Returns: Number of characters copied to the output line.
+ */
 static int parse_first_line(const char *payload, char *line, size_t cap)
 {
     const char *nl = strchr(payload, '\n');
@@ -562,6 +662,11 @@ static int parse_first_line(const char *payload, char *line, size_t cap)
     return (int)n;
 }
 
+/*
+ *Function: derive_lock_plan
+ *Purpose: Infer required relation lock targets and modes from a command payload.
+ *Returns: Nothing.
+ */
 static void derive_lock_plan(const char *payload, int *blocks, int *modes, int *count)
 {
     char first[256];
@@ -608,11 +713,21 @@ static void derive_lock_plan(const char *payload, int *blocks, int *modes, int *
     sort_targets(blocks, modes, *count);
 }
 
+/*
+ *Function: relation_exists_by_name
+ *Purpose: Check whether a relation currently exists in the database catalog.
+ *Returns: 1 when relation exists, 0 otherwise.
+ */
 static int relation_exists_by_name(const char *name)
 {
     return find_relation(name) != NULL;
 }
 
+/*
+ *Function: parse_required_relations
+ *Purpose: Extract prerequisite relation names that must exist before executing a payload.
+ *Returns: 1 after parsing completes.
+ */
 static int parse_required_relations(const char *payload, char names[][MAX_NAME], int *count)
 {
     char first[256];
@@ -644,6 +759,11 @@ static int parse_required_relations(const char *payload, char names[][MAX_NAME],
     return 1;
 }
 
+/*
+ *Function: wait_for_required_relations
+ *Purpose: Wait until all prerequisite relations referenced by a payload become available.
+ *Returns: 1 when prerequisites are ready, 0 on timeout.
+ */
 static int wait_for_required_relations(const char *payload)
 {
     char reqs[3][MAX_NAME];
@@ -695,6 +815,11 @@ static int wait_for_required_relations(const char *payload)
     return 0; // Timed out waiting for relation creation by peers.
 }
 
+/*
+ *Function: render_cb
+ *Purpose: Append one tuple's textual form to a print buffer during relation scan.
+ *Returns: 1 to continue scanning tuples.
+ */
 static int render_cb(const relation_meta_t *rel, const char *tuple_text, void *ctx)
 {
     print_ctx_t *pc = (print_ctx_t *)ctx;
@@ -711,6 +836,11 @@ static int render_cb(const relation_meta_t *rel, const char *tuple_text, void *c
     return 1; // Continue scanning remaining tuples.
 }
 
+/*
+ *Function: render_relation
+ *Purpose: Build a printable relation dump including schema header and tuple rows.
+ *Returns: 1 on success, 0 on missing relation or output overflow.
+ */
 static int render_relation(const char *name, char *out, size_t out_sz)
 {
     relation_meta_t *rel;
@@ -758,6 +888,11 @@ static int render_relation(const char *name, char *out, size_t out_sz)
     return 1;
 }
 
+/*
+ *Function: execute_payload
+ *Purpose: Execute one command payload and populate response output when needed.
+ *Returns: 1 on success, 0 on execution or prerequisite failure.
+ */
 static int execute_payload(const char *payload, response_t *resp)
 {
     char first[256];
@@ -804,6 +939,11 @@ static int execute_payload(const char *payload, response_t *resp)
     return 1;
 }
 
+/*
+ *Function: process_request
+ *Purpose: Process one queued client request, including locking, execution, and response send.
+ *Returns: Nothing.
+ */
 static void process_request(work_item_t *item)
 {
     response_t resp;
@@ -907,6 +1047,11 @@ static void process_request(work_item_t *item)
     send_all(item->client_fd, &resp, sizeof(resp));
 }
 
+/*
+ *Function: worker_main
+ *Purpose: Worker thread loop that consumes requests from the message queue and executes them.
+ *Returns: Thread return pointer (always NULL).
+ */
 static void *worker_main(void *arg)
 {
     (void)arg;
@@ -957,6 +1102,11 @@ static void *worker_main(void *arg)
     return NULL;
 }
 
+/*
+ *Function: reader_main
+ *Purpose: Per-connection reader thread that receives requests and enqueues work items.
+ *Returns: Thread return pointer (always NULL).
+ */
 static void *reader_main(void *arg)
 {
     int fd = *(int *)arg;
@@ -991,6 +1141,11 @@ static void *reader_main(void *arg)
     return NULL;
 }
 
+/*
+ *Function: start_listener
+ *Purpose: Create, bind, and listen on the server TCP socket.
+ *Returns: Listening socket descriptor on success, -1 on failure.
+ */
 static int start_listener(void)
 {
     int sfd;
@@ -1025,6 +1180,11 @@ static int start_listener(void)
     return sfd;
 }
 
+/*
+ *Function: main
+ *Purpose: Initialize server resources, run accept loop, and shut down worker infrastructure.
+ *Returns: 0 on normal shutdown, 1 on startup message-queue failure.
+ */
 int main(void)
 {
     int i;

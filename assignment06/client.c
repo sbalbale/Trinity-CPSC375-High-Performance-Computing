@@ -44,7 +44,11 @@ typedef struct
     int datalen;
     char buffer[MAX_RESP_BODY];
 } response_t;
-
+/*
+ *   Function: send_all
+ *   Purpose: Send the entire buffer to the server, handling partial sends and interruptions.
+ *   Returns: 1 on success, 0 on failure or disconnect.
+ */
 static int send_all(int fd, const void *buf, size_t len)
 {
     const char *p = (const char *)buf;
@@ -69,6 +73,11 @@ static int send_all(int fd, const void *buf, size_t len)
     return 1;
 }
 
+/*
+ *   Function: recv_all
+ *   Purpose: Receive the entire buffer from the server, handling partial reads and interruptions.
+ *   Returns: 1 on success, 0 on failure or disconnect.
+ */
 static int recv_all(int fd, void *buf, size_t len)
 {
     char *p = (char *)buf;
@@ -93,6 +102,11 @@ static int recv_all(int fd, void *buf, size_t len)
     return 1;
 }
 
+/*
+ *   Function: trim_newline
+ *   Purpose: Remove trailing newline and carriage return characters from an input string.
+ *   Returns: Nothing.
+ */
 static void trim_newline(char *s)
 {
     size_t n = strlen(s);
@@ -103,6 +117,11 @@ static void trim_newline(char *s)
     }
 }
 
+/*
+ *   Function: parse_extra_count
+ *   Purpose: Determine how many additional lines are required for a command payload.
+ *   Returns: Number of extra lines to consume for the given command.
+ */
 static int parse_extra_count(const char *cmd_line)
 {
     char cmd[8];
@@ -154,6 +173,11 @@ static int parse_extra_count(const char *cmd_line)
     return 0;
 }
 
+/*
+ *   Function: extract_tid_client
+ *   Purpose: Parse a transaction token and extract its logical client identifier.
+ *   Returns: Client number on success, -1 on invalid transaction token format.
+ */
 static int extract_tid_client(const char *tidtok)
 {
     if (tidtok[0] != 'T')
@@ -167,6 +191,11 @@ static int extract_tid_client(const char *tidtok)
     return tidtok[1] - '0'; // Example: T21 belongs to client 2.
 }
 
+/*
+ *   Function: connect_server
+ *   Purpose: Create a TCP socket and establish a connection to the configured server endpoint.
+ *   Returns: Connected socket descriptor on success, -1 on failure.
+ */
 static int connect_server(void)
 {
     int fd;
@@ -196,6 +225,11 @@ static int connect_server(void)
     return fd;
 }
 
+/*
+ *   Function: rpc_call
+ *   Purpose: Send one request message and receive the corresponding server response.
+ *   Returns: 1 on successful round trip, 0 on send/receive failure.
+ */
 static int rpc_call(int fd, request_t *req, response_t *resp)
 {
     if (!send_all(fd, req, sizeof(*req)))
@@ -209,6 +243,11 @@ static int rpc_call(int fd, request_t *req, response_t *resp)
     return 1;
 }
 
+/*
+ *   Function: main
+ *   Purpose: Run the client event loop, dispatch transaction commands, and print server results.
+ *   Returns: 0 on normal completion, 1 on usage/connection/client-id errors.
+ */
 int main(int argc, char **argv)
 {
     int client_id;
