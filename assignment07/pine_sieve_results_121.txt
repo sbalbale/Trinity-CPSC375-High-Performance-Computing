@@ -1,0 +1,22 @@
+--- Running Domain Decomposition ---
+1 Processor:
+srun: warning: can't run 1 processes on 2 nodes, setting nnodes to 1
+5761455 primes are less than or equal to 100000000
+Total elapsed time:   0.450605 seconds
+2 Processors:
+5761455 primes are less than or equal to 100000000
+Total elapsed time:   0.241571 seconds
+4 Processors:
+5761455 primes are less than or equal to 100000000
+Total elapsed time:   0.121870 seconds
+--- Running Functional Decomposition ---
+1 Processor:
+srun: warning: can't run 1 processes on 2 nodes, setting nnodes to 1
+5761455 primes are less than or equal to 100000000
+Total elapsed time:   0.796236 seconds
+2 Processors:
+5761455 primes are less than or equal to 100000000
+Total elapsed time:   0.496460 seconds
+4 Processors:
+5761455 primes are less than or equal to 100000000
+Total elapsed time:   0.418110 seconds
