@@ -1,0 +1,28 @@
+---
+aliases: [Broadcast-and-Shift Matrix Mult]
+tags: [algorithm, matrix, distributed, mpi]
+sources: [lec31.txt]
+created: 2026-04-20
+updated: 2026-04-20
+---
+
+# Fox's Algorithm
+
+> [!abstract]
+> **Fox's Algorithm** is a distributed matrix multiplication algorithm that uses a **row-broadcast and column-shift** pattern. It is often more intuitive than Cannon's because it mimics the outer-product definition of matrix multiplication.
+
+## Core Mechanics
+
+### The Algorithm
+Iteration $k$ (from 0 to $\sqrt{p}-1$):
+1. **Broadcast A**: In each row $i$, the process at column $(i+k) \pmod{\sqrt{p}}$ broadcasts its block of matrix A to all other processes in the row.
+2. **Multiply**: Each process $P_{ij}$ multiplies the received A-block with its local B-block: $C_{ij} += A_{recvd} \times B_{local}$.
+3. **Shift B**: Each process $P_{ij}$ shifts its local B-block upwards to $P_{i-1,j}$ and receives a new B-block from $P_{i+1,j}$.
+
+> [!warning] Memory Overhead
+> Unlike Cannon's algorithm, which can operate in-place for communication, Fox's requires an additional buffer to hold the broadcasted block of matrix A.
+
+## Connections
+* **Prerequisites:** [[checkerboard-decomposition]], [[collective-communication]] (Broadcast).
+* **Used In:** Parallel linear algebra implementations.
+* **Contrasts With:** [[cannons-algorithm]].

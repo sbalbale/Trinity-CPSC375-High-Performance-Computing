@@ -14,6 +14,7 @@
 - [[lec28]] — Isoefficiency and Parallel Sorting II.
 - [[lec29]] — Parallel Sorting Algorithms III.
 - [[lec30]] — Matrix Multiplication I.
+- [[lec31]] — Matrix Multiplication II.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -57,6 +58,11 @@
 - [[distributed-shared-memory]] — Systems where memory is physically distributed but logically shared.
 - [[matrix-multiplication-optimization]] — Loop reordering (ikj) and tiling.
 - [[tiling-block-matrix]] — Explicit cache management via submatrices.
+- [[checkerboard-decomposition]] — 2D partitioning of matrices across processors.
+- [[cannons-algorithm]] — Initial skewing and shift-multiply.
+- [[foxs-algorithm]] — Row-broadcast and column-shift.
+- [[summa-algorithm]] — Scalable rank-$b$ panel updates.
+- [[computation-to-communication-ratio]] — Key metric for parallel algorithm scalability.
 - [[strassens-algorithm]] — Divide-and-conquer $O(n^{2.81})$ multiplication.
 - [[spatial-locality]] — Sequential memory access patterns.
 - [[communication-complexity]] — The cost of data movement between memory levels.
@@ -94,4 +100,5 @@
 - [[lec28-Summary]] — Isoefficiency, Odd-Even Mergesort, and Bitonic Mergesort.
 - [[lec29-Summary]] — Shearsort, Counting Sort, Radix Sort, and Assignment 8.
 - [[lec30-Summary]] — Cache optimization, Tiling, and Strassen's Algorithm.
+- [[lec31-Summary]] — Cannon's, Fox's, and SUMMA algorithms.
 ## Synthesis
