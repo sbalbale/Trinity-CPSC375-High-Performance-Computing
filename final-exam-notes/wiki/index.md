@@ -8,6 +8,7 @@
 - [[lec21]] — Collective Communication.
 - [[lec22]] — Derived Types and Barriers.
 - [[lec23]] — Parallel Sieve of Eratosthenes.
+- [[lec24]] — Sieve Implementation and Cache Coherence.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -41,6 +42,10 @@
 - [[block-decomposition]] — Strategy for dividing data into contiguous chunks.
 - [[interleaved-decomposition]] — Cyclic data distribution.
 - [[local-vs-global-indices]] — Mapping indices in parallel arrays.
+- [[sieve-optimizations]] — Odd-only, broadcast elimination, and loop reordering.
+- [[cache-optimization-parallel]] — Improving hit rates in data-intensive parallel loops.
+- [[cache-coherence-protocols]] — Write Through and Write Once (MESI-like) protocols.
+- [[distributed-shared-memory]] — Systems where memory is physically distributed but logically shared.
 - [[mpi-derived-datatypes]] — Representing collections of data items in memory.
 - [[mpi-barrier]] — Collective synchronization across processes.
 - [[performance-measurement-mpi]] — Using `MPI_Wtime` for profiling.
@@ -55,4 +60,5 @@
 - [[lec21-Summary]] — MPI Collective Communication operations.
 - [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
 - [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
+- [[lec24-Summary]] — Sieve optimizations and Cache Coherence protocols.
 ## Synthesis
