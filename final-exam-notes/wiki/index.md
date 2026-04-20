@@ -6,6 +6,7 @@
 - [[lec16]] — Deep dive into Mapping and parallelization examples (Search, Sieve).
 - [[lec17]] — Performance analysis metrics (Speedup, Efficiency, Amdahl's Law).
 - [[lec21]] — Collective Communication.
+- [[lec22]] — Derived Types and Barriers.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -36,6 +37,10 @@
 - [[overhead-parallel-computing]] — Non-computational time (comm, sync, idle).
 - [[collective-communication]] — Communication involving all processes in a communicator.
 - [[data-partitioning]] — Strategies for dividing data among processes.
+- [[mpi-derived-datatypes]] — Representing collections of data items in memory.
+- [[mpi-barrier]] — Collective synchronization across processes.
+- [[performance-measurement-mpi]] — Using `MPI_Wtime` for profiling.
+- [[acid-properties]] — Core requirements for database transactions.
 
 ## Exam Prep
 ## Homework Solutions
@@ -44,4 +49,5 @@
 - [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
 - [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
 - [[lec21-Summary]] — MPI Collective Communication operations.
+- [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
 ## Synthesis
