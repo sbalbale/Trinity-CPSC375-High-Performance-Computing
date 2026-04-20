@@ -8,6 +8,19 @@
 
 module load openmpi
 
+run_mpi() {
+	local ranks="$1"
+	shift
+
+	# OpenMPI on Pine should be started with mpirun inside a SLURM allocation.
+	if command -v mpirun >/dev/null 2>&1; then
+		mpirun -np "$ranks" "$@"
+	else
+		echo "ERROR: mpirun not found after loading openmpi module." >&2
+		exit 1
+	fi
+}
+
 # Build executables.
 make clean
 make all
@@ -21,12 +34,12 @@ echo "--- Serial Baseline ---"
 ./RadixSerial 1000000 12345
 
 echo "--- MPI Parallel (1 rank) ---"
-srun --ntasks=1 ./RadixParallel 1000000 3 12345
+run_mpi 1 ./RadixParallel 1000000 3 12345
 
 echo "--- MPI Parallel (2 ranks) ---"
-srun --ntasks=2 ./RadixParallel 1000000 3 12345
+run_mpi 2 ./RadixParallel 1000000 3 12345
 
 echo "--- MPI Parallel (4 ranks) ---"
-srun --ntasks=4 ./RadixParallel 1000000 3 12345
+run_mpi 4 ./RadixParallel 1000000 3 12345
 
 echo "Benchmarks complete."

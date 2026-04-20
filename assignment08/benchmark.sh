@@ -14,6 +14,19 @@
 
 module load openmpi
 
+run_mpi() {
+    local ranks="$1"
+    shift
+
+    # OpenMPI on Pine should be started with mpirun inside a SLURM allocation.
+    if command -v mpirun >/dev/null 2>&1; then
+        mpirun -np "$ranks" "$@"
+    else
+        echo "ERROR: mpirun not found after loading openmpi module." >&2
+        exit 1
+    fi
+}
+
 # Build executables
 make clean
 make all
@@ -46,7 +59,7 @@ echo "Test I: Serial Baseline (1 rank)"
 echo "---"
 for ((run=1; run<=NUM_RUNS; run++)); do
     echo "Run $run:"
-    srun --ntasks=1 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
+    run_mpi 1 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
 done
 echo ""
 
@@ -55,7 +68,7 @@ echo "Test II: Single Socket (12 ranks)"
 echo "---"
 for ((run=1; run<=NUM_RUNS; run++)); do
     echo "Run $run:"
-    srun --ntasks=12 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
+    run_mpi 12 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
 done
 echo ""
 
@@ -64,7 +77,7 @@ echo "Test III: Dual Socket (24 ranks)"
 echo "---"
 for ((run=1; run<=NUM_RUNS; run++)); do
     echo "Run $run:"
-    srun --ntasks=24 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
+    run_mpi 24 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
 done
 echo ""
 
@@ -73,7 +86,7 @@ echo "Test IV: Distributed (48 ranks / 2 nodes)"
 echo "---"
 for ((run=1; run<=NUM_RUNS; run++)); do
     echo "Run $run:"
-    srun --ntasks=48 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
+    run_mpi 48 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
 done
 echo ""
 
@@ -82,7 +95,7 @@ echo "Test V: Standard Test (96 ranks / 4 nodes)"
 echo "---"
 for ((run=1; run<=NUM_RUNS; run++)); do
     echo "Run $run:"
-    srun --ntasks=96 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
+    run_mpi 96 ./RadixParallel $DATASET_SIZE $NUM_RUNS $SEED
 done
 echo ""
 
