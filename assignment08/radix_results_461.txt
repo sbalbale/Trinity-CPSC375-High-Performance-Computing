@@ -1,0 +1,27 @@
+rm -f RadixSerial RadixParallel
+gcc -O2 -Wall -Wextra -std=c11 -D_POSIX_C_SOURCE=200809L -o RadixSerial RadixSerial.c 
+mpicc -O2 -Wall -Wextra -std=c11 -D_POSIX_C_SOURCE=200809L -o RadixParallel RadixParallel.c 
+======================================================
+ Radix Sort Benchmarks
+ Date: Mon Apr 20 14:42:32 EDT 2026
+======================================================
+--- Serial Baseline ---
+N=1000000 seed=12345
+sort_time_sec=0.034407
+sorted=yes
+--- MPI Parallel (1 rank) ---
+run=1 time_sec=0.111044 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=0.099386 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=0.099043 sorted_local=yes sorted_boundaries=yes
+N=1000000 ranks=1 runs=3 avg_time_sec=0.103158
+--- MPI Parallel (2 ranks) ---
+run=1 time_sec=0.079444 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=0.070277 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=0.056762 sorted_local=yes sorted_boundaries=yes
+N=1000000 ranks=2 runs=3 avg_time_sec=0.068828
+--- MPI Parallel (4 ranks) ---
+run=1 time_sec=0.050038 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=0.043634 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=0.043123 sorted_local=yes sorted_boundaries=yes
+N=1000000 ranks=4 runs=3 avg_time_sec=0.045598
+Benchmarks complete.
