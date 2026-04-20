@@ -5,11 +5,13 @@
 - [[lec15]] — Parallel Algorithm Design using Foster's Methodology.
 - [[lec16]] — Deep dive into Mapping and parallelization examples (Search, Sieve).
 - [[lec17]] — Performance analysis metrics (Speedup, Efficiency, Amdahl's Law).
+- [[lec21]] — Collective Communication.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
 - [[fosters-methodology]] — Four-stage framework (PCAM) for designing parallel algorithms.
 - [[sieve-of-eratosthenes]] — Classic prime-finding algorithm used for parallel analysis.
+- [[mpi]] — Message Passing Interface, used for distributed memory parallelism.
 
 ## Concepts
 - [[parallel-region]] — Block of code executed by multiple threads simultaneously.
@@ -32,6 +34,8 @@
 - [[gustafsons-law]] — Speedup perspective for scaled problem sizes.
 - [[isoefficiency-function]] — Metric for evaluating parallel system scalability.
 - [[overhead-parallel-computing]] — Non-computational time (comm, sync, idle).
+- [[collective-communication]] — Communication involving all processes in a communicator.
+- [[data-partitioning]] — Strategies for dividing data among processes.
 
 ## Exam Prep
 ## Homework Solutions
@@ -39,4 +43,5 @@
 - [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
 - [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
 - [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
+- [[lec21-Summary]] — MPI Collective Communication operations.
 ## Synthesis
