@@ -1,7 +1,7 @@
 # Wiki Index
 
 ## Sources
-- [[getting-started-with-openmp-programming]] — Lab manual introducing OpenMP, parallel regions, and data-sharing.
+- [[getting-started-with-openmp-programming-lab]] — Lab introduction to parallel regions, loops, and data sharing.
 - [[lec15]] — Parallel Algorithm Design using Foster's Methodology.
 - [[lec16]] — Deep dive into Mapping and parallelization examples (Search, Sieve).
 - [[lec17]] — Performance analysis metrics (Speedup, Efficiency, Amdahl's Law).
@@ -13,9 +13,10 @@
 - [[lec27]] — Performance Analysis.
 - [[lec28]] — Isoefficiency and Parallel Sorting II.
 - [[lec29]] — Parallel Sorting Algorithms III.
+- [[lec30]] — Matrix Multiplication I.
 - [[lec31]] — Matrix Multiplication II.
-- [[getting-started-with-openmp-programming-lab]] — Lab introduction to parallel regions, loops, and data sharing.
 - [[more-on-openmp-programming-lab]] — Advanced lab on synchronization, scheduling, and tasks.
+- [[mpi-programming-with-slurm-lab]] — Lab manual for Pine cluster and Slurm job submission.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -23,6 +24,8 @@
 - [[sieve-of-eratosthenes]] — Classic prime-finding algorithm used for parallel analysis.
 - [[mpi]] — Message Passing Interface, used for distributed memory parallelism.
 - [[strassen]] — Creator of the $O(n^{2.81})$ matrix multiplication algorithm.
+- [[pine-cluster]] — The departmental computing cluster.
+- [[slurm]] — The workload manager used for job scheduling.
 
 ## Concepts
 - [[parallel-region]] — Block of code executed by multiple threads simultaneously.
@@ -90,6 +93,8 @@
 - [[mpi-alltoallv]] — Variable-sized all-to-all communication.
 - [[performance-measurement-mpi]] — Using `MPI_Wtime` for profiling.
 - [[performance-measurement-openmp]] — Using `omp_get_wtime()`.
+- [[mpi-job-submission]] — `sbatch`, `squeue`, and `srun` workflow.
+- [[slurm-batch-scripts]] — Configuring resource requests via #SBATCH directives.
 - [[acid-properties]] — Core requirements for database transactions.
 
 ## Exam Prep
@@ -110,4 +115,6 @@
 - [[lec31-Summary]] — Cannon's, Fox's, and SUMMA algorithms.
 - [[OpenMP-Lab-Summary]] — Practical OpenMP: regions, loops, and scoping.
 - [[Advanced-OpenMP-Lab-Summary]] — Synchronization, scheduling, tasks, and timing.
+- [[MPI-Slurm-Lab-Summary]] — Practical Cluster computing on Pine with Slurm.
+
 ## Synthesis

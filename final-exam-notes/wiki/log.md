@@ -73,3 +73,9 @@ Updated pages: [[openmp]], [[reduction-operation]], [[race-condition]], [[data-s
 Processed More on OpenMP Programming.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
 New concepts: [[omp-scheduling]], [[omp-tasks-sections]], [[performance-measurement-openmp]], [[nowait-clause]].
 Updated pages: [[openmp]], [[omp-synchronization]], [[index.md]].
+
+## [2026-04-20] ingest | MPI Programming with Slurm
+Processed MPI Programming with Slurm.txt. Created 1 new source page, 1 new lecture summary, 2 new entities, and 2 new concept pages.
+New entities: [[pine-cluster]], [[slurm]].
+New concepts: [[mpi-job-submission]], [[slurm-batch-scripts]].
+Updated pages: [[mpi]], [[index.md]].
