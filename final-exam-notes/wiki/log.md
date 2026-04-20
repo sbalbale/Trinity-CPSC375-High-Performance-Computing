@@ -68,3 +68,8 @@ Updated pages: [[index.md]].
 Processed Getting Started with OpenMP Programming.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 2 new concept pages.
 New concepts: [[parallel-loop-openmp]], [[omp-synchronization]].
 Updated pages: [[openmp]], [[reduction-operation]], [[race-condition]], [[data-sharing-clauses]], [[parallel-region]], [[index.md]].
+
+## [2026-04-20] ingest | More on OpenMP Programming
+Processed More on OpenMP Programming.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
+New concepts: [[omp-scheduling]], [[omp-tasks-sections]], [[performance-measurement-openmp]], [[nowait-clause]].
+Updated pages: [[openmp]], [[omp-synchronization]], [[index.md]].

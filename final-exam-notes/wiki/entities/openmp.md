@@ -3,7 +3,7 @@ aliases: [Open Multi-Processing]
 tags: 
   - #exam/tool
   - #CPSC375
-sources: [Getting Started with OpenMP Programming.txt]
+sources: [Getting Started with OpenMP Programming.txt, More on OpenMP Programming.txt]
 created: 2026-04-20
 updated: 2026-04-20
 ---
@@ -14,27 +14,17 @@ updated: 2026-04-20
 > **OpenMP** (Open Multi-Processing) is the industry-standard API for **shared-memory** parallel programming. It uses compiler directives, runtime routines, and environment variables to implement the [[fork-join-model]].
 
 ## Core Mechanics
-* **Directives:** `#pragma omp parallel`, `#pragma omp for`, `#pragma omp critical`.
+* **Directives:** 
+    - `#pragma omp parallel`: Basic team creation.
+    - `#pragma omp for`: Loop worksharing.
+    - `#pragma omp critical` / `atomic`: Synchronization.
+    - `#pragma omp task`: Dynamic tasking.
 * **Runtime Functions:** 
-    - `omp_get_thread_num()`: ID of the current thread.
-    - `omp_set_num_threads(n)`: Sets the number of threads for the next region.
-    - `omp_get_num_threads()`: Returns the number of threads in the current region.
-* **Compilation:** Requires the `-fopenmp` flag (e.g., `gcc -fopenmp main.c`).
-
-> [!code] Simple OpenMP Program
-> ```c
-> #include <omp.h>
-> #include <stdio.h>
-> int main() {
->     #pragma omp parallel
->     {
->         printf("Hello from thread %d\n", omp_get_thread_num());
->     }
-> }
-> ```
+    - `omp_get_thread_num()` / `omp_set_num_threads(n)`.
+    - `omp_get_wtime()`: High-resolution wall-clock timer.
+* **Compilation:** Requires the `-fopenmp` flag.
 
 ## Connections
 * **Architecture:** [[shared-memory-model]].
-* **Logic:** [[fork-join-model]].
-* **Components:** [[parallel-region]], [[reduction-operation]], [[data-sharing-clauses]].
+* **Components:** [[parallel-region]], [[omp-synchronization]], [[omp-scheduling]], [[omp-tasks-sections]].
 * **Contrasts With:** [[mpi]] (distributed memory).
