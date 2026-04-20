@@ -12,3 +12,8 @@ Updated pages: [[fosters-methodology]], [[mapping-parallel-programming]].
 ## [2025-05-15] ingest | Performance Analysis
 Processed lec17.pdf. Created 1 new source page, 1 new lecture summary, 0 new entities, and 6 new concept pages.
 New concepts: [[parallel-speedup]], [[parallel-efficiency]], [[amdahls-law]], [[gustafsons-law]], [[isoefficiency-function]], [[overhead-parallel-computing]].
+
+## [2026-04-20] ingest | Collective Communication
+Processed lec21.pdf. Created 1 new source page, 1 new lecture summary, 1 new entity, and 2 new concept pages.
+New entities: [[mpi]].
+New concepts: [[collective-communication]], [[data-partitioning]].
