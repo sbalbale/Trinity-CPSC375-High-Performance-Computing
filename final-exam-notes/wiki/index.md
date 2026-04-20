@@ -112,6 +112,7 @@
 - [[acid-properties]] — Core requirements for database transactions.
 
 ## Exam Prep
+- [[Exam-2-MOC]] — High-density Map of Content for Lectures 15-31.
 ## Homework Solutions
 ## Lecture Summaries
 - [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
