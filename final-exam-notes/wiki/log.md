@@ -32,3 +32,8 @@ Updated pages: [[sieve-of-eratosthenes]], [[index.md]].
 Processed lec24.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
 New concepts: [[sieve-optimizations]], [[cache-optimization-parallel]], [[cache-coherence-protocols]], [[distributed-shared-memory]].
 Updated pages: [[sieve-of-eratosthenes]], [[index.md]].
+
+## [2026-04-20] ingest | Parallel Sorting Algorithms I
+Processed lec25.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
+New concepts: [[compare-and-exchange]], [[merge-and-split]], [[odd-even-transposition-sort]], [[parallel-mergesort]], [[parallel-quicksort]].
+Updated pages: [[index.md]].
