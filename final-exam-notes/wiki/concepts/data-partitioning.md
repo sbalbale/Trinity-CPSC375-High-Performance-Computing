@@ -1,5 +1,5 @@
 ---
-aliases: [Block Distribution, Cyclic Distribution, Block-Cyclic Distribution]
+aliases: [Block Distribution, Cyclic Distribution, Block-Cyclic Distribution, Data Partitioning]
 tags: 
   - #exam/theory
 sources: [lec21.pdf]

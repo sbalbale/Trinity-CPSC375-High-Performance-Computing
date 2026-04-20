@@ -1,5 +1,5 @@
 ---
-aliases: [Message Passing Interface]
+aliases: [Message Passing Interface, MPI]
 tags: 
   - #exam/entity
   - #course_hpc

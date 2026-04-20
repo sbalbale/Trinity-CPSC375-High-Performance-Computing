@@ -1,5 +1,5 @@
 ---
-aliases: [sbatch workflow, running MPI on Pine]
+aliases: [sbatch workflow, running MPI on Pine, Distributed Memory Execution]
 tags: [mpi, slurm, programming]
 sources: [MPI Programming with Slurm.txt]
 created: 2026-04-20

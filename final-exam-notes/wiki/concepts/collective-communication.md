@@ -1,5 +1,5 @@
 ---
-aliases: [MPI_Bcast, MPI_Reduce, MPI_Gather, MPI_Scatter, MPI_Allreduce, MPI_Allgather]
+aliases: [MPI_Bcast, MPI_Reduce, MPI_Gather, MPI_Scatter, MPI_Allreduce, MPI_Allgather, Collective Communication]
 tags: 
   - #exam/concept
   - #exam/mpi

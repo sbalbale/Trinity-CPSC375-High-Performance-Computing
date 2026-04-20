@@ -1,5 +1,5 @@
 ---
-aliases: [Task Decomposition, Pipeline Parallelism]
+aliases: [Task Decomposition, Pipeline Parallelism, Functional Decomposition]
 tags: 
   - #exam/theory
   - #hpc

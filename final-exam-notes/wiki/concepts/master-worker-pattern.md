@@ -1,5 +1,5 @@
 ---
-aliases: [Manager-Worker, Master-Slave]
+aliases: [Manager-Worker, Master-Slave, Master-Worker Pattern]
 tags: [#exam/algorithm, #hpc]
 sources: [lec16.pdf]
 created: 2025-05-15

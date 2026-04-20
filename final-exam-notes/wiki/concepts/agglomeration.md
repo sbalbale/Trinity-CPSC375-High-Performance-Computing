@@ -1,5 +1,5 @@
 ---
-aliases: [Task Grouping]
+aliases: [Task Grouping, Agglomeration]
 tags: 
   - #exam/theory
   - #hpc

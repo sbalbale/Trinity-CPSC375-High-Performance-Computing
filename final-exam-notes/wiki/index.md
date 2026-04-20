@@ -25,6 +25,8 @@
 - [[sieve-of-eratosthenes]] — Classic prime-finding algorithm used for parallel analysis.
 - [[mpi]] — Message Passing Interface, used for distributed memory parallelism.
 - [[strassen]] — Creator of the $O(n^{2.81})$ matrix multiplication algorithm.
+- [[gene-amdahl]] — Computer architect and author of Amdahl's Law.
+- [[john-gustafson]] — Computer scientist and author of Gustafson's Law.
 - [[pine-cluster]] — The departmental computing cluster.
 - [[slurm]] — The workload manager used for job scheduling.
 
@@ -48,6 +50,9 @@
 - [[static-mapping]] — Pre-runtime task assignment (Block/Cyclic).
 - [[dynamic-mapping]] — Runtime task assignment for unpredictable loads.
 - [[master-worker-pattern]] — Common dynamic mapping strategy using a task pool.
+- [[parallel-algorithm-design]] — Structured framework (PCAM) for parallel design.
+- [[parallel-search]] — Dividing search workload among processors.
+- [[mandelbrot-set-generation]] — Irregular workload example for dynamic balancing.
 - [[parallel-speedup]] — Ratio of sequential to parallel execution time.
 - [[parallel-efficiency]] — Metric for processor utilization ($S_p/p$).
 - [[amdahls-law]] — Speedup limits for fixed problem sizes.
@@ -85,6 +90,7 @@
 - [[communication-complexity]] — The cost of data movement between memory levels.
 - [[compare-and-exchange]] — The fundamental building block of parallel sorting.
 - [[merge-and-split]] — Scaling sorting when $n > p$.
+- [[parallel-sorting-basics]] — Fundamental primitives for parallel sorting.
 - [[odd-even-transposition-sort]] — A parallel variant of bubble sort.
 - [[odd-even-mergesort]] — Recursive interleaving merge.
 - [[bitonic-sequence]] — Sequences with at most one local maximum and minimum.

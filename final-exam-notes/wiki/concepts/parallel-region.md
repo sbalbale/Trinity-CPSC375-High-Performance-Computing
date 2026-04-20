@@ -1,5 +1,5 @@
 ---
-aliases: [omp parallel, SPMD region]
+aliases: [omp parallel, SPMD region, Parallel Region]
 tags: 
   - #exam/concept
   - #CPSC375
