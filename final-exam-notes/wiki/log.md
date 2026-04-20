@@ -79,3 +79,8 @@ Processed MPI Programming with Slurm.txt. Created 1 new source page, 1 new lectu
 New entities: [[pine-cluster]], [[slurm]].
 New concepts: [[mpi-job-submission]], [[slurm-batch-scripts]].
 Updated pages: [[mpi]], [[index.md]].
+
+## [2026-04-20] ingest | Introduction to MPI
+Processed lec20.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
+New concepts: [[distributed-memory-model]], [[point-to-point-communication]], [[trapezoidal-rule-mpi]], [[communicators-mpi]], [[mpi-status]].
+Updated pages: [[spmd]], [[shared-memory-model]], [[index.md]].

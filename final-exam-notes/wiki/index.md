@@ -5,6 +5,7 @@
 - [[lec15]] — Parallel Algorithm Design using Foster's Methodology.
 - [[lec16]] — Deep dive into Mapping and parallelization examples (Search, Sieve).
 - [[lec17]] — Performance analysis metrics (Speedup, Efficiency, Amdahl's Law).
+- [[lec20]] — Introduction to MPI and distributed-memory programming.
 - [[lec21]] — Collective Communication.
 - [[lec22]] — Derived Types and Barriers.
 - [[lec23]] — Parallel Sieve of Eratosthenes.
@@ -65,6 +66,13 @@
 - [[cache-optimization-parallel]] — Improving hit rates in data-intensive parallel loops.
 - [[cache-coherence-protocols]] — Write Through and Write Once (MESI-like) protocols.
 - [[distributed-shared-memory]] — Systems where memory is physically distributed but logically shared.
+- [[distributed-memory-model]] — Memory private to each process.
+- [[shared-memory-model]] — Single global address space.
+- [[spmd]] — Single Program, Multiple Data.
+- [[point-to-point-communication]] — Basic `MPI_Send` and `MPI_Recv`.
+- [[trapezoidal-rule-mpi]] — Example of parallel numerical integration.
+- [[communicators-mpi]] — Logical groups of processes.
+- [[mpi-status]] — Handling unknown message metadata.
 - [[matrix-multiplication-optimization]] — Loop reordering (ikj) and tiling.
 - [[tiling-block-matrix]] — Explicit cache management via submatrices.
 - [[checkerboard-decomposition]] — 2D partitioning of matrices across processors.
@@ -103,6 +111,7 @@
 - [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
 - [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
 - [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
+- [[lec20-Summary]] — Introduction to MPI and Point-to-Point communication.
 - [[lec21-Summary]] — MPI Collective Communication operations.
 - [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
 - [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
