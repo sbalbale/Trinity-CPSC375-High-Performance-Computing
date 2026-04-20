@@ -4,6 +4,7 @@
 - [[getting-started-with-openmp-programming]] — Lab manual introducing OpenMP, parallel regions, and data-sharing.
 - [[lec15]] — Parallel Algorithm Design using Foster's Methodology.
 - [[lec16]] — Deep dive into Mapping and parallelization examples (Search, Sieve).
+- [[lec17]] — Performance analysis metrics (Speedup, Efficiency, Amdahl's Law).
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -25,10 +26,17 @@
 - [[static-mapping]] — Pre-runtime task assignment (Block/Cyclic).
 - [[dynamic-mapping]] — Runtime task assignment for unpredictable loads.
 - [[master-worker-pattern]] — Common dynamic mapping strategy using a task pool.
+- [[parallel-speedup]] — Ratio of sequential to parallel execution time.
+- [[parallel-efficiency]] — Metric for processor utilization ($S_p/p$).
+- [[amdahls-law]] — Speedup limits for fixed problem sizes.
+- [[gustafsons-law]] — Speedup perspective for scaled problem sizes.
+- [[isoefficiency-function]] — Metric for evaluating parallel system scalability.
+- [[overhead-parallel-computing]] — Non-computational time (comm, sync, idle).
 
 ## Exam Prep
 ## Homework Solutions
 ## Lecture Summaries
 - [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
 - [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
+- [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
 ## Synthesis
