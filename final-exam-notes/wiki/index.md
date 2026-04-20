@@ -3,10 +3,12 @@
 ## Sources
 - [[getting-started-with-openmp-programming]] — Lab manual introducing OpenMP, parallel regions, and data-sharing.
 - [[lec15]] — Parallel Algorithm Design using Foster's Methodology.
+- [[lec16]] — Deep dive into Mapping and parallelization examples (Search, Sieve).
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
 - [[fosters-methodology]] — Four-stage framework (PCAM) for designing parallel algorithms.
+- [[sieve-of-eratosthenes]] — Classic prime-finding algorithm used for parallel analysis.
 
 ## Concepts
 - [[parallel-region]] — Block of code executed by multiple threads simultaneously.
@@ -20,9 +22,13 @@
 - [[domain-decomposition]] — Data-centric partitioning strategy.
 - [[functional-decomposition]] — Task-centric partitioning strategy.
 - [[load-balancing]] — Strategies to minimize processor idle time.
+- [[static-mapping]] — Pre-runtime task assignment (Block/Cyclic).
+- [[dynamic-mapping]] — Runtime task assignment for unpredictable loads.
+- [[master-worker-pattern]] — Common dynamic mapping strategy using a task pool.
 
 ## Exam Prep
 ## Homework Solutions
 ## Lecture Summaries
 - [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
+- [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
 ## Synthesis

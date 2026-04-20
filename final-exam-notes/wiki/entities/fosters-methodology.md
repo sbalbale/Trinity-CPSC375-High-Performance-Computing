@@ -3,9 +3,9 @@ aliases: [PCAM, Foster's Design Methodology]
 tags: 
   - #exam/theory
   - #hpc
-sources: [lec15.pdf]
+sources: [lec15.pdf, lec16.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2025-05-15
 ---
 
 # Foster's Methodology
