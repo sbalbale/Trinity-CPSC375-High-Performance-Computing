@@ -3,7 +3,7 @@ CC = gcc
 MPICC = mpicc
 
 # Flags
-CFLAGS = -O2 -Wall -Wextra -std=c11
+CFLAGS = -O2 -Wall -Wextra -std=c11 -D_POSIX_C_SOURCE=200809L
 LDFLAGS =
 
 # Binaries
