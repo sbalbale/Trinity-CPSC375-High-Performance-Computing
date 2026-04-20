@@ -63,3 +63,8 @@ Updated pages: [[index.md]].
 Processed lec31.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
 New concepts: [[checkerboard-decomposition]], [[cannons-algorithm]], [[foxs-algorithm]], [[summa-algorithm]], [[computation-to-communication-ratio]].
 Updated pages: [[index.md]].
+
+## [2026-04-20] ingest | Getting Started with OpenMP Programming
+Processed Getting Started with OpenMP Programming.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 2 new concept pages.
+New concepts: [[parallel-loop-openmp]], [[omp-synchronization]].
+Updated pages: [[openmp]], [[reduction-operation]], [[race-condition]], [[data-sharing-clauses]], [[parallel-region]], [[index.md]].

@@ -15,6 +15,7 @@
 - [[lec29]] — Parallel Sorting Algorithms III.
 - [[lec30]] — Matrix Multiplication I.
 - [[lec31]] — Matrix Multiplication II.
+- [[getting-started-with-openmp-programming-lab]] — Lab introduction to parallel regions, loops, and data sharing.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -28,6 +29,8 @@
 - [[race-condition]] — Non-deterministic behavior caused by concurrent access to shared data.
 - [[reduction-operation]] — Efficiently combines private variable copies into a single value.
 - [[data-sharing-clauses]] — Mechanisms to control variable scoping in OpenMP.
+- [[omp-synchronization]] — Critical sections, barriers, and atomic updates.
+- [[parallel-loop-openmp]] — Using `omp parallel for` to distribute work.
 - [[partitioning]] — Decomposing a problem into fine-grained tasks.
 - [[communication]] — Defining data exchange patterns between tasks.
 - [[agglomeration]] — Grouping tasks to reduce overhead and improve efficiency.
@@ -101,4 +104,5 @@
 - [[lec29-Summary]] — Shearsort, Counting Sort, Radix Sort, and Assignment 8.
 - [[lec30-Summary]] — Cache optimization, Tiling, and Strassen's Algorithm.
 - [[lec31-Summary]] — Cannon's, Fox's, and SUMMA algorithms.
+- [[OpenMP-Lab-Summary]] — Practical OpenMP: regions, loops, and scoping.
 ## Synthesis

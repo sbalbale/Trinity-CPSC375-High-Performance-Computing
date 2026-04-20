@@ -1,38 +1,45 @@
 ---
-aliases: [private, shared, firstprivate, lastprivate]
+aliases: [omp private, omp shared, variable scoping]
 tags: 
   - #exam/concept
   - #CPSC375
-sources: [Getting Started with OpenMP Programming.pdf]
+sources: [Getting Started with OpenMP Programming.txt]
 created: 2026-04-20
 updated: 2026-04-20
 ---
 
 # Data-Sharing Clauses
 
-> [!abstract] TL;DR Summary
-> **Data-Sharing Clauses** in OpenMP explicitly define the scope and initialization of variables inside a parallel region. They dictate whether a variable is shared among all threads or private to each.
+> [!abstract]
+> **Data-Sharing Clauses** in OpenMP explicitly define the scope and lifecycle of variables inside a parallel region. They are essential for preventing [[race-condition]]s and ensuring that each thread has the data it needs to perform its task.
 
 ## Core Mechanics
 
+| Clause | Visibility | Initialization | Exit Behavior |
+| :--- | :--- | :--- | :--- |
+| `shared(x)` | All threads see the same memory. | Value from master. | Changes persist globally. |
+| `private(x)` | Each thread has a local copy. | **Uninitialized**. | Local changes are lost. |
+| `firstprivate(x)`| Each thread has a local copy. | Initialized with master's value. | Local changes are lost. |
+| `lastprivate(x)` | Each thread has a local copy. | **Uninitialized**. | Last iteration value copied to master. |
+
 > [!warning] Common Pitfalls
-> - **`private` Uninitialized:** Variables marked `private` are **uninitialized** at the start of the parallel region.
-> - **`firstprivate` Initialization:** Each thread's private copy is initialized with the value of the original variable before entering the parallel region.
-> - **`lastprivate` Write-back:** The value of the private copy from the *logically last* iteration of a loop is copied back to the original variable after the parallel region.
-> - **`shared` default:** By default, variables declared outside the parallel region are `shared`.
+> - **Uninitialized Private:** A common bug is using a `private` variable without initializing it within the parallel region. Use `firstprivate` if you need the initial value.
+> - **Shared Performance:** Accessing `shared` variables can lead to **false sharing** or bus contention if multiple threads write to them frequently.
 
 ## Implementations & Examples
 
-> [!code] Implementation (If Applicable)
+### Combining Clauses
+> [!code] Example
 > ```c
-> int x = 5;
-> #pragma omp parallel firstprivate(x) lastprivate(x)
-> {
->     // x starts at 5 in all threads
->     x = x + 1; 
->     // The 'x' from the logically last iteration is written back
+> int x = 10, y = 0;
+> #pragma omp parallel for firstprivate(x) lastprivate(y)
+> for (int i = 0; i < 100; i++) {
+>    // x is 10 in every thread's local scope
+>    y = x + i; 
 > }
+> // y now holds 10 + 99 = 109
 > ```
 
 ## Connections
-* **Prerequisites:** [[OpenMP]]
+* **Prerequisites:** [[openmp]], [[parallel-region]].
+* **Used In:** [[parallel-loop-openmp]], avoiding [[race-condition]].
