@@ -1,15 +1,15 @@
 ---
-aliases: [Amdahl's Argument]
-tags: [#exam/theory, #exam/formula]
-sources: [lec17.pdf]
+aliases: [Amdahl's Argument, Fixed-Size Scaling]
+tags: [#exam/theory, #exam/formula, performance]
+sources: [lec17.pdf, lec27.txt]
 created: 2025-05-15
-updated: 2025-05-15
+updated: 2026-04-20
 ---
 
 # Amdahl's Law
 
 > [!abstract] TL;DR Summary
-> Predicts the maximum speedup of a program when only a fraction is parallelized. It proves that the **inherently sequential** part of a program sets a hard limit on performance gains.
+> Predicts the maximum speedup of a program for a **fixed problem size** when only a fraction is parallelized. It proves that the **inherently sequential** part of a program sets a hard ceiling on performance gains.
 
 ## Core Mechanics
 
@@ -21,12 +21,13 @@ updated: 2025-05-15
 
 ### Key Insight
 As $p \to \infty$, the speedup $S_p$ approaches $1/f$.
-Example: If 5% of your code is sequential ($f=0.05$), your maximum speedup is $1/0.05 = 20$, even if you have 1,000,000 processors.
+Example: If 10% of your code is sequential ($f=0.1$), your maximum speedup is $1/0.1 = 10$, even with infinite processors.
 
 > [!warning] Common Pitfalls
-> - **Fixed Problem Size:** Amdahl's Law assumes the workload remains constant.
-> - **Pessimism:** It can be overly pessimistic because, in reality, we often use more processors to solve **larger** problems, not just the same problem faster.
+> - **Fixed Problem Size:** Amdahl's Law assumes the workload remains constant, making it the theoretical model for **strong-scalability**.
+> - **Pessimism:** It can be overly pessimistic because, in reality, we often use more processors to solve **larger** problems.
 
 ## Connections
-* **Contrast With:** [[Gustafsons Law]]
-* **Founded By:** [[Gene Amdahl]]
+* **Used In:** [[strong-scalability]].
+* **Diagnosed By:** [[karp-flatt-metric]] (when $e$ remains constant).
+* **Contrasts With:** [[gustafsons-law]].

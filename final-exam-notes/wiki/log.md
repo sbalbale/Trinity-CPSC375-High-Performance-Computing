@@ -37,3 +37,8 @@ Updated pages: [[sieve-of-eratosthenes]], [[index.md]].
 Processed lec25.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
 New concepts: [[compare-and-exchange]], [[merge-and-split]], [[odd-even-transposition-sort]], [[parallel-mergesort]], [[parallel-quicksort]].
 Updated pages: [[index.md]].
+
+## [2026-04-20] ingest | Performance Analysis
+Processed lec27.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 3 new concept pages.
+New concepts: [[karp-flatt-metric]], [[strong-scalability]], [[weak-scalability]].
+Updated pages: [[amdahls-law]], [[gustafsons-law]], [[parallel-speedup]], [[parallel-efficiency]], [[index.md]].

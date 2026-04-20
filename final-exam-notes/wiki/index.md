@@ -10,6 +10,7 @@
 - [[lec23]] — Parallel Sieve of Eratosthenes.
 - [[lec24]] — Sieve Implementation and Cache Coherence.
 - [[lec25]] — Parallel Sorting Algorithms I.
+- [[lec27]] — Performance Analysis.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -36,6 +37,9 @@
 - [[parallel-efficiency]] — Metric for processor utilization ($S_p/p$).
 - [[amdahls-law]] — Speedup limits for fixed problem sizes.
 - [[gustafsons-law]] — Speedup perspective for scaled problem sizes.
+- [[karp-flatt-metric]] — Experimental serial fraction.
+- [[strong-scalability]] — Fixed workload scaling.
+- [[weak-scalability]] — Proportional workload scaling.
 - [[isoefficiency-function]] — Metric for evaluating parallel system scalability.
 - [[overhead-parallel-computing]] — Non-computational time (comm, sync, idle).
 - [[collective-communication]] — Communication involving all processes in a communicator.
@@ -68,4 +72,5 @@
 - [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
 - [[lec24-Summary]] — Sieve optimizations and Cache Coherence protocols.
 - [[lec25-Summary]] — Parallel sorting fundamentals, odd-even sort, mergesort, and quicksort.
+- [[lec27-Summary]] — Speedup, Efficiency, Amdahl/Gustafson Laws, and Karp-Flatt.
 ## Synthesis

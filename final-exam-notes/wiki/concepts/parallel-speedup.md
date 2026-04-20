@@ -1,15 +1,15 @@
 ---
 aliases: [Speedup]
-tags: [#exam/formula, #hpc]
-sources: [lec17.pdf]
+tags: [#exam/formula, performance]
+sources: [lec17.pdf, lec27.txt]
 created: 2025-05-15
-updated: 2025-05-15
+updated: 2026-04-20
 ---
 
 # Parallel Speedup
 
 > [!abstract] TL;DR Summary
-> A measure of how much faster a parallel algorithm runs on $p$ processors compared to the best sequential algorithm. **Linear Speedup** ($S_p = p$) is the ideal case.
+> A measure of how much faster a parallel algorithm runs on $p$ processors compared to the best sequential algorithm. **Linear Speedup** ($S_p = p$) is the ideal case, representing a perfectly scalable system.
 
 ## Core Mechanics
 
@@ -19,14 +19,15 @@ updated: 2025-05-15
 > - $T_p$ = Parallel execution time on $p$ processors
 
 ### Types of Speedup
-* **Linear Speedup:** Performance increases linearly with processors.
-* **Sublinear Speedup:** Most common; overhead limits performance.
-* **Superlinear Speedup:** $S_p > p$; usually caused by increased aggregate cache size (data fits in cache when split across nodes).
+* **Linear Speedup:** $S_p = p$. The "Gold Standard" of scaling.
+* **Sublinear Speedup:** $S_p < p$. Most common; caused by communication overhead, synchronization, and serial sections.
+* **Superlinear Speedup:** $S_p > p$. Usually occurs when the total problem fits into the combined cache of multiple processors, reducing memory access latency.
 
-> [!warning] Common Pitfalls
-> * **Weak vs. Strong Scaling:** Speedup results depend on whether the problem size is fixed or increasing.
-> * **Hardware Bottlenecks:** Memory bandwidth or network latency can prevent linear speedup.
+> [!warning] Load Imbalance
+> If work is not distributed evenly, $T_p$ will be determined by the slowest process, significantly reducing $S_p$.
 
 ## Connections
-* **Component of:** [[Parallel Efficiency]]
-* **Limited By:** [[Amdahls Law]]
+* **Component of:** [[parallel-efficiency]].
+* **Theories:** [[amdahls-law]] (Fixed), [[gustafsons-law]] (Scaled).
+* **Diagnosed By:** [[karp-flatt-metric]].
+* **Measured In:** [[strong-scalability]], [[weak-scalability]].
