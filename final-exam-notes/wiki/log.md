@@ -22,3 +22,8 @@ New concepts: [[collective-communication]], [[data-partitioning]].
 Processed lec22.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
 New concepts: [[mpi-derived-datatypes]], [[mpi-barrier]], [[performance-measurement-mpi]], [[acid-properties]].
 Updated pages: [[mpi]], [[index.md]].
+
+## [2026-04-20] ingest | Parallel Sieve of Eratosthenes
+Processed lec23.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 3 new concept pages.
+New concepts: [[block-decomposition]], [[interleaved-decomposition]], [[local-vs-global-indices]].
+Updated pages: [[sieve-of-eratosthenes]], [[index.md]].
