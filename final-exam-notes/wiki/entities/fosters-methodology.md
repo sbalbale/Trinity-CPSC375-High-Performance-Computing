@@ -1,5 +1,5 @@
 ---
-aliases: [PCAM, Foster's Design Methodology]
+aliases: [PCAM, Foster's Methodology, Foster's Design Methodology]
 tags: 
   - #exam/theory
   - #hpc
@@ -29,5 +29,5 @@ updated: 2025-05-15
 > 4. **Mapping**: Assign tasks to physical processors to balance the load.
 
 ## Connections
-* **Used In:** [[Parallel Algorithm Design]]
-* **Consists Of:** [[Partitioning]], [[Communication]], [[Agglomeration]], [[Mapping (Parallel Programming)]]
+* **Used In:** [[parallel-algorithm-design]]
+* **Consists Of:** [[partitioning]], [[communication]], [[agglomeration]], [[mapping-parallel-programming]]

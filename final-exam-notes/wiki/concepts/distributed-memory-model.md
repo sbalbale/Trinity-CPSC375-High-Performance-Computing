@@ -1,5 +1,5 @@
 ---
-aliases: [Private Memory, Message Passing Architecture]
+aliases: [Private Memory, Message Passing Architecture, Distributed Memory Model]
 tags: [architecture, programming, distributed]
 sources: [lec20.txt]
 created: 2026-04-20

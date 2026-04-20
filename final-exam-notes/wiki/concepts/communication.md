@@ -1,5 +1,5 @@
 ---
-aliases: [Inter-task Communication]
+aliases: [Inter-task Communication, Communication]
 tags: 
   - #exam/theory
   - #hpc

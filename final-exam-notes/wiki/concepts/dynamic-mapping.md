@@ -1,5 +1,5 @@
 ---
-aliases: [Runtime Mapping, Adaptive Mapping]
+aliases: [Runtime Mapping, Adaptive Mapping, Dynamic Mapping]
 tags: [#exam/theory, #hpc]
 sources: [lec16.pdf]
 created: 2025-05-15

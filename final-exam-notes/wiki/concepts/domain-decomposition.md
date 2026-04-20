@@ -1,5 +1,5 @@
 ---
-aliases: [Data Decomposition]
+aliases: [Data Decomposition, Domain Decomposition]
 tags: 
   - #exam/theory
   - #hpc

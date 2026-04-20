@@ -1,5 +1,5 @@
 ---
-aliases: [Slurm Workload Manager, Simple Linux Utility for Resource Management]
+aliases: [Slurm Workload Manager, Simple Linux Utility for Resource Management, Cluster Monitoring]
 tags: [#exam/tool, #HPC]
 sources: [MPI Programming with Slurm.txt]
 created: 2026-04-20

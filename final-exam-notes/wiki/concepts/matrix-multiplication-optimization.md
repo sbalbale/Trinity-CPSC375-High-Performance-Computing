@@ -1,5 +1,5 @@
 ---
-aliases: [Loop Reordering, ikj Matrix Multiplication]
+aliases: [Loop Reordering, ikj Matrix Multiplication, Matrix Multiplication, Tiling Block Matrix]
 tags: [performance, matrix, cache]
 sources: [lec30.txt]
 created: 2026-04-20

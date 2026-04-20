@@ -1,5 +1,5 @@
 ---
-aliases: [Task Mapping, Process Mapping]
+aliases: [Task Mapping, Process Mapping, Mapping (Parallel Programming)]
 tags: 
   - #exam/theory
   - #hpc

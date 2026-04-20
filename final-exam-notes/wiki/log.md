@@ -84,3 +84,9 @@ Updated pages: [[mpi]], [[index.md]].
 Processed lec20.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
 New concepts: [[distributed-memory-model]], [[point-to-point-communication]], [[trapezoidal-rule-mpi]], [[communicators-mpi]], [[mpi-status]].
 Updated pages: [[spmd]], [[shared-memory-model]], [[index.md]].
+
+## [2026-04-20] lint | Health check
+Found 20 broken wikilinks and 6 missing concept/entity pages.
+Fixed broken links by adding aliases to: [[fosters-methodology]], [[parallel-speedup]], [[mapping-parallel-programming]], [[data-partitioning]], [[distributed-memory-model]], [[domain-decomposition]], [[functional-decomposition]], [[static-mapping]], [[dynamic-mapping]], [[collective-communication]], [[matrix-multiplication-optimization]], [[mpi]], [[slurm]], [[mpi-job-submission]], [[omp-scheduling]].
+Created missing pages: [[parallel-search]], [[mandelbrot-set-generation]], [[parallel-algorithm-design]], [[gene-amdahl]], [[john-gustafson]], [[parallel-sorting-basics]].
+Updated [[index.md]] and [[log.md]].

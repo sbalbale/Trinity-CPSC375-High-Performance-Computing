@@ -1,5 +1,5 @@
 ---
-aliases: [Fixed Mapping, Compile-time Mapping]
+aliases: [Fixed Mapping, Compile-time Mapping, Static Mapping]
 tags: [#exam/theory, #hpc]
 sources: [lec16.pdf]
 created: 2025-05-15

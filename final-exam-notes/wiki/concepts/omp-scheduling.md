@@ -1,5 +1,5 @@
 ---
-aliases: [omp schedule, Static vs Dynamic Scheduling]
+aliases: [omp schedule, Static vs Dynamic Scheduling, Task Scheduling]
 tags: [openmp, performance, load-balancing]
 sources: [More on OpenMP Programming.txt]
 created: 2026-04-20

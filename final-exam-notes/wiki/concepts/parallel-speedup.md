@@ -1,5 +1,5 @@
 ---
-aliases: [Speedup]
+aliases: [Speedup, Sublinear Speedup]
 tags: [#exam/formula, performance]
 sources: [lec17.pdf, lec27.txt]
 created: 2025-05-15

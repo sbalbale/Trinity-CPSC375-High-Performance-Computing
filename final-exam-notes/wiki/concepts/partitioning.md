@@ -1,5 +1,5 @@
 ---
-aliases: [Task Decomposition]
+aliases: [Task Decomposition, Partitioning]
 tags: 
   - #exam/theory
   - #hpc

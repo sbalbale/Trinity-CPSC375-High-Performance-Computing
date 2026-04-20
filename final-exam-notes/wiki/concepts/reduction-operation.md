@@ -1,5 +1,5 @@
 ---
-aliases: [omp reduction, collective reduction, MPI_Reduce]
+aliases: [omp reduction, collective reduction, MPI_Reduce, Reduction Operation]
 tags: 
   - #exam/technique
   - #CPSC375

@@ -1,5 +1,5 @@
 ---
-aliases: [Data Race, Non-determinism]
+aliases: [Data Race, Non-determinism, Race Condition]
 tags: 
   - #exam/theory
   - #CPSC375
