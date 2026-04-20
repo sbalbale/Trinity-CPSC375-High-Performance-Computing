@@ -1,46 +1,41 @@
 ---
-aliases: [Intro to OpenMP and MPI Summary]
-tags: [#lecture/detailed, #CPSC375, #openmp, #mpi]
-sources: [lec20.pdf, lec20.txt]
-created: 2025-05-15
+aliases: [Lecture 20 Summary, Introduction to MPI Summary]
+tags: [#lecture/detailed, #CPSC375, #mpi]
+sources: [lec20.txt]
+created: 2026-04-20
 updated: 2026-04-20
 ---
 
-# Lecture 20 Summary: Introduction to OpenMP and MPI
+# Lecture 20: Distributed-Memory Programming and MPI
 
-> [!abstract] TL;DR
-> Introduction to **OpenMP** (Shared Memory) and **MPI** (Distributed Memory). Explains the **Fork-Join Model** for threads and the **SPMD Pattern** for message-passing processes.
+> [!abstract]
+> This lecture introduces distributed-memory systems and the **MPI** library. It covers program initialization, process identification, and basic point-to-point communication through the example of a parallel Trapezoidal Rule implementation.
 
-## 1. Parallel Architectures
-* **Shared Memory:** Multiple cores share one global address space. Threads communicate via shared variables. (OpenMP)
-* **Distributed Memory:** Each process has its own private memory. Communication requires explicit message passing over a network. (MPI)
+## Distributed-Memory Model
+- Each processor has its own **private memory**.
+- To share data, processors must explicitly send and receive messages.
+- Advantages: Scalability, management of memory hierarchy, and portability.
 
-## 2. OpenMP: The Fork-Join Model
-1. **Master Thread:** Starts execution sequentially.
-2. **Fork:** Master forks a team of **Worker Threads** for parallel regions.
-3. **Join:** Threads synchronize and terminate/park at the end of the region.
+## MPI Program Structure
+- **Header**: `#include <mpi.h>`
+- **Initialization**: `MPI_Init(&argc, &argv)`
+- **Identity**:
+    - `MPI_Comm_size(MPI_COMM_WORLD, &size)`: Total number of processes.
+    - `MPI_Comm_rank(MPI_COMM_WORLD, &rank)`: Unique ID for the current process ($0$ to $size-1$).
+- **Cleanup**: `MPI_Finalize()`
 
-### Basic Directives
-* `#pragma omp parallel`: Defines a parallel region.
-* `omp_get_thread_num()`: Returns thread ID (Master is 0).
+## Point-to-Point Communication
+- **MPI_Send**: Transmits a message to a destination rank.
+- **MPI_Recv**: Blocks until a message is received from a source rank.
+- **Message Matching**: Messages are matched based on the source rank, destination rank, and a user-defined **tag**.
 
-## 3. MPI: The SPMD Model
-* **Definition:** **Single-Program Multiple-Data**. One program is written and executed by $N$ processes.
-* **Rank:** Unique ID for each process ($0$ to $N-1$).
-* **Communicator:** A collection of processes (e.g., `MPI_COMM_WORLD`).
+## SPMD Execution
+**Single Program, Multiple Data**. One program is written and compiled, but logical branches (usually based on `rank`) allow different processes to perform different tasks.
+> [!example]
+> If `rank == 0`, act as the coordinator (read input, gather results). Else, act as a worker (compute local part).
 
-### Basic MPI Functions
-* `MPI_Init`: Setup environment.
-* `MPI_Finalize`: Cleanup.
-* `MPI_Comm_size`: Total process count.
-* `MPI_Comm_rank`: Process's unique ID.
-* `MPI_Send` / `MPI_Recv`: Send and receive messages.
-
-## 4. Example: Trapezoidal Rule in MPI
-* The problem is partitioned into tasks (calculating local integrals).
-* Processes calculate their local results and send them to **Process 0** (the Master).
-* Process 0 receives all local integrals and sums them for the final result.
-
-## 5. Input/Output in MPI
-* **Stdout:** Most implementations allow all processes to print, though order is unpredictable.
-* **Stdin:** Usually only **Process 0** has access to stdin. It must read data and then `MPI_Send` it to other processes.
+## Parallel Trapezoidal Rule
+1. **Partition**: Divide the interval $[a, b]$ into $n$ trapezoids.
+2. **Assign**: Each process computes the area for $n/p$ trapezoids.
+3. **Communicate**: Worker processes send their local integrals to Process 0.
+4. **Aggregate**: Process 0 receives all results and prints the final sum.
