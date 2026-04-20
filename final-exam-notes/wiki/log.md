@@ -27,3 +27,8 @@ Updated pages: [[mpi]], [[index.md]].
 Processed lec23.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 3 new concept pages.
 New concepts: [[block-decomposition]], [[interleaved-decomposition]], [[local-vs-global-indices]].
 Updated pages: [[sieve-of-eratosthenes]], [[index.md]].
+
+## [2026-04-20] ingest | Sieve Implementation and Cache Coherence
+Processed lec24.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
+New concepts: [[sieve-optimizations]], [[cache-optimization-parallel]], [[cache-coherence-protocols]], [[distributed-shared-memory]].
+Updated pages: [[sieve-of-eratosthenes]], [[index.md]].
