@@ -12,6 +12,7 @@
 - [[lec25]] — Parallel Sorting Algorithms I.
 - [[lec27]] — Performance Analysis.
 - [[lec28]] — Isoefficiency and Parallel Sorting II.
+- [[lec29]] — Parallel Sorting Algorithms III.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -59,10 +60,15 @@
 - [[bitonic-sequence]] — Sequences with at most one local maximum and minimum.
 - [[bitonic-mergesort]] — $O(\log^2 n)$ parallel sorting algorithm.
 - [[batchers-sorting-networks]] — Hardware-inspired parallel sorting.
+- [[shearsort]] — 2D mesh sorting algorithm.
+- [[counting-sort]] — Stable, frequency-based sorting.
+- [[radix-sort]] — Multi-pass positional sorting.
 - [[parallel-mergesort]] — Divide-and-conquer sorting using process trees.
 - [[parallel-quicksort]] — Pivot-based sorting in a parallel environment.
 - [[mpi-derived-datatypes]] — Representing collections of data items in memory.
 - [[mpi-barrier]] — Collective synchronization across processes.
+- [[mpi-exscan]] — Exclusive scan used for global offset calculation.
+- [[mpi-alltoallv]] — Variable-sized all-to-all communication.
 - [[performance-measurement-mpi]] — Using `MPI_Wtime` for profiling.
 - [[acid-properties]] — Core requirements for database transactions.
 
@@ -79,4 +85,5 @@
 - [[lec25-Summary]] — Parallel sorting fundamentals, odd-even sort, mergesort, and quicksort.
 - [[lec27-Summary]] — Speedup, Efficiency, Amdahl/Gustafson Laws, and Karp-Flatt.
 - [[lec28-Summary]] — Isoefficiency, Odd-Even Mergesort, and Bitonic Mergesort.
+- [[lec29-Summary]] — Shearsort, Counting Sort, Radix Sort, and Assignment 8.
 ## Synthesis

@@ -47,3 +47,8 @@ Updated pages: [[amdahls-law]], [[gustafsons-law]], [[parallel-speedup]], [[para
 Processed lec28.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
 New concepts: [[odd-even-mergesort]], [[bitonic-sequence]], [[bitonic-mergesort]], [[batchers-sorting-networks]].
 Updated pages: [[isoefficiency-function]], [[index.md]].
+
+## [2026-04-20] ingest | Parallel Sorting Algorithms III
+Processed lec29.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
+New concepts: [[shearsort]], [[counting-sort]], [[radix-sort]], [[mpi-exscan]], [[mpi-alltoallv]].
+Updated pages: [[index.md]].
