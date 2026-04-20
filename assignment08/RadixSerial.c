@@ -1,3 +1,10 @@
+/*
+ * File: RadixSerial.c
+ * Purpose: A serial radix sort implementation.
+ * Author: Sean Balbale
+ * Date: 3/25/2026
+ */
+
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,10 +16,12 @@
 #define RADIX_PASSES 4
 
 static inline uint8_t extract_byte(uint32_t value, int pass) {
+	// Extract one 8-bit digit for the current radix pass.
 	return (uint8_t)((value >> (pass * 8)) & 0xFFu);
 }
 
 void counting_sort(uint32_t *input, uint32_t *output, int n, int pass) {
+	// Stable counting sort for a single byte pass.
 	int count[RADIX_BASE] = {0};
 	int offset[RADIX_BASE];
 
@@ -26,6 +35,7 @@ void counting_sort(uint32_t *input, uint32_t *output, int n, int pass) {
 		offset[digit] = offset[digit - 1] + count[digit - 1];
 	}
 
+	// Right-to-left placement preserves stability.
 	for (int i = n - 1; i >= 0; i--) {
 		uint8_t digit = extract_byte(input[i], pass);
 		int pos = offset[digit] + count[digit] - 1;
@@ -48,6 +58,7 @@ void radix_sort(uint32_t *arr, int n) {
 		exit(EXIT_FAILURE);
 	}
 
+	// Double-buffer by swapping input/output pointers each pass.
 	for (int pass = 0; pass < RADIX_PASSES; pass++) {
 		counting_sort(in, out, n, pass);
 
@@ -79,6 +90,7 @@ static uint32_t random_u32(void) {
 }
 
 int main(int argc, char **argv) {
+	// Args: N [seed]
 	int n = 1000000;
 	unsigned int seed = (unsigned int)time(NULL);
 
