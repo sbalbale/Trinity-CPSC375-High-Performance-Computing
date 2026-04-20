@@ -42,3 +42,8 @@ Updated pages: [[index.md]].
 Processed lec27.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 3 new concept pages.
 New concepts: [[karp-flatt-metric]], [[strong-scalability]], [[weak-scalability]].
 Updated pages: [[amdahls-law]], [[gustafsons-law]], [[parallel-speedup]], [[parallel-efficiency]], [[index.md]].
+
+## [2026-04-20] ingest | Isoefficiency and Parallel Sorting II
+Processed lec28.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
+New concepts: [[odd-even-mergesort]], [[bitonic-sequence]], [[bitonic-mergesort]], [[batchers-sorting-networks]].
+Updated pages: [[isoefficiency-function]], [[index.md]].
