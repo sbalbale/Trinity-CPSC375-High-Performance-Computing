@@ -7,6 +7,7 @@
 - [[lec17]] — Performance analysis metrics (Speedup, Efficiency, Amdahl's Law).
 - [[lec21]] — Collective Communication.
 - [[lec22]] — Derived Types and Barriers.
+- [[lec23]] — Parallel Sieve of Eratosthenes.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -37,6 +38,9 @@
 - [[overhead-parallel-computing]] — Non-computational time (comm, sync, idle).
 - [[collective-communication]] — Communication involving all processes in a communicator.
 - [[data-partitioning]] — Strategies for dividing data among processes.
+- [[block-decomposition]] — Strategy for dividing data into contiguous chunks.
+- [[interleaved-decomposition]] — Cyclic data distribution.
+- [[local-vs-global-indices]] — Mapping indices in parallel arrays.
 - [[mpi-derived-datatypes]] — Representing collections of data items in memory.
 - [[mpi-barrier]] — Collective synchronization across processes.
 - [[performance-measurement-mpi]] — Using `MPI_Wtime` for profiling.
@@ -50,4 +54,5 @@
 - [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
 - [[lec21-Summary]] — MPI Collective Communication operations.
 - [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
+- [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
 ## Synthesis
