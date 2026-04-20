@@ -9,6 +9,7 @@
 - [[lec22]] — Derived Types and Barriers.
 - [[lec23]] — Parallel Sieve of Eratosthenes.
 - [[lec24]] — Sieve Implementation and Cache Coherence.
+- [[lec25]] — Parallel Sorting Algorithms I.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -46,6 +47,11 @@
 - [[cache-optimization-parallel]] — Improving hit rates in data-intensive parallel loops.
 - [[cache-coherence-protocols]] — Write Through and Write Once (MESI-like) protocols.
 - [[distributed-shared-memory]] — Systems where memory is physically distributed but logically shared.
+- [[compare-and-exchange]] — The fundamental building block of parallel sorting.
+- [[merge-and-split]] — Scaling sorting when $n > p$.
+- [[odd-even-transposition-sort]] — A parallel variant of bubble sort.
+- [[parallel-mergesort]] — Divide-and-conquer sorting using process trees.
+- [[parallel-quicksort]] — Pivot-based sorting in a parallel environment.
 - [[mpi-derived-datatypes]] — Representing collections of data items in memory.
 - [[mpi-barrier]] — Collective synchronization across processes.
 - [[performance-measurement-mpi]] — Using `MPI_Wtime` for profiling.
@@ -61,4 +67,5 @@
 - [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
 - [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
 - [[lec24-Summary]] — Sieve optimizations and Cache Coherence protocols.
+- [[lec25-Summary]] — Parallel sorting fundamentals, odd-even sort, mergesort, and quicksort.
 ## Synthesis
