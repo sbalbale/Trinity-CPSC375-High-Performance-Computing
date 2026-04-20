@@ -13,12 +13,14 @@
 - [[lec27]] — Performance Analysis.
 - [[lec28]] — Isoefficiency and Parallel Sorting II.
 - [[lec29]] — Parallel Sorting Algorithms III.
+- [[lec30]] — Matrix Multiplication I.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
 - [[fosters-methodology]] — Four-stage framework (PCAM) for designing parallel algorithms.
 - [[sieve-of-eratosthenes]] — Classic prime-finding algorithm used for parallel analysis.
 - [[mpi]] — Message Passing Interface, used for distributed memory parallelism.
+- [[strassen]] — Creator of the $O(n^{2.81})$ matrix multiplication algorithm.
 
 ## Concepts
 - [[parallel-region]] — Block of code executed by multiple threads simultaneously.
@@ -53,6 +55,11 @@
 - [[cache-optimization-parallel]] — Improving hit rates in data-intensive parallel loops.
 - [[cache-coherence-protocols]] — Write Through and Write Once (MESI-like) protocols.
 - [[distributed-shared-memory]] — Systems where memory is physically distributed but logically shared.
+- [[matrix-multiplication-optimization]] — Loop reordering (ikj) and tiling.
+- [[tiling-block-matrix]] — Explicit cache management via submatrices.
+- [[strassens-algorithm]] — Divide-and-conquer $O(n^{2.81})$ multiplication.
+- [[spatial-locality]] — Sequential memory access patterns.
+- [[communication-complexity]] — The cost of data movement between memory levels.
 - [[compare-and-exchange]] — The fundamental building block of parallel sorting.
 - [[merge-and-split]] — Scaling sorting when $n > p$.
 - [[odd-even-transposition-sort]] — A parallel variant of bubble sort.
@@ -86,4 +93,5 @@
 - [[lec27-Summary]] — Speedup, Efficiency, Amdahl/Gustafson Laws, and Karp-Flatt.
 - [[lec28-Summary]] — Isoefficiency, Odd-Even Mergesort, and Bitonic Mergesort.
 - [[lec29-Summary]] — Shearsort, Counting Sort, Radix Sort, and Assignment 8.
+- [[lec30-Summary]] — Cache optimization, Tiling, and Strassen's Algorithm.
 ## Synthesis
