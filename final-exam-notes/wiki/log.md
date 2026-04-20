@@ -8,3 +8,7 @@ Processed lec16.pdf. Created 1 new source page, 1 new lecture summary, 1 new ent
 New entities: [[sieve-of-eratosthenes]].
 New concepts: [[static-mapping]], [[dynamic-mapping]], [[master-worker-pattern]].
 Updated pages: [[fosters-methodology]], [[mapping-parallel-programming]].
+
+## [2025-05-15] ingest | Performance Analysis
+Processed lec17.pdf. Created 1 new source page, 1 new lecture summary, 0 new entities, and 6 new concept pages.
+New concepts: [[parallel-speedup]], [[parallel-efficiency]], [[amdahls-law]], [[gustafsons-law]], [[isoefficiency-function]], [[overhead-parallel-computing]].
