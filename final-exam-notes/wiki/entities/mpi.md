@@ -35,6 +35,12 @@ updated: 2026-04-20
 > - `MPI_Comm_size`: Gets the total number of processes.
 > - `MPI_Send` / `MPI_Recv`: Point-to-point communication.
 
+> [!example] Advanced Functions
+> - `MPI_Bcast` / `MPI_Reduce`: [[collective-communication]] operations.
+> - `MPI_Type_create_struct`: Creating [[mpi-derived-datatypes]].
+> - `MPI_Barrier`: Synchronization [[mpi-barrier]].
+> - `MPI_Wtime`: [[performance-measurement-mpi]].
+
 > [!code] MPI "Hello World"
 > ```c
 > #include <mpi.h>

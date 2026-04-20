@@ -17,3 +17,8 @@ New concepts: [[parallel-speedup]], [[parallel-efficiency]], [[amdahls-law]], [[
 Processed lec21.pdf. Created 1 new source page, 1 new lecture summary, 1 new entity, and 2 new concept pages.
 New entities: [[mpi]].
 New concepts: [[collective-communication]], [[data-partitioning]].
+
+## [2026-04-20] ingest | Derived Types and Barriers
+Processed lec22.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 4 new concept pages.
+New concepts: [[mpi-derived-datatypes]], [[mpi-barrier]], [[performance-measurement-mpi]], [[acid-properties]].
+Updated pages: [[mpi]], [[index.md]].
