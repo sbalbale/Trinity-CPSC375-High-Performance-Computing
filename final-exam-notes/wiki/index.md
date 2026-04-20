@@ -13,9 +13,9 @@
 - [[lec27]] — Performance Analysis.
 - [[lec28]] — Isoefficiency and Parallel Sorting II.
 - [[lec29]] — Parallel Sorting Algorithms III.
-- [[lec30]] — Matrix Multiplication I.
 - [[lec31]] — Matrix Multiplication II.
 - [[getting-started-with-openmp-programming-lab]] — Lab introduction to parallel regions, loops, and data sharing.
+- [[more-on-openmp-programming-lab]] — Advanced lab on synchronization, scheduling, and tasks.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -30,6 +30,9 @@
 - [[reduction-operation]] — Efficiently combines private variable copies into a single value.
 - [[data-sharing-clauses]] — Mechanisms to control variable scoping in OpenMP.
 - [[omp-synchronization]] — Critical sections, barriers, and atomic updates.
+- [[omp-scheduling]] — Static vs. Dynamic loop distribution.
+- [[omp-tasks-sections]] — Concurrency beyond simple loops.
+- [[nowait-clause]] — Reducing barrier overhead.
 - [[parallel-loop-openmp]] — Using `omp parallel for` to distribute work.
 - [[partitioning]] — Decomposing a problem into fine-grained tasks.
 - [[communication]] — Defining data exchange patterns between tasks.
@@ -86,6 +89,7 @@
 - [[mpi-exscan]] — Exclusive scan used for global offset calculation.
 - [[mpi-alltoallv]] — Variable-sized all-to-all communication.
 - [[performance-measurement-mpi]] — Using `MPI_Wtime` for profiling.
+- [[performance-measurement-openmp]] — Using `omp_get_wtime()`.
 - [[acid-properties]] — Core requirements for database transactions.
 
 ## Exam Prep
@@ -105,4 +109,5 @@
 - [[lec30-Summary]] — Cache optimization, Tiling, and Strassen's Algorithm.
 - [[lec31-Summary]] — Cannon's, Fox's, and SUMMA algorithms.
 - [[OpenMP-Lab-Summary]] — Practical OpenMP: regions, loops, and scoping.
+- [[Advanced-OpenMP-Lab-Summary]] — Synchronization, scheduling, tasks, and timing.
 ## Synthesis
