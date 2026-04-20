@@ -58,3 +58,8 @@ Processed lec30.txt. Created 1 new source page, 1 new lecture summary, 1 new ent
 New entities: [[strassen]].
 New concepts: [[matrix-multiplication-optimization]], [[tiling-block-matrix]], [[strassens-algorithm]], [[spatial-locality]], [[communication-complexity]].
 Updated pages: [[index.md]].
+
+## [2026-04-20] ingest | Matrix Multiplication II
+Processed lec31.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
+New concepts: [[checkerboard-decomposition]], [[cannons-algorithm]], [[foxs-algorithm]], [[summa-algorithm]], [[computation-to-communication-ratio]].
+Updated pages: [[index.md]].
