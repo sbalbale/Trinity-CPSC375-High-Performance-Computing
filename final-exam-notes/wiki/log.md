@@ -52,3 +52,9 @@ Updated pages: [[isoefficiency-function]], [[index.md]].
 Processed lec29.txt. Created 1 new source page, 1 new lecture summary, 0 new entities, and 5 new concept pages.
 New concepts: [[shearsort]], [[counting-sort]], [[radix-sort]], [[mpi-exscan]], [[mpi-alltoallv]].
 Updated pages: [[index.md]].
+
+## [2026-04-20] ingest | Matrix Multiplication I
+Processed lec30.txt. Created 1 new source page, 1 new lecture summary, 1 new entity, and 5 new concept pages.
+New entities: [[strassen]].
+New concepts: [[matrix-multiplication-optimization]], [[tiling-block-matrix]], [[strassens-algorithm]], [[spatial-locality]], [[communication-complexity]].
+Updated pages: [[index.md]].
