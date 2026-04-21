@@ -18,6 +18,20 @@
 - [[lec31]] — Matrix Multiplication II.
 - [[more-on-openmp-programming-lab]] — Advanced lab on synchronization, scheduling, and tasks.
 - [[mpi-programming-with-slurm-lab]] — Lab manual for Pine cluster and Slurm job submission.
+- [[homework-15]] — Domain decomposition and primitive tasks.
+- [[homework-16]] — OpenMP scoping and race conditions.
+- [[homework-17]] — Custom DBMS internals: catalog, hashing, and storage.
+- [[homework-18]] — Practical OpenMP: max search, vector addition, and Monte Carlo.
+- [[homework-19]] — Advanced OpenMP: atomic vs critical and scheduling.
+- [[homework-20]] — Distributed-memory systems and MPI fundamentals.
+- [[homework-21]] — MPI Collectives and Data Partitioning.
+- [[homework-22]] — MPI Derived Types and Timing Analysis.
+- [[homework-23]] — Block Decomposition mathematics and mapping.
+- [[homework-24]] — Parallel Sieve optimizations.
+- [[homework-25]] — Parallel Sorting: Odd-Even and Mergesort.
+- [[homework-26]] — MPI Coordination: Token passing and random reduction.
+- [[homework-27]] — Mathematical proofs of Scaling Laws (Amdahl/Gustafson/Karp-Flatt).
+- [[homework-28]] — Isoefficiency derivation and Bitonic Sorting.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -71,13 +85,6 @@
 - [[cache-optimization-parallel]] — Improving hit rates in data-intensive parallel loops.
 - [[cache-coherence-protocols]] — Write Through and Write Once (MESI-like) protocols.
 - [[distributed-shared-memory]] — Systems where memory is physically distributed but logically shared.
-- [[distributed-memory-model]] — Memory private to each process.
-- [[shared-memory-model]] — Single global address space.
-- [[spmd]] — Single Program, Multiple Data.
-- [[point-to-point-communication]] — Basic `MPI_Send` and `MPI_Recv`.
-- [[trapezoidal-rule-mpi]] — Example of parallel numerical integration.
-- [[communicators-mpi]] — Logical groups of processes.
-- [[mpi-status]] — Handling unknown message metadata.
 - [[matrix-multiplication-optimization]] — Loop reordering (ikj) and tiling.
 - [[tiling-block-matrix]] — Explicit cache management via submatrices.
 - [[checkerboard-decomposition]] — 2D partitioning of matrices across processors.
@@ -113,24 +120,21 @@
 
 ## Exam Prep
 - [[Exam-2-MOC]] — High-density Map of Content for Lectures 15-31.
+
 ## Homework Solutions
-## Lecture Summaries
-- [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
-- [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
-- [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
-- [[lec20-Summary]] — Introduction to MPI and Point-to-Point communication.
-- [[lec21-Summary]] — MPI Collective Communication operations.
-- [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
-- [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
-- [[lec24-Summary]] — Sieve optimizations and Cache Coherence protocols.
-- [[lec25-Summary]] — Parallel sorting fundamentals, odd-even sort, mergesort, and quicksort.
-- [[lec27-Summary]] — Speedup, Efficiency, Amdahl/Gustafson Laws, and Karp-Flatt.
-- [[lec28-Summary]] — Isoefficiency, Odd-Even Mergesort, and Bitonic Mergesort.
-- [[lec29-Summary]] — Shearsort, Counting Sort, Radix Sort, and Assignment 8.
-- [[lec30-Summary]] — Cache optimization, Tiling, and Strassen's Algorithm.
-- [[lec31-Summary]] — Cannon's, Fox's, and SUMMA algorithms.
-- [[OpenMP-Lab-Summary]] — Practical OpenMP: regions, loops, and scoping.
-- [[Advanced-OpenMP-Lab-Summary]] — Synchronization, scheduling, tasks, and timing.
-- [[MPI-Slurm-Lab-Summary]] — Practical Cluster computing on Pine with Slurm.
+- [[Homework-15-Solutions]] — Domain decomposition and agglomeration.
+- [[Homework-16-Solutions]] — OpenMP scoping and race conditions.
+- [[Homework-17-Solutions]] — DBMS internals: catalog, hashing, and storage.
+- [[Homework-18-Solutions]] — Practical OpenMP implementations.
+- [[Homework-19-Solutions]] — Advanced synchronization and scheduling.
+- [[Homework-20-Solutions]] — MPI fundamentals and communication hazards.
+- [[Homework-21-Solutions]] — MPI Collectives and data partitioning.
+- [[Homework-22-Solutions]] — MPI Derived Types and timing analysis.
+- [[Homework-23-Solutions]] — Data decomposition mathematics.
+- [[Homework-24-Solutions]] — Optimized Sieve of Eratosthenes code.
+- [[Homework-25-Solutions]] — Odd-Even sort and Parallel Mergesort.
+- [[Homework-26-Solutions]] — Token-passing output and sum reduction.
+- [[Homework-27-Solutions]] — Scaling law proofs and benchmarking analysis.
+- [[Homework-28-Solutions]] — Isoefficiency and Bitonic sort trace.
 
 ## Synthesis
