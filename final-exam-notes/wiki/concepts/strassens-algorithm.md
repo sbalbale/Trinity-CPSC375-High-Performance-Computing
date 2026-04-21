@@ -1,7 +1,7 @@
 ---
 aliases: [Strassen's Multiplication, $O(n^{2.81})$ Matrix Mult]
 tags: [algorithm, matrix, divide-and-conquer]
-sources: [lec30.txt]
+sources: [lec30.txt, Homework 30.pdf]
 created: 2026-04-20
 updated: 2026-04-20
 ---

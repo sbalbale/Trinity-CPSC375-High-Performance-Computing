@@ -1,7 +1,7 @@
 ---
 aliases: [Data Locality, Memory Locality]
 tags: [performance, cache, architecture]
-sources: [lec30.txt]
+sources: [lec30.txt, Homework 29.pdf, Homework 30.pdf]
 created: 2026-04-20
 updated: 2026-04-20
 ---

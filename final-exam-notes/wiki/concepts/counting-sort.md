@@ -1,7 +1,7 @@
 ---
 aliases: [Non-Comparison Sort, Frequency Sort]
 tags: [algorithm, sorting, stability]
-sources: [lec29.txt]
+sources: [lec29.txt, Homework 29.pdf]
 created: 2026-04-20
 updated: 2026-04-20
 ---
