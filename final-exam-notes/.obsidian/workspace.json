@@ -4,39 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "3dbf33da494737c7",
+        "id": "c0743b77c73d34cd",
         "type": "tabs",
         "children": [
           {
-            "id": "b6eb6cc7dfe4e5c7",
+            "id": "617b293cd860df80",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "templates/Exam_Note_Template.md",
+                "file": "wiki/homework-solutions/Homework-28-Solutions.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Exam_Note_Template"
-            }
-          },
-          {
-            "id": "00e3ff6033fc6cff",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Sorting-Cheat-Sheet"
+              "title": "Homework-28-Solutions"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -109,7 +94,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +103,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Sorting-Cheat-Sheet"
+              "title": "Backlinks"
             }
           },
           {
@@ -128,12 +112,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Sorting-Cheat-Sheet"
+              "title": "Outgoing links"
             }
           },
           {
@@ -171,13 +154,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Sorting-Cheat-Sheet"
+              "title": "Outline"
             }
           }
         ]
@@ -195,46 +177,47 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "terminal:Open terminal": false
     }
   },
-  "active": "00e3ff6033fc6cff",
+  "active": "c10c899358744d32",
   "lastOpenFiles": [
-    "wiki/exam-prep/Performance-Cheat-Sheet.md",
-    "wiki/exam-prep/OpenMP-Cheat-Sheet.md",
-    "wiki/exam-prep/MPI-Cheat-Sheet.md",
+    "raw/homeworks/Homework 30.pdf",
+    "raw/homeworks/Homework 29.pdf",
     "wiki/exam-prep/Matrix-Cheat-Sheet.md",
-    "wiki/exam-prep/Exam-2-MOC.md",
-    "wiki/concepts/relational-algebra.md",
-    "raw/exam2_study_guide.html",
     "wiki/exam-prep/DBMS-Cheat-Sheet.md",
-    "wiki/exam-prep/Sorting-Cheat-Sheet.md",
-    "wiki/concepts/sedSDyQNM",
-    "wiki/sedejhEaj",
-    "raw/lectures/markdown/lec15.md",
-    "wiki/concepts/monte-carlo-pi.md",
-    "wiki/concepts/synchronization-overhead.md",
-    "wiki/concepts/communication-overhead.md",
-    "final_valid.txt",
-    "final_aliases.txt",
-    "final_files.txt",
-    "final_links.txt",
-    "wiki/entities/lenovo-p340.md",
-    "wiki/concepts/work-efficiency.md",
-    "wiki/concepts/primitive-task.md",
-    "wiki/concepts/scatter-gather.md",
-    "wiki/concepts/deadlock.md",
-    "wiki/concepts/slot-structure.md",
-    "wiki/concepts/relation-metadata.md",
-    "wiki/concepts/overflow-blocks.md",
-    "wiki/concepts/dbms-hashing.md",
-    "wiki/entities/custom-dbms.md",
+    "wiki/sources/exam2-study-guide.md",
+    "wiki/lecture-summaries/Parallel-Algorithm-Design-Summary.md",
+    "final_unindexed.txt",
+    "final_indexed_files.txt",
+    "final_content_files.txt",
+    "final_broken.txt",
+    "wiki/concepts/checkerboard-decomposition.md",
+    "wiki/concepts/cache-coherence-protocols.md",
     "wiki/concepts/bitmap-allocation.md",
-    "wiki/concepts/base-vs-derived-relations.md",
+    "wiki/concepts/amdahls-law.md",
+    "wiki/exam-prep/Performance-Cheat-Sheet.md",
+    "wiki/exam-prep/Exam-2-MOC.md",
+    "wiki/homework-solutions/Homework-22-Solutions.md",
     "wiki/homework-solutions/Homework-19-Solutions.md",
-    "raw/lectures/markdown/Getting_Started_with_OpenMP_Programming.md",
-    "raw/assignments/Assignment 8.pdf",
-    "raw/assignments/Assignment 7.pdf",
-    "raw/assignments/Assignment 6.pdf"
+    "wiki/homework-solutions/Homework-15-Solutions.md",
+    "wiki/lecture-summaries/Parallel Algorithm Design-Summary.md",
+    "wiki/sources/homework-18.md",
+    "wiki/sources/lec28.md",
+    "wiki/lecture-summaries/Lec17-Summary.md",
+    "wiki/concepts/omp-synchronization.md",
+    "wiki/homework-solutions/Homework-17-Solutions.md",
+    "raw/lectures/lec23.pdf",
+    "raw/lectures/More on OpenMP Programming.pdf",
+    "final_orphans.txt",
+    "final_valid_targets.txt",
+    "final_actual_files.txt",
+    "wiki/concepts/race-condition.md",
+    "wiki/homework-solutions/Homework-16-Solutions.md",
+    "wiki/entities/slurm.md",
+    "wiki/entities/pine-cluster.md",
+    "wiki/entities/openmp.md",
+    "wiki/entities/strassen.md"
   ]
 }
