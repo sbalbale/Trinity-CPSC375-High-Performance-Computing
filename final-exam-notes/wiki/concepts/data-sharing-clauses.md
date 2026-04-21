@@ -15,16 +15,17 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
-| Clause | Visibility | Initialization | Exit Behavior |
+| Clause | Visibility | Initialized? | Final Value to Original? |
 | :--- | :--- | :--- | :--- |
-| `shared(x)` | All threads see the same memory. | Value from master. | Changes persist globally. |
-| `private(x)` | Each thread has a local copy. | **Uninitialized**. | Local changes are lost. |
-| `firstprivate(x)`| Each thread has a local copy. | Initialized with master's value. | Local changes are lost. |
-| `lastprivate(x)` | Each thread has a local copy. | **Uninitialized**. | Last iteration value copied to master. |
+| `shared(x)` | All threads | Yes (from original) | **Yes** (modifies original) |
+| `private(x)` | Local copy | **No** (garbage) | **No** (original unchanged) |
+| `firstprivate(x)`| Local copy | **Yes** (from original) | **No** (original unchanged) |
+| `lastprivate(x)` | Local copy | **No** (garbage) | **Yes** (from logical last) |
 
 > [!warning] Common Pitfalls
 > - **Uninitialized Private:** A common bug is using a `private` variable without initializing it within the parallel region. Use `firstprivate` if you need the initial value.
 > - **Shared Performance:** Accessing `shared` variables can lead to **false sharing** or bus contention if multiple threads write to them frequently.
+> - **Combining Clauses**: You can use `firstprivate(x) lastprivate(x)` on the same variable to both initialize it from the master and copy its final value back.
 
 ## Implementations & Examples
 

@@ -12,12 +12,12 @@ updated: 2026-04-20
 > Parallel mechanics and time complexity for common sorting algorithms.
 
 ## 1. Comparison Sorts
-| Algorithm | Parallel Time | Total Work | Notes |
-| :--- | :--- | :--- | :--- |
-| **Odd-Even Trans.** | $O(n)$ | $O(n^2)$ | Regular comm; high sync overhead. |
-| **Mergesort** | $O(n)$ | $O(n \log n)$ | Tree-based; work-efficient. |
-| **Quicksort** | $O(n)$ (avg) | $O(n \log n)$ | Pivot-based; potential load imbalance. |
-| **Bitonic Sort** | $O(\log^2 n)$ | $O(n \log^2 n)$ | Fixed network; $k(k+1)/2$ phases. |
+| Algorithm | Best Case | Average Case | Worst Case | Parallel Time |
+| :--- | :--- | :--- | :--- | :--- |
+| **Odd-Even** | $O(n \log n)$ | $O(n \log n)$ | $O(n \log n)$ | $O(\log^2 n)$ |
+| **Mergesort** | $O(n \log n)$ | $O(n \log n)$ | $O(n \log n)$ | $O(\log^2 n)$ |
+| **Quicksort** | $O(n \log n)$ | $O(n \log n)$ | $O(n^2)$ | Variable |
+| **Bitonic** | $O(n \log^2 n)$| $O(n \log^2 n)$| $O(n \log^2 n)$| $O(\log^2 n)$ |
 
 ## 2. Special Network Sorts
 | Algorithm | Topology | Time | Notes |

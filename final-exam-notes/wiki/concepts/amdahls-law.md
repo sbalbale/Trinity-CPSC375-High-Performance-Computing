@@ -13,15 +13,25 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
-> [!equation] Amdahl's Formula
+> [!equation] Amdahl's Formula (Ideal)
 > $$S_p = \frac{1}{f + \frac{1-f}{p}}$$
-> - $f$ = Fraction of the program that is **sequential** (non-parallelizable)
-> - $1-f$ = Fraction that is parallelizable
-> - $p$ = Number of processors
+> - $f$: Sequential fraction.
+> - $p$: Number of processors.
+
+> [!equation] Revised Amdahl's Law (Realistic)
+> In practice, communication and synchronization add overhead that increases with $p$.
+> $$S_p = \frac{1}{f + \frac{1-f}{p} + \text{overhead}(p)}$$
 
 ### Key Insight
-As $p \to \infty$, the speedup $S_p$ approaches $1/f$.
-Example: If 10% of your code is sequential ($f=0.1$), your maximum speedup is $1/0.1 = 10$, even with infinite processors.
+The **serial fraction is the fundamental limit** on speedup for fixed-size problems. Even with 1000s of processors, a 10% serial fraction limits you to 10x speedup.
+
+| $p$ (Processors) | $S_p$ (90% parallelizable) | $S_p$ (95% parallelizable) |
+| :--- | :--- | :--- |
+| 1 | 1.0 | 1.0 |
+| 2 | 1.82 | 1.90 |
+| 16 | 6.40 | 8.89 |
+| 100 | 9.17 | 16.81 |
+| $\infty$ | **10.0** | **20.0** |
 
 > [!warning] Common Pitfalls
 > - **Fixed Problem Size:** Amdahl's Law assumes the workload remains constant, making it the theoretical model for **strong-scalability**.

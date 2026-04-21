@@ -13,17 +13,33 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
-### The Algorithm
-1. **Count**: Create an auxiliary array `count` of size $b$ (the range of inputs). For each element $x$ in the input, increment `count[x]`.
-2. **Cumulative Sum**: Transform `count` by adding each element to its predecessor ($O(b)$). Each entry now contains the final position for its value.
-3. **Place**: Iterate through the original array (from right to left to ensure stability) and use `count[x]` to place $x$ into its final position in an output array.
+### Detailed Algorithm
+> [!code] Implementation Logic
+> ```c
+> // 1. Count frequencies
+> for (i = 0; i < n; i++) count[A[i]]++;
+> 
+> // 2. Cumulative sum (prefix sum)
+> for (i = 1; i < b; i++) count[i] += count[i-1];
+> 
+> // 3. Place elements (iterate RIGHT to LEFT for stability)
+> for (i = n - 1; i >= 0; i--) {
+>     int val = A[i];
+>     int pos = count[val] - 1;
+>     Output[pos] = val;
+>     count[val]--;
+> }
+> ```
 
-> [!equation] Time Complexity
-> - Total Time: $O(n + b)$ where $n$ is elements and $b$ is the range.
-> - Space Complexity: $O(n + b)$.
+### Complexity Breakdown
+- **Counting**: $O(n)$
+- **Prefix Sum**: $O(b)$ where $b$ is the radix/base.
+- **Placement**: $O(n)$
+- **Total Time**: **$O(n + b)$**
+- **Space**: $O(n + b)$ for the output and count arrays.
 
 > [!warning] Stability
-> Counting sort **must be stable** to be used as a primitive for [[radix-sort]]. This is achieved by iterating through the original list from right to left in the final placement step.
+> Counting sort **must be stable** to be used as a primitive for [[radix-sort]]. This is achieved by iterating through the original list from **right to left** during the placement phase. This ensures that if two elements have the same value, the one that appeared later in the original array appears later in the sorted array.
 
 ## Implementations & Examples
 

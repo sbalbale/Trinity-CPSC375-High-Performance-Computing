@@ -21,7 +21,11 @@ updated: 2026-04-20
 - `srun`: Launches a parallel job (typically inside an `sbatch` script).
 - `squeue`: Reports the state of jobs.
 - `scancel`: Cancels a pending or running job.
-- `sacct`: Reports job accounting information.
+- `sacct`: Reports job accounting information for completed jobs.
+- `sinfo`: Displays general information about cluster nodes and partitions.
+
+> [!warning] Over-requesting Resources
+> If a job requests more tasks per node than physical cores available (e.g., 48 on a 24-core node), the job will remain in the **PENDING** state indefinitely until resources become available or will be rejected if the request exceeds total cluster capacity.
 
 ## Connections
 * **Manages:** [[pine-cluster]].

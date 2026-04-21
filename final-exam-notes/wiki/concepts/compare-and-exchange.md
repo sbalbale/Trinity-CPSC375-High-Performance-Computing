@@ -13,9 +13,16 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
-### MPI Message-Passing Methods
-- **Method 1 (Single Comparison)**: Process $P_1$ sends $A$ to $P_2$. $P_2$ compares $A$ and $B$ and sends the correct value back to $P_1$. (3 steps)
-- **Method 2 (Dual Comparison)**: Both processes send their values to each other simultaneously. Both perform the comparison locally to determine which value to keep. (2 steps)
+### Comparison Patterns
+- **Sequential Exchange**: $P_1$ sends $A$, $P_2$ compares and sends back the result ($O(3)$ steps).
+- **Simultaneous Exchange**: Both processes send and receive concurrently ($O(2)$ steps).
+    - **Pros**: Better parallelism, simpler logic (both processes do similar work), and more elegant symmetry.
+
+## Reality Check: Communication vs. Computation
+In parallel sorting, the fundamental bottleneck is often the massive disparity between computation and communication speeds:
+- **Computation**: A single comparison is $O(1)$ and takes nanoseconds.
+- **Communication**: A single message takes microseconds (1000x slower).
+**Result**: Message overhead typically dominates the execution time. This is mitigated by **Hybrid Approaches** (local sequential sorting followed by minimal parallel communication) or **Batching** multiple comparisons into a single message.
 
 > [!warning] Precision Hazard
 > When using Method 2, if $A$ and $B$ are floating-point numbers, different processors might arrive at different boolean results for the comparison `A > B` due to hardware precision differences. This can break **SPMD consistency**.

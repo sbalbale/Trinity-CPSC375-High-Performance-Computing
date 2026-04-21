@@ -13,6 +13,16 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
+> [!equation] Complexity
+> - **Time**: $O(\log^2 n)$ parallel comparisons.
+> - **Processors**: $O(n)$ required for full parallelization.
+> - **Total Work**: $O(n \log^2 n)$. (Note: This is **not** work-efficient compared to $O(n \log n)$ sequential sorts).
+
+### Advantages
+- **Highly Regular**: Fixed, value-independent communication pattern.
+- **Ideal for SIMD/GPU**: Performs the same operations across massive data in parallel, matching the Strengths of vector processors and GPUs.
+- **Sorting Network**: Can be implemented entirely in hardware gates.
+
 ### General Algorithm
 To sort an arbitrary sequence:
 1. **Phases**: The sort is performed in $k = \log_2 n$ phases.

@@ -16,6 +16,15 @@ updated: 2026-04-20
 > [!equation] Syntax
 > `int MPI_Barrier(MPI_Comm comm);`
 
+### Common Use Cases
+1. **Timing**: Ensuring all processes start and stop together for accurate wall-clock measurement.
+2. **Debugging**: Forcing a specific execution order to isolate non-deterministic bugs or synchronization issues.
+3. **Phase Coordination**: Ensuring all processes finish a computational phase (e.g., local sorting) before starting the next (e.g., merging).
+
+### Performance Considerations
+- **Latency**: Every barrier adds a fixed synchronization cost, which can be significant on high-latency networks.
+- **Exposure of Imbalance**: The time spent in a barrier is determined by the **slowest process**. If one process is overloaded, all others remain idle, reducing overall efficiency.
+
 > [!warning] Common Pitfalls
 > - **Performance Impact:** Excessive use of barriers can significantly degrade performance by forcing faster processes to wait for slower ones (**load imbalance**).
 > - **Deadlock:** If one process in the communicator does not reach the barrier (e.g., due to an `if` branch), the entire program will **deadlock**.

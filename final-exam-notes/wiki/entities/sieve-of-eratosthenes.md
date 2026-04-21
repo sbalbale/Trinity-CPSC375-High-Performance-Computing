@@ -13,6 +13,11 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
+### Why Parallelize?
+For very large $n$ (e.g., $10^9$), the sequential algorithm becomes impractical:
+- **Memory**: Requires an array of size $n$ (~1 GB for $10^9$).
+- **Time**: $O(n \ln \ln n)$ operations ($>10^9$) take several seconds.
+
 > [!equation] The Prime Rule
 > To find primes up to $n$, you only need to sieve using primes up to $\sqrt{n}$.
 
@@ -23,8 +28,45 @@ updated: 2026-04-20
 4. **Marking:** Each process marks multiples of $k$ in its local range.
 5. **Reduction:** After sieving up to $\sqrt{n}$, use `MPI_Reduce` with `MPI_SUM` to count primes.
 
-> [!warning] Load Imbalance in Cyclic Sieve
-> In an interleaved distribution, processes with smaller indices handle smaller numbers. These numbers have a higher density of multiples to mark, causing those processes to work much longer than those handling larger numbers.
+## Data Decomposition Comparison
+
+### Interleaved (Cyclic) Decomposition
+- **Assignment**: Process $i$ gets elements $i, i+p, i+2p, \dots$
+- **Problem**: **Severe Load Imbalance**.
+    - Early primes (like 2) leave very few unmarked elements for processes assigned to them.
+    - Example ($p=4, n=31$): Process 0 handles $\{2, 6, 10, \dots\}$. All are composite (except 2), so P0 has almost zero work later. Processes assigned odd numbers do significantly more marking work.
+
+### Block Decomposition
+- **Assignment**: Process $i$ gets a contiguous chunk of size $\approx n/p$.
+- **Benefits**:
+    - **Better Locality**: Contiguous access improves cache performance.
+    - **Balanced Workload**: Initial work is equal and distribution remains stable.
+    - **Simple Communication**: Fewer messages needed between neighbors.
+
+## Detailed Implementation
+
+### Finding the First Multiple
+One of the most critical steps in the parallel implementation is determining the starting index for marking in a process's local block.
+
+> [!code] First Multiple Calculation
+> ```c
+> // Determine where to start marking in local array
+> if (prime * prime > low_value)
+>     first = prime * prime - low_value;  // Start from prime²
+> else {
+>     // Calculate first multiple of prime >= low_value
+>     if (!(low_value % prime))
+>         first = 0;  // low_value is divisible by prime
+>     else
+>         first = prime - (low_value % prime);
+> }
+> ```
+
+### Main Sieving Loop
+The loop continues until the square of the current prime exceeds the global limit $n$.
+1. **Mark**: Each process marks multiples of the current `prime` starting from `first`.
+2. **Find Next**: Process 0 identifies the next unmarked index in its local block.
+3. **Broadcast**: Process 0 broadcasts the new `prime` value to all other processes.
 
 ## Performance & Complexity
 

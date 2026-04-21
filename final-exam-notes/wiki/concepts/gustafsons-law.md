@@ -15,8 +15,19 @@ updated: 2026-04-20
 
 > [!equation] Gustafson's Formula
 > $$S_p = p + (1-p)f$$
-> - $p$ = Number of processors
-> - $f$ = Fraction of time spent on sequential parts in the **scaled** problem
+> - $p$: Number of processors.
+> - $f$: Serial fraction of the **scaled** problem.
+
+### Interpretation
+- **Amdahl**: How much **faster** can I solve this fixed problem?
+- **Gustafson**: How much **more work** can I do in the same amount of time?
+
+| $p$ (Processors) | $S_p$ (10% serial) | $S_p$ (5% serial) |
+| :--- | :--- | :--- |
+| 1 | 1.0 | 1.0 |
+| 10 | 9.1 | 9.55 |
+| 100 | 91.0 | 95.95 |
+| 1000 | 901.0 | 951.0 |
 
 ### Key Insight
 HPC users typically use more powerful machines to run **larger, more complex simulations** in the same amount of time, rather than running a fixed problem in a fraction of a second. This "scaled speedup" better reflects real-world supercomputing.

@@ -13,6 +13,16 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
+> [!equation] Complexity
+> - **Time**: $O(\log^2 n)$ parallel comparisons.
+> - **Processors**: $O(n)$ required for full parallelization.
+> - **Total Work**: $O(n \log n)$ (Work-efficient).
+
+### Advantages
+- **Highly Parallelizable**: Many independent comparisons can occur at each level.
+- **Regular Patterns**: Uses a fixed communication pattern, making it suitable for hardware implementation and network-based sorting.
+- **Interleaving Logic**: Efficiently merges pre-sorted lists by operating on odd and even indices separately.
+
 ### The Merge Step
 To merge two sorted lists $A = \{a_1, \dots, a_n\}$ and $B = \{b_1, \dots, b_n\}$:
 1. **Odd Merge**: Form list $C$ by merging $\{a_1, a_3, \dots, a_{n-1}\}$ and $\{b_1, b_3, \dots, b_{n-1}\}$.

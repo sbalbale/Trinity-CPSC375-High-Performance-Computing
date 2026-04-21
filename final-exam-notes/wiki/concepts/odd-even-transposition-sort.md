@@ -26,6 +26,10 @@ updated: 2026-04-20
 > [!warning] Deadlock Risk
 > In MPI, if both processes in a pair call `MPI_Recv` simultaneously, they will **deadlock**. A common solution is to have odd-numbered processes `send` then `recv`, while even-numbered processes `recv` then `send`.
 
+## Scaling Considerations
+- **Sweet Spot**: While the algorithm scales up to $p=n$ processors, the communication overhead of message-passing often limits practicality to $p \approx \sqrt{n}$ for large datasets.
+- **Topology**: Odd-Even sort maps perfectly to **Linear Array** or **2D Mesh** topologies because it only requires nearest-neighbor communication. This minimizes communication distance and network congestion.
+
 ## Implementations & Examples
 
 > [!example] Odd-Even Transposition Flow
