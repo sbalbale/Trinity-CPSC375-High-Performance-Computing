@@ -1,5 +1,5 @@
 ---
-aliases: [MPI Profiling, MPI_Wtime]
+aliases: [MPI Profiling, MPI_Wtime, performance-benchmarking, portability-mpi]
 tags: [mpi, performance, exam/formula]
 sources: [lec22.txt]
 created: 2026-04-20

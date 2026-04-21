@@ -1,5 +1,6 @@
 ---
 tags: [homework, mpi, synchronization, reduction, point-to-point]
+aliases: [determinism-parallel]
 sources: [Homework 26.pdf]
 created: 2026-04-20
 updated: 2026-04-20

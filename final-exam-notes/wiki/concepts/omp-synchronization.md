@@ -1,5 +1,5 @@
 ---
-aliases: [omp critical, omp barrier, omp atomic, omp single, omp master]
+aliases: [omp critical, omp barrier, omp atomic, omp single, omp master, omp-runtime-functions]
 tags: [openmp, synchronization, performance]
 sources: [Getting Started with OpenMP Programming.txt, More on OpenMP Programming.txt]
 created: 2026-04-20

@@ -39,5 +39,5 @@ updated: 2026-04-20
 
 ## Connections
 * **Prerequisites:** [[data-partitioning]], [[mapping-parallel-programming]].
-* **Used In:** [[sieve-of-eratosthenes]], [[trapezoidal-rule-using-mpi]].
+* **Used In:** [[sieve-of-eratosthenes]], [[trapezoidal-rule-mpi]].
 * **Contrasts With:** [[interleaved-decomposition]] (Cyclic).
