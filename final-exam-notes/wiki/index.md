@@ -101,6 +101,8 @@
 - [[computation-to-communication-ratio]] — Key metric for parallel algorithm scalability.
 - [[strassens-algorithm]] — Divide-and-conquer $O(n^{2.81})$ multiplication.
 - [[spatial-locality]] — Sequential memory access patterns.
+- [[temporal-locality]] — Reusing recently accessed memory locations.
+- [[transpose-operation]] — Reorganizing memory layout for locality.
 - [[communication-complexity]] — The cost of data movement between memory levels.
 - [[compare-and-exchange]] — The fundamental building block of parallel sorting.
 - [[merge-and-split]] — Scaling sorting when $n > p$.
@@ -188,5 +190,11 @@
 - [[OpenMP-Lab-Summary]] — Practical OpenMP: regions, loops, and scoping.
 - [[Advanced-OpenMP-Lab-Summary]] — Synchronization, scheduling, tasks, and timing.
 - [[MPI-Slurm-Lab-Summary]] — Practical Cluster computing on Pine with Slurm.
+
+## Synthesis
+computing on Pine with Slurm.
+
+## Synthesis
+.
 
 ## Synthesis

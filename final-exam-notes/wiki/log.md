@@ -107,3 +107,8 @@ Processed exam2_study_guide.html.
 - **Created**: [[exam2-study-guide]], [[Self-Assessment]].
 - **Enriched**: [[sieve-of-eratosthenes]], [[shearsort]], [[foxs-algorithm]].
 - **Added**: Multiple-choice and flashcard sets for retrieval practice.
+
+## [2026-04-21] ingest | Homework 29 and 30
+Processed Homework 29.pdf and Homework 30.pdf. Created 2 new source pages, 2 new homework solution pages, and 2 new concept pages.
+New concepts: [[temporal-locality]], [[transpose-operation]].
+Updated pages: [[counting-sort]], [[matrix-multiplication-optimization]], [[spatial-locality]], [[strassens-algorithm]], [[index]].
