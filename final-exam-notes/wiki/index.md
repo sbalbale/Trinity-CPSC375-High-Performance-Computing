@@ -140,6 +140,12 @@
 
 ## Exam Prep
 - [[Exam-2-MOC]] — High-density Map of Content for Lectures 15-31.
+- [[Performance-Cheat-Sheet]] — Scaling laws, metrics, and scalability diagnosis.
+- [[MPI-Cheat-Sheet]] — Core MPI syntax, collectives, and matching rules.
+- [[OpenMP-Cheat-Sheet]] — Pragmas, data-sharing clauses, and synchronization.
+- [[Sorting-Cheat-Sheet]] — Complexity and mechanics of parallel sorting algorithms.
+- [[Matrix-Cheat-Sheet]] — Sequential and distributed matrix multiplication strategies.
+- [[DBMS-Cheat-Sheet]] — Custom DBMS internals, architecture, and storage.
 
 ## Homework Solutions
 - [[Homework-15-Solutions]] — Domain decomposition and agglomeration.
