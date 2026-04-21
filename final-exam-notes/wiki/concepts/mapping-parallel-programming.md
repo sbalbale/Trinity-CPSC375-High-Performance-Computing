@@ -1,5 +1,5 @@
 ---
-aliases: [Task Mapping, Process Mapping, Mapping (Parallel Programming)]
+aliases: [Task Mapping, Process Mapping, Mapping (Parallel Programming), block-striped-decomposition, interleaved-decomposition]
 tags: 
   - #exam/theory
   - #hpc

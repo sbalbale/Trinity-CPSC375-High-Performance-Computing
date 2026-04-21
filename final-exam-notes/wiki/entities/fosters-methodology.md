@@ -1,5 +1,5 @@
 ---
-aliases: [PCAM, Foster's Methodology, Foster's Design Methodology]
+aliases: [PCAM, Foster's Methodology, Foster's Design Methodology, Parallel Algorithm Design-Summary]
 tags: 
   - #exam/theory
   - #hpc

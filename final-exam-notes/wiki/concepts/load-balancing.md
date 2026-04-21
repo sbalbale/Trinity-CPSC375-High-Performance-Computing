@@ -1,5 +1,5 @@
 ---
-aliases: [Work Distribution, Load Balancing]
+aliases: [Work Distribution, Load Balancing, idle-processes]
 tags: 
   - #exam/theory
   - #hpc

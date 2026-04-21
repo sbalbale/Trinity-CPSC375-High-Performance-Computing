@@ -1,5 +1,5 @@
 ---
-aliases: [Sieve]
+aliases: [Sieve, performance-analysis-sieve]
 tags: [#exam/algorithm, #number-theory]
 sources: [lec16.pdf, lec23.txt]
 created: 2025-05-15
