@@ -12,6 +12,7 @@ amdahl's-argument
 amdahls-law
 arithmetic-intensity
 atomic-task
+barrier-costs
 base-sort
 base-vs-derived-relations
 batcher's-merge
@@ -25,6 +26,7 @@ block-allocation
 block-cyclic-distribution
 block-decomposition
 block-distribution
+block-striped-decomposition
 block_low
 blocked-marking
 broadcast-and-shift-matrix-mult
@@ -43,6 +45,7 @@ collective-communication
 collective-reduction
 communication
 communication-complexity
+communication-overhead
 communicators-mpi
 comp/comm-ratio
 compare-and-exchange
@@ -134,9 +137,11 @@ homework-28
 homework-28-solutions
 hpc-exam-2-study-guide
 i/o-complexity
+idle-processes
 ikj-matrix-multiplication
 index
 inter-task-communication
+interleaved-decomposition
 introduction-to-mpi-summary
 introduction-to-openmp-summary
 isoefficiency-and-sorting-ii-summary
@@ -144,6 +149,7 @@ isoefficiency-function
 john-gustafson
 karp-flatt-metric
 key-to-block-mapping
+latency-and-bandwidth
 lec15
 lec16
 lec16-summary
@@ -208,6 +214,8 @@ merge-and-keep
 merge-and-split
 message-passing-architecture
 message-passing-interface
+messaging-costs
+monte-carlo-pi
 more-on-openmp-programming-lab
 more-on-parallel-algorithm-design-summary
 mpi
@@ -253,6 +261,7 @@ omp-nowait
 omp-parallel
 omp-private
 omp-reduction
+omp-runtime-functions
 omp-schedule
 omp-scheduling
 omp-section
@@ -293,6 +302,7 @@ performance-analysis-summary
 performance-measurement-mpi
 performance-measurement-openmp
 permanent-vs-temporary-tables
+pi-estimation
 pine
 pine-cluster
 pipeline-parallelism
@@ -301,6 +311,7 @@ point-to-point-communication
 prefix-sum
 primitive-task
 private-memory
+probabilistic-pi
 process-mapping
 race-condition
 radix-sort
@@ -353,6 +364,7 @@ sublinear-speedup
 summa-algorithm
 switching-networks
 synchronization-barrier
+synchronization-overhead
 task-decomposition
 task-grouping
 task-mapping
@@ -369,6 +381,7 @@ unit-of-work
 variable-all-to-all
 variable-scoping
 volker-strassen
+waiting-time
 weak-scalability
 weak-scaling-law
 work-distribution

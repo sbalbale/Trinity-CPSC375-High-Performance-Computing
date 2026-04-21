@@ -21,13 +21,24 @@ updated: 2025-05-15
 > - **Static Mapping in Dynamic Loads:** Using static mapping for workloads with unpredictable execution times causes **idle processors**.
 
 ## Implementations & Examples
+## Task/Channel Model
+Foster's methodology is built on the **Task/Channel Model**, where a parallel computation is viewed as a set of tasks interacting through channels.
+- **Task**: Includes a program, local memory, and I/O ports.
+- **Channel**: A message-passing link between tasks for communication and synchronization.
+
+## Design Goals
+The methodology aims to create algorithms that are:
+- **Scalable**: Performance increases with more processors.
+- **Efficient**: Minimal waste of computational resources.
+- **Implementable**: Straightforward to translate into code (e.g., MPI).
+
+## Core Mechanics
 
 > [!example] The PCAM Stages
-> 1. **Partitioning**: Decompose the problem into the smallest possible tasks (expose maximum parallelism).
-> 2. **Communication**: Determine how tasks exchange data (local vs. global).
-> 3. **Agglomeration**: Group small tasks into larger ones to reduce overhead.
-> 4. **Mapping**: Assign tasks to physical processors to balance the load.
-
+> 1. **Partitioning**: Divide computation and data into primitive tasks.
+> 2. **Communication**: Identify local and global data flow requirements.
+> 3. **Agglomeration**: Group tasks to reduce communication-to-computation ratios.
+> 4. **Mapping**: Assign agglomerated tasks to physical processors.
 ## Connections
 * **Used In:** [[parallel-algorithm-design]]
 * **Consists Of:** [[partitioning]], [[communication]], [[agglomeration]], [[mapping-parallel-programming]]

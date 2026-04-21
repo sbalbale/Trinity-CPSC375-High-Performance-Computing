@@ -10,6 +10,7 @@ algorithmic-efficiency
 amdahl's-argument
 arithmetic-intensity
 atomic-task
+barrier-costs
 base-sort
 batcher's-merge
 bitonic-sequence-property
@@ -17,6 +18,7 @@ bitonic-sort
 block-allocation
 block-cyclic-distribution
 block-distribution
+block-striped-decomposition
 block_low
 blocked-marking
 broadcast-and-shift-matrix-mult
@@ -92,13 +94,16 @@ homework-27-solutions
 homework-28-solutions
 hpc-exam-2-study-guide
 i/o-complexity
+idle-processes
 ikj-matrix-multiplication
 inter-task-communication
+interleaved-decomposition
 introduction-to-mpi-summary
 introduction-to-openmp-summary
 isoefficiency-and-sorting-ii-summary
 john-gustafson
 key-to-block-mapping
+latency-and-bandwidth
 lecture-20-summary
 lecture-22-summary
 lecture-23-summary
@@ -129,6 +134,7 @@ memory-locality
 merge-and-keep
 message-passing-architecture
 message-passing-interface
+messaging-costs
 more-on-parallel-algorithm-design-summary
 mpi
 mpi-deadlock
@@ -163,6 +169,7 @@ omp-nowait
 omp-parallel
 omp-private
 omp-reduction
+omp-runtime-functions
 omp-schedule
 omp-section
 omp-shared
@@ -186,11 +193,13 @@ partitioning
 pcam
 performance-analysis-summary
 permanent-vs-temporary-tables
+pi-estimation
 pine
 pipeline-parallelism
 pivot-sort
 prefix-sum
 private-memory
+probabilistic-pi
 process-mapping
 race-condition
 recursive-bitonic-mergesort
@@ -242,6 +251,7 @@ unit-of-work
 variable-all-to-all
 variable-scoping
 volker-strassen
+waiting-time
 weak-scaling-law
 work-distribution
 work-overhead-relationship

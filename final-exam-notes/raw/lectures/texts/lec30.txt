@@ -1,177 +1,0 @@
-CPSC 375 High-Performance Computing
-Lecture 30
-
-Matrix Multiplication I
-
-Matrix Multiplication
-Let A and B be n-by-n matrices:
-
-C = AB is defined by:
-
-where
-
-⇒ O(n3)
-2
-
-Iterative, Row-oriented Algorithm
-// the ijk version
-for (i = 0; i < n; i++)
-for (j = 0; j < n; j++)
-for (k = 0; k < n; k++) // dot product
-C[i][j] += A[i][k] * B[k][j];
-
-
-
-=
-
-3
-
-Performance as n Increases
-
-4
-
-Reason: Matrix B Gets Too Big for Cache
-
-• Elements of A are accessed sequentially (good spatial locality)
-• Computing a row of C requires accessing every element of B.
-• Elements of B are accessed with a large stride (n elements
-apart), which often exceeds the size of a cache line.
-• For large n, every access to B results in a cache miss.
-• Reordering loops or blocking (or tiling) improves performance.
-5
-
-Reordering Loops
-for (i = 0; i < n; i++) {
-for (k = 0; k < n; k++) {
-r = a[i][k];
-for (j = 0; j < n; j++)
-c[i][j] += r * b[k][j];
-}
-} // the ikj version
-
-• a[i][k] is reused n times.
-• c[i][j], b[k][j] move across the row, accessing adjacent
-memory locations (stride of n).
-• CPU loads a cache line and uses every single word in that line
-before fetching the next one (good spatial locality).
-6
-
-Block Matrix Multiplication
-A and B can be written as:
-
-where Aij and Bij are b-by-b submatrices (or tiles) of A and B, resp.
-Then, C = AB can be defined as (b: block size; n = bm):
-
-⇒ O(n3)
-7
-
-Tiling
-
-
-
-=
-
-• Replace scalar multiplication with matrix multiplication.
-• Replace scalar addition with matrix addition.
-
-8
-
-Continue Until b Small Enough
-
-9
-
-Implementation of Tiling
-for (ii = 0; ii < n; ii += block_size) {
-// the ijk version
-for (jj = 0; jj < n; jj += block_size) {
-for (kk = 0; kk < n; kk += block_size) {
-for (i = ii; i < MIN(ii + block_size, n); i++) {
-for (j = jj; j < MIN(jj + block_size, n); j++) {
-double sum = 0.0;
-for (k = kk; k < MIN(kk + block_size, n); k++) {
-sum += a[i][k] * b[k][j];
-}
-c[i][j] += sum;
-}
-The MIN function handles cases
-}
-where the matrix size is not
-}
-divisible by the block_size.
-}
-}
-10
-
-Comparing Sequential Performance
-
-11
-
-Reordering vs Blocking
-• Reordering loops stops the stride-n bottleneck of the
-standard ijk order, it does not explicitly manage the
-capacity of the cache.
-• If the matrices are significantly larger than the cache,
-data from the beginning of a row will still be evicted
-before it can be reused for the next iteration of the
-outer loops.
-
-12
-
-Reordering vs Blocking: Example
-A and B: 4-by-4 (16 elements each).
-Cache capacity: 8 elements total.
-
-Reordering
-
-Blocking
-
-13
-
-Why Blocking Matters?
-• In modern computing, we often distinguish between work
-complexity (total operations) and communication complexity
-(data movement).
-• Work complexity remains O(n3) for the standard approach.
-• Communication complexity
-• w/o blocking, # memory transfers is ≈ O(n3).
-• with blocking, can be reduced to:
-O(n3 / √ M)
-
-where M is the size of the cache.
-14
-
-Strassen’s Matrix Multiplication
-• The standard way to multiply two 2-by-2 matrices
-involves 8 multiplications and 4 additions.
-• Strassen’s insight was that you could compute the
-product using only 7 multiplications, at the cost of more
-additions.
-• Since multiplication is computationally more expensive
-than addition in terms of complexity, this trade-off results
-in a faster overall runtime for large matrices.
-• This can be done by the Divide and Conquer Approach.
-15
-
-Strassen’ Formulas
-To multiply two n-by-n matrices A and B, we first divide them
-into four sub-matrices of size n/2-by-n/2:
-
-Define 7 intermediate products:
-
-16
-
-Strassen’ Formulas
-The final quadrants of the resulting
-matrix C are then combined using
-these products:
-
-17
-
-Complexity of Strassen’s Algorithm
-Assuming n = 2k for some positive k,
-
-18
-
-19
-
-
