@@ -95,3 +95,9 @@ Found 20 broken wikilinks and 6 missing concept/entity pages.
 Fixed broken links by adding aliases to: [[fosters-methodology]], [[parallel-speedup]], [[mapping-parallel-programming]], [[data-partitioning]], [[distributed-memory-model]], [[domain-decomposition]], [[functional-decomposition]], [[static-mapping]], [[dynamic-mapping]], [[collective-communication]], [[matrix-multiplication-optimization]], [[mpi]], [[slurm]], [[mpi-job-submission]], [[omp-scheduling]].
 Created missing pages: [[parallel-search]], [[mandelbrot-set-generation]], [[parallel-algorithm-design]], [[gene-amdahl]], [[john-gustafson]], [[parallel-sorting-basics]].
 Updated [[index]] and [[log]].
+
+## [2026-04-20] ingest | Markdown Slide Enrichment
+Processed 17 markdown versions of lecture slides and lab manuals (Lec 15-31). 
+- **Enriched**: [[fosters-methodology]], [[partitioning]], [[communication]], [[agglomeration]], [[shared-memory-model]], [[fork-join-model]], [[openmp]], [[custom-dbms]], [[collective-communication]], [[reduction-operation]], [[mpi-derived-datatypes]], [[mpi-barrier]], [[sieve-of-eratosthenes]], [[sieve-optimizations]], [[block-decomposition]], [[compare-and-exchange]], [[odd-even-transposition-sort]], [[amdahls-law]], [[gustafsons-law]], [[karp-flatt-metric]], [[odd-even-mergesort]], [[bitonic-mergesort]], [[bitonic-sequence]], [[counting-sort]], [[radix-sort]], [[matrix-multiplication-optimization]], [[cannons-algorithm]], [[race-condition]], [[data-sharing-clauses]], [[pine-cluster]], [[slurm]], [[omp-synchronization]], [[performance-measurement-openmp]].
+- **Created**: [[relational-algebra]].
+- **Updated Cheat Sheets**: [[Performance-Cheat-Sheet]], [[MPI-Cheat-Sheet]], [[Sorting-Cheat-Sheet]], [[Matrix-Cheat-Sheet]].

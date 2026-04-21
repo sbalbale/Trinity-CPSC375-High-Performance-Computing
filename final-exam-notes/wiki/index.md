@@ -119,6 +119,7 @@
 - [[mpi-job-submission]] — `sbatch`, `squeue`, and `srun` workflow.
 - [[slurm-batch-scripts]] — Configuring resource requests via #SBATCH directives.
 - [[acid-properties]] — Core requirements for database transactions.
+- [[relational-algebra]] — Mathematical operators for database queries.
 - [[base-vs-derived-relations]] — Permanent vs. temporary storage models.
 - [[bitmap-allocation]] — Managing disk space with bit/byte maps.
 - [[dbms-hashing]] — Mapping keys to physical storage blocks.

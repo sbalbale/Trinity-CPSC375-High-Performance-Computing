@@ -14,9 +14,15 @@ updated: 2026-04-20
 ## Core Mechanics
 
 ### Definition
-A sequence is bitonic if there exists an index $i$ ($0 \le i < n$) such that:
-$$a_0 < a_1 < \dots < a_{i-1} < a_i > a_{i+1} > \dots > a_{n-1}$$
-The sequence is also bitonic if it can be achieved by shifting the numbers cyclically.
+A **bitonic sequence** is one with up to two monotonic pieces:
+- A sequence increasing then decreasing ($\nearrow \searrow$), OR
+- A sequence decreasing then increasing ($\searrow \nearrow$) - typically due to a cyclic shift, OR
+- A purely monotonic sequence (increasing or decreasing).
+
+> [!example] Examples
+> - `[1, 3, 5, 7, 6, 4, 2]` (Inc then Dec)
+> - `[6, 4, 2, 1, 3, 5, 7]` (Dec then Inc - cyclic shift)
+> - `[1, 2, 3, 4, 5]` (Purely Inc)
 
 ### The Bitonic Split Property
 If we perform a **compare-and-exchange** operation on $a_i$ with $a_{i+n/2}$ for all $i$:

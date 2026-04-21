@@ -13,13 +13,17 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
-- **Private Scope**: Variables in one process are not visible to any other process.
-- **Message Passing**: Data movement is handled by software libraries like **MPI**.
-- **Scalability**: This model is highly scalable (e.g., to thousands of nodes) because it avoids the memory bus contention inherent in shared-memory systems.
-- **Data Locality**: The programmer must explicitly manage where data resides and how it is moved.
+### Architecture Components
+In a distributed-memory system, each node typically contains:
+- **Processor**: A CPU or core that executes instructions.
+- **Local Memory**: RAM that is private to that specific processor.
+- **Interconnect**: A network (e.g., InfiniBand, Ethernet) that allows nodes to exchange messages.
 
-> [!warning] Complexity
-> Distributed memory programming is generally more complex than shared-memory because the programmer must handle all communication, data partitioning, and synchronization manually.
+### Key Characteristics
+1. **No Common Address Space**: There is no global memory; pointers from one process are meaningless to another.
+2. **Explicit Data Transfer**: Every piece of shared data must be bundled into a message, sent, and received.
+3. **Unique Identification**: Each process has a unique ID (rank) used to address it in the network.
+4. **Scalability**: Scaling is achieved by adding more independent nodes, avoiding the physical limits of a single shared memory bus.
 
 ## Implementations & Examples
 

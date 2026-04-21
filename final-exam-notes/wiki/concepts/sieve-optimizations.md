@@ -15,13 +15,26 @@ updated: 2026-04-20
 
 ### Odd-Only Storage
 - Since 2 is the only even prime, only odd numbers are stored in the `marked` array.
-- Index $i$ in the local array represents global number $2i+1$.
-- **Formula for Start Index**: If $k$ is the current prime, the first multiple to mark is $k^2$. In an odd-only array, the first multiple is $k^2$ if $k^2$ is odd, or $k^2 + k$ if $k^2$ is even (though $k$ being prime means $k^2$ is always odd except for $k=2$).
+- **Benefits**: Cuts memory and computational operations by exactly **50%**.
+> [!code] Index Mapping
+> ```c
+> // Convert index to actual odd number
+> #define INDEX_TO_NUMBER(i) (2 * (i) + 3)
+> // Convert odd number to local index
+> #define NUMBER_TO_INDEX(n) (((n) - 3) / 2)
+> ```
 
 ### Eliminating Broadcast
 - Standard parallel Sieve: Process 0 finds prime $k$ and broadcasts.
 - Optimized Sieve: **Every process** runs a sequential Sieve up to $\sqrt{n}$ to find all possible $k$ values. 
-- **Latency Advantage**: Computational time to find primes up to $\sqrt{n}$ is negligible ($O(\sqrt{n} \log \log \sqrt{n})$) compared to $O(\frac{\sqrt{n}}{\log \sqrt{n}})$ broadcasts across a network.
+- **Redundant Computation Trade-off**:
+    - **Pros**: Eliminates network latency of $O(\frac{\sqrt{n}}{\ln \sqrt{n}})$ broadcasts; removes global synchronization for prime generation.
+    - **Cons**: Every process performs the exact same work for the first $\sqrt{n}$ numbers.
+    - **When it works**: Since $\sqrt{10^8} = 10^4$ is very small, the redundant time is negligible compared to communication delays.
+
+### Loop Reordering (Cache Efficiency)
+- **Problem**: Marking multiples like $\{11, 22, 33, \dots\}$ in a huge array causes "random" memory access and frequent **cache misses**.
+- **Solution**: Process data in blocks that fit in the cache. Sequential access allows the hardware **prefetcher** to work effectively, providing a 10-100x speedup.
 
 ## Implementations & Examples
 

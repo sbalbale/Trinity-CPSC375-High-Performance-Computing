@@ -21,11 +21,18 @@ updated: 2026-04-20
 - **Barrier**: `#pragma omp barrier`. All threads wait until the entire team reaches this point.
 
 ### Single-Thread Execution
-- **Master**: `#pragma omp master`. Only the master thread (ID 0) executes. No implicit barrier.
-- **Single**: `#pragma omp single`. Any one thread executes. An **implicit barrier** follows unless `nowait` is used.
+| Directive | Executing Thread | Implicit Barrier at End? |
+| :--- | :--- | :--- |
+| **`#pragma omp master`** | Only Thread 0 | **No** (threads skip and continue) |
+| **`#pragma omp single`** | Any one thread | **Yes** (all threads wait) |
 
 > [!warning] Serialization Overhead
 > Frequent use of `critical` sections can destroy parallel performance. **Reductions** or **Atomics** should be used whenever possible instead.
+
+### Best Practices
+1. **Use the simplest mechanism**: `atomic` is faster than `critical`.
+2. **Minimize Overhead**: Place synchronization outside inner loops and batch operations.
+3. **Control Barriers**: Use `nowait` with `single` or `for` to skip the implicit barrier if data dependencies allow it.
 
 ## Connections
 * **Prerequisites:** [[race-condition]], [[openmp]].

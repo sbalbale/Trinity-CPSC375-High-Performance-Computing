@@ -18,15 +18,14 @@ updated: 2026-04-20
 > - **Parallel Time Model:** $$T_p = \frac{T_s}{p} + T_o$$ ($T_o$ is total overhead)
 
 ## 2. Scaling Laws
-> [!equation] Amdahl's Law (Strong Scaling)
-> **Constraint:** Fixed problem size.
-> $$S_p = \frac{1}{f + \frac{1-f}{p}}$$
-> **Limit ($p \to \infty$):** $1/f$
 
-> [!equation] Gustafson's Law (Weak Scaling)
-> **Constraint:** Problem size grows with $p$.
-> $$S_p = p + (1-p)f$$
-> **Limit ($p \to \infty$):** $\infty$ (Unbounded)
+| Feature | Amdahl's Law | Gustafson's Law |
+| :--- | :--- | :--- |
+| **Scaling Type** | **Strong Scaling** | **Weak Scaling** |
+| **Problem Size** | Fixed | Scaled with $p$ |
+| **Goal** | Minimize Latency ($T_p$) | Maximize Work ($W$) |
+| **Speedup Limit**| $1/f$ (Plateau) | Unbounded (Linear) |
+| **Typical Use** | Real-time / Deadlines | Scientific Simulations |
 
 ## 3. Diagnostic Metrics
 > [!equation] Karp-Flatt Metric ($e$)
@@ -42,7 +41,13 @@ updated: 2026-04-20
 > - **$O(p \log p)$:** Scalable.
 > - **$O(p^2)$:** Poorly Scalable.
 
-## 4. Common Pitfalls
+## 4. Hardware/Algorithm Limits
+> [!info] Scalability Requirement
+> For complex algorithms like matrix multiplication to scale well, the **Computation-to-Communication Ratio** must be high.
+> - **Checkerboard Ratio**: $\frac{n}{\sqrt{p}} \gg 1$
+> - **Implication**: $n$ must grow with $\sqrt{p}$ to maintain constant efficiency.
+
+> [!warning] Common Pitfalls
 > [!warning]
 > - **Linear Speedup:** $S_p = p$. Rarely achieved due to $T_o$.
 > - **Superlinear Speedup:** $S_p > p$. Usually due to aggregate cache size increases.

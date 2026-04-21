@@ -13,14 +13,25 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
-### Loop Reordering (ikj)
-The standard $O(n^3)$ algorithm is the `ijk` version. By reordering the loops to `ikj`, the inner loop on `j` accesses `C[i][j]` and `B[k][j]` sequentially.
-- **Benefit**: Spatial locality is greatly improved, as processors can fully utilize each loaded cache line.
+### Loop Reordering
+Reordering the three nested loops can yield 6-10x speedup simply by changing the memory access pattern from **stride-n** to **unit-stride**.
+
+| Order | Time ($n=1000$) | Speedup | Access Pattern (B) |
+| :--- | :--- | :--- | :--- |
+| **ijk** | 2.5s | 1.0x | Stride-n (Poor) |
+| **kij** | 0.4s | 6.25x | Unit-stride (Good) |
+| **jik** | 0.25s | **10.0x** | Unit-stride (Best) |
 
 ### Tiling (Blocking)
 Divides matrices into $b \times b$ tiles (blocks) that fit within the L1 or L2 cache.
+- **Data Reuse**: For a $b \times b$ block, elements are loaded once and reused $b$ times.
+> [!equation] Arithmetic Intensity
+> For tiled multiplication, the ratio of operations to memory accesses is:
+> $$\text{Intensity} = \frac{b}{2} \text{ ops/access}$$
+> Larger $b$ improves intensity but is limited by the physical cache size $M$.
+
 - **Benefit**: Each element of a tile is loaded into the cache and reused $b$ times before being evicted.
-- **Trade-off**: Increases the number of loops (from 3 to 6) but significantly reduces memory traffic.
+- **Communication Complexity**: Tiling reduces memory transfers from $O(n^3)$ to $O\left( \frac{n^3}{\sqrt{M}} \right)$.
 
 > [!warning] Stride Bottleneck
 > In the `ijk` algorithm, Matrix B is accessed with a **stride of $n$**. If $n$ is larger than the number of cache lines, every access to B results in a cache miss, causing severe performance degradation.

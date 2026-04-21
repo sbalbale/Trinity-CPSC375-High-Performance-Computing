@@ -55,8 +55,20 @@ updated: 2026-04-20
 > - **Scan:** `MPI_Exscan(send_buf, recv_buf, count, type, op, comm);` (Exclusive Prefix Sum)
 > - **Structs:** `MPI_Type_create_struct(...)` followed by `MPI_Type_commit(...)`.
 
-## 5. Pitfalls
-> [!warning]
-> - **Deadlock:** Caused by circular wait in `MPI_Recv`.
-> - **Buffer Mismatch:** Sending more data than the receiver's `count` allows.
-> - **Root-only:** Result of `Reduce` or `Gather` is **only** valid at the root rank.
+## 6. Compilation & Execution
+> [!code]
+> ```bash
+> # 1. Compile (using wrapper)
+> mpicc -g -Wall -o my_program my_program.c
+> 
+> # 2. Run (specify process count)
+> mpiexec -n 4 ./my_program
+> ```
+
+## 7. Naming Conventions
+- Functions/Constants: All start with `MPI_`.
+- Style: `MPI_Function_name` (First letter after `_` is uppercase).
+- Required Header: `#include <mpi.h>`
+
+## 8. Pitfalls
+...

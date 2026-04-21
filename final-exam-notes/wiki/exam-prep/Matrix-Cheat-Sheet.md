@@ -12,11 +12,17 @@ updated: 2026-04-20
 > Summary of sequential optimizations and distributed parallel algorithms for matrix multiplication.
 
 ## 1. Sequential Optimizations
-> [!info]
-> - **Standard (ijk):** $O(n^3)$ operations. Suffers from **stride-n** bottleneck in Matrix B.
-> - **Reordered (ikj):** Sequential access to B and C; improves spatial locality.
-> - **Tiling (Blocking):** Divides into $b \times b$ submatrices.
->     - **Comm. Complexity:** $O(n^3 / \sqrt{M})$ where $M$ is cache size.
+
+| Technique | Speedup | Complexity | Access Pattern (B) |
+| :--- | :--- | :--- | :--- |
+| **ijk (Standard)** | 1.0x | Low | Stride-n (Poor) |
+| **ikj (Reordered)**| 6-10x | Low | Unit-stride (Good) |
+| **Tiling (Blocking)**| 5-20x | Medium | Cache-aware (Best) |
+| **Strassen** | 1.5-3x (Huge $n$) | High | Recursive (N/A) |
+
+> [!info] Tiling
+> - **Comm. Complexity:** $O(n^3 / \sqrt{M})$ where $M$ is cache size.
+> - **Intensity:** $b/2$ ops/access.
 
 ## 2. Distributed Algorithms
 | Algorithm | Partitioning | Comm. Ratio | Notes |

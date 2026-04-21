@@ -17,6 +17,22 @@ updated: 2026-04-20
 - **Slot Structure**: 64 bytes per tuple (max 4 tuples per block).
 - **Metadata**: Stored in internal `catalog` and `columns` relations.
 
+## Development Phases (Assignment 5)
+
+### Phase I: Core Storage Engine
+- **Focus**: Building the foundational relational database.
+- **Objectives**:
+    - Implement methods for storing and retrieving tuples.
+    - Design and manage relation schemas (`catalog` and `columns`).
+    - Build a basic query execution engine for selection and projection.
+
+### Phase II: Concurrent Transaction Processing (TPS)
+- **Focus**: Enabling simultaneous access by multiple users.
+- **Objectives**:
+    - Implement a **Transaction Manager**.
+    - Ensure **ACID compliance** via concurrency control (locks, timestamps).
+    - Handle logging and recovery to protect data integrity.
+
 ## Core Components
 - **Buffer Manager**: Handles reading/writing blocks between RAM and the simulated disk file.
 - **Hashing Engine**: Maps primary keys to block indices for [[base-vs-derived-relations]].

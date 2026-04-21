@@ -12,23 +12,37 @@ updated: 2026-04-20
 
 > [!abstract] TL;DR Summary
 > The **Message Passing Interface (MPI)** is a standardized library specification for **distributed-memory** parallel programming. It allows processes on different machines to communicate via explicit **send and receive** operations.
+## Advantages of the MPI Model
+- **Explicit Memory Management**: Gives programmers control over data placement and movement, leading to better cache optimization.
+- **Portability**: Code runs on clusters, supercomputers, and cloud platforms without modification.
+- **Determinism**: Explicit data transfers make behavior more reproducible than shared-memory models.
+- **Simplified Debugging**: Traceable message flow makes deadlocks and performance bottlenecks easier to isolate.
 
 ## Core Mechanics
 
-> [!equation] MPI Model
-> - **Distributed Memory:** Each process has its own private memory space.
-> - **Communicators:** Groups of processes (e.g., `MPI_COMM_WORLD`).
-> - **Rank:** A unique integer ID assigned to each process in a communicator (0 to $N-1$).
-> - **Size:** The total number of processes in a communicator.
+### Process Properties (SPMD)
+MPI programs typically follow the **Single Program, Multiple Data (SPMD)** model:
+1. **Fixed Number**: The process count is specified at startup and remains constant.
+2. **Same Program**: Every process executes the exact same binary.
+3. **Unique ID (Rank)**: Logical branching (e.g., `if (rank == 0)`) allows processes to perform different tasks.
+4. **Lifecycle**: Processes alternate between **Computation Phases** and **Communication Phases**.
 
-> [!warning] Common Pitfalls
-> - **Deadlock:** Occurs when processes wait for messages that will never arrive (e.g., both calling `MPI_Recv`).
-> - **Mismatched Arguments:** Collective calls (e.g., `MPI_Reduce`) must be called by all processes with compatible arguments.
-> - **Blocking Calls:** `MPI_Recv` blocks execution until a message is received, which can cause delays.
+### Historical Evolution
+- **Late 1980s**: Proprietary vendor-specific libraries (not portable).
+- **1989**: PVM (Parallel Virtual Machine) - first standard attempt.
+- **1994 (MPI 1.0)**: Official portable standard released.
+- **1997 (MPI 2.0)**: Added dynamic processes and I/O.
+- **2021 (MPI 4.0)**: Current standard with modernization for exascale systems.
 
 ## Implementations & Examples
 
+### Naming Conventions
+- All identifiers begin with `MPI_`.
+- First letter after the underscore is uppercase (e.g., `MPI_Send`).
+- Helps distinguish library calls from application code.
+
 > [!example] Basic Functions
+...
 > - `MPI_Init`: Initializes the environment.
 > - `MPI_Finalize`: Cleans up the environment.
 > - `MPI_Comm_rank`: Gets the process rank.

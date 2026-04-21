@@ -13,6 +13,16 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
+### Comparison of Methods
+1. **Method 1 (Naive)**: Assign $\lceil n/p \rceil$ elements to the first $p-1$ processes and give the remainder to the last process.
+    - **Problem**: Can lead to significant load imbalance or entirely **idle processes** if $n$ is small or the remainder is zero.
+2. **Method 2 (Optimized)**: Uses floor-based mapping to distribute the remainder as evenly as possible across the team. This is the preferred method for HPC.
+
+### Key Advantages
+- **Better Locality**: Contiguous memory access improves cache hit rates and minimizes cache line misses.
+- **Simpler Communication**: Many algorithms only require communication with immediate neighbors (e.g., in a linear array or grid).
+- **Predictable Workload**: For regular domains, ensures all processors have approximately the same number of data points to process.
+
 > [!equation] Mapping Macros (Method #2)
 > Given $n$ elements and $p$ processes with ID $id \in [0, p-1]$:
 > - **Low Index**: $L(id) = \lfloor (id \cdot n) / p \rfloor$

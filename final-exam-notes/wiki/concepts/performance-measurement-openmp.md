@@ -16,6 +16,17 @@ updated: 2026-04-20
 > [!equation] Elapsed Time
 > $$T_{elapsed} = T_{finish} - T_{start}$$
 
+### Calculating Parallel Metrics
+Once the parallel execution time is measured, it can be compared to sequential time to determine scaling:
+> [!code] Metric Logic
+> ```c
+> double speedup = serial_time / parallel_time;
+> double efficiency = speedup / num_threads;
+> 
+> printf("Speedup: %f\n", speedup);
+> printf("Efficiency: %f%%\n", efficiency * 100.0);
+> ```
+
 ### Usage Guidelines
 1. **Wall Clock**: `omp_get_wtime()` measures real (wall-clock) time, not CPU time.
 2. **Team Synchronization**: In many cases, it is necessary to call `#pragma omp barrier` before and after the timed region to ensure all threads start and finish together.
