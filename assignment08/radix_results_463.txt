@@ -1,0 +1,318 @@
+rm -f RadixSerial RadixParallel
+gcc -O2 -Wall -Wextra -std=c11 -D_POSIX_C_SOURCE=200809L -o RadixSerial RadixSerial.c 
+mpicc -O2 -Wall -Wextra -std=c11 -D_POSIX_C_SOURCE=200809L -o RadixParallel RadixParallel.c 
+===============================================================================
+RADIX SORT PARALLEL IMPLEMENTATION - BENCHMARKING RESULTS
+===============================================================================
+Pine Cluster Strong Scaling Analysis
+Date: Mon Apr 20 18:56:41 EDT 2026
+Dataset Size: N = 268435456 (2^28 integers aprox 268 million elements)
+Number of Runs per Configuration: 3
+Random Seed: 42
+
+Test Configurations:
+  Test I:   1 rank (Serial baseline)
+  Test II:  12 ranks (Single socket / Shared L3)
+  Test III: 24 ranks (Dual socket / QPI)
+  Test IV:  48 ranks (InfiniBand / 2 nodes)
+  Test V:   96 ranks (Standard test / 4 nodes)
+===============================================================================
+
+Test I: Serial Baseline (1 rank)
+---
+Run 1:
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node01
+--------------------------------------------------------------------------
+run=1 time_sec=19.121241 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=19.107317 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=19.102002 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=1 runs=3 avg_time_sec=19.110186
+Run 2:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+run=1 time_sec=19.325854 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=19.367399 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=19.392511 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=1 runs=3 avg_time_sec=19.361921
+Run 3:
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node01
+--------------------------------------------------------------------------
+run=1 time_sec=19.132208 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=19.118349 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=19.151139 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=1 runs=3 avg_time_sec=19.133899
+
+Test II: Single Socket (12 ranks)
+---
+Run 1:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+[node01:1441397] 11 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1441397] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+run=1 time_sec=2.688774 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=2.687646 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=2.688661 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=12 runs=3 avg_time_sec=2.688360
+Run 2:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+[node01:1441532] 11 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1441532] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+run=1 time_sec=2.690450 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=2.687726 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=2.689989 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=12 runs=3 avg_time_sec=2.689388
+Run 3:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node01
+--------------------------------------------------------------------------
+[node01:1441597] 10 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1441597] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+run=1 time_sec=2.692526 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=2.689227 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=2.689532 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=12 runs=3 avg_time_sec=2.690428
+
+Test III: Dual Socket (24 ranks)
+---
+Run 1:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node01
+--------------------------------------------------------------------------
+[node01:1441674] 22 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1441674] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+run=1 time_sec=1.760056 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=1.753550 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=1.760807 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=24 runs=3 avg_time_sec=1.758138
+Run 2:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+[node01:1441903] 23 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1441903] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+run=1 time_sec=1.756009 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=1.757776 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=1.756961 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=24 runs=3 avg_time_sec=1.756915
+Run 3:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+[node01:1442026] 23 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1442026] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+run=1 time_sec=1.758870 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=1.756107 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=1.751988 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=24 runs=3 avg_time_sec=1.755655
+
+Test IV: Distributed (48 ranks / 2 nodes)
+---
+Run 1:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node01
+--------------------------------------------------------------------------
+[node01:1442202] 41 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1442202] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+[node01:1442202] 5 more processes have sent help message help-mpi-btl-openib.txt / no active ports found
+run=1 time_sec=1.515749 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=1.386695 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=1.350523 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=48 runs=3 avg_time_sec=1.417656
+Run 2:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node02
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node02
+--------------------------------------------------------------------------
+[node01:1442319] 46 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1442319] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+run=1 time_sec=1.530647 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=1.353101 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=1.351100 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=48 runs=3 avg_time_sec=1.411616
+Run 3:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node01
+--------------------------------------------------------------------------
+[node01:1442440] 44 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1442440] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+[node01:1442440] 2 more processes have sent help message help-mpi-btl-openib.txt / no active ports found
+run=1 time_sec=1.527339 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=1.383580 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=1.346258 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=48 runs=3 avg_time_sec=1.419059
+
+Test V: Standard Test (96 ranks / 4 nodes)
+---
+Run 1:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node01
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node01
+--------------------------------------------------------------------------
+[node01:1442621] 88 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1442621] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+[node01:1442621] 6 more processes have sent help message help-mpi-btl-openib.txt / no active ports found
+run=1 time_sec=1.360452 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=0.960280 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=0.975263 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=96 runs=3 avg_time_sec=1.098665
+Run 2:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node02
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node02
+--------------------------------------------------------------------------
+[node01:1442746] 90 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1442746] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+[node01:1442746] 4 more processes have sent help message help-mpi-btl-openib.txt / no active ports found
+run=1 time_sec=1.375364 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=0.961798 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=0.960480 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=96 runs=3 avg_time_sec=1.099214
+Run 3:
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node03
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: node02
+--------------------------------------------------------------------------
+[node01:1442860] 92 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node01:1442860] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+[node01:1442860] 2 more processes have sent help message help-mpi-btl-openib.txt / no active ports found
+run=1 time_sec=1.362881 sorted_local=yes sorted_boundaries=yes
+run=2 time_sec=1.018743 sorted_local=yes sorted_boundaries=yes
+run=3 time_sec=0.964730 sorted_local=yes sorted_boundaries=yes
+N=268435456 ranks=96 runs=3 avg_time_sec=1.115452
+
+===============================================================================
+Benchmarking Complete
+Date: Mon Apr 20 19:10:40 EDT 2026
+===============================================================================
+
+Performance Metrics to Calculate:
+1. Speedup (S_p) = T_serial / T_p
+2. Efficiency (E_p) = (S_p / p) * 100%
+   where p = number of ranks, T_serial = Test I time, T_p = execution time with p ranks
+
+Results saved in output file: radix_results_$SLURM_JOB_ID.txt
