@@ -55,6 +55,6 @@ updated: 2026-04-20
 > ```
 
 ## Connections
-* **Prerequisites:** [[Distributed Memory Model]]
-* **Used In:** [[Collective Communication]], [[Trapezoidal Rule Using MPI]]
+* **Prerequisites:** [[distributed-memory-model]]
+* **Used In:** [[collective-communication]], [[trapezoidal-rule-mpi]]
 * **Contrasts With:** [[openmp]]

@@ -43,6 +43,8 @@
 - [[john-gustafson]] — Computer scientist and author of Gustafson's Law.
 - [[pine-cluster]] — The departmental computing cluster.
 - [[slurm]] — The workload manager used for job scheduling.
+- [[custom-dbms]] — Pedagogical relational database system.
+- [[lenovo-p340]] — Departmental compute node hardware.
 
 ## Concepts
 - [[parallel-region]] — Block of code executed by multiple threads simultaneously.
@@ -117,6 +119,24 @@
 - [[mpi-job-submission]] — `sbatch`, `squeue`, and `srun` workflow.
 - [[slurm-batch-scripts]] — Configuring resource requests via #SBATCH directives.
 - [[acid-properties]] — Core requirements for database transactions.
+- [[base-vs-derived-relations]] — Permanent vs. temporary storage models.
+- [[bitmap-allocation]] — Managing disk space with bit/byte maps.
+- [[dbms-hashing]] — Mapping keys to physical storage blocks.
+- [[overflow-blocks]] — Handling full hash buckets via linking.
+- [[relation-metadata]] — Data dictionary (Catalog and Columns).
+- [[slot-structure]] — Physical tuple layout in blocks.
+- [[deadlock]] — Mutual blocking in parallel systems.
+- [[scatter-gather]] — Distributing and collecting array data.
+- [[primitive-task]] — Smallest unit of parallel work.
+- [[work-efficiency]] — Algorithmic resource utilization.
+- [[distributed-memory-model]] — Private memory architecture.
+- [[shared-memory-model]] — Global address space architecture.
+- [[spmd]] — Single Program, Multiple Data execution model.
+- [[point-to-point-communication]] — Direct process-to-process messaging.
+- [[trapezoidal-rule-mpi]] — Domain decomposition example.
+- [[mpi-status]] — Handling message metadata.
+- [[fork-join-model]] — Master/Team thread lifecycle.
+- [[communicators-mpi]] — Scoping communication groups.
 
 ## Exam Prep
 - [[Exam-2-MOC]] — High-density Map of Content for Lectures 15-31.
@@ -136,5 +156,24 @@
 - [[Homework-26-Solutions]] — Token-passing output and sum reduction.
 - [[Homework-27-Solutions]] — Scaling law proofs and benchmarking analysis.
 - [[Homework-28-Solutions]] — Isoefficiency and Bitonic sort trace.
+
+## Lecture Summaries
+- [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
+- [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
+- [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
+- [[lec20-Summary]] — Introduction to MPI and Point-to-Point communication.
+- [[lec21-Summary]] — MPI Collective Communication operations.
+- [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
+- [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
+- [[lec24-Summary]] — Sieve optimizations and Cache Coherence protocols.
+- [[lec25-Summary]] — Parallel sorting fundamentals, odd-even sort, mergesort, and quicksort.
+- [[lec27-Summary]] — Speedup, Efficiency, Amdahl/Gustafson Laws, and Karp-Flatt.
+- [[lec28-Summary]] — Isoefficiency, Odd-Even Mergesort, and Bitonic Mergesort.
+- [[lec29-Summary]] — Shearsort, Counting Sort, Radix Sort, and Assignment 8.
+- [[lec30-Summary]] — Cache optimization, Tiling, and Strassen's Algorithm.
+- [[lec31-Summary]] — Cannon's, Fox's, and SUMMA algorithms.
+- [[OpenMP-Lab-Summary]] — Practical OpenMP: regions, loops, and scoping.
+- [[Advanced-OpenMP-Lab-Summary]] — Synchronization, scheduling, tasks, and timing.
+- [[MPI-Slurm-Lab-Summary]] — Practical Cluster computing on Pine with Slurm.
 
 ## Synthesis

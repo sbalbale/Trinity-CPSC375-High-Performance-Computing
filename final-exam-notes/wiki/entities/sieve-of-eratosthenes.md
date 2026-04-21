@@ -37,5 +37,5 @@ updated: 2026-04-20
 ## Connections
 * **Example of:** [[domain-decomposition]]
 * **Requires:** [[collective-communication]] (`MPI_Bcast`, `MPI_Reduce`)
-* **Uses:** [[block-decomposition]]
+* **Uses:** [[block-decomposition]], [[sieve-optimizations]]
 

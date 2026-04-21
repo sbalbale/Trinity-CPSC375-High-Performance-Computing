@@ -1,0 +1,583 @@
+Announcements
+• Assignment 6
+– Concurrent Transaction Processing System
+– Posted tonight
+– Due April 3
+
+• Exam 2
+– Friday, April 24
+
+• Term Project
+– In lieu of a written final exam
+– Includes an oral presentation to be delivered during the
+scheduled final exam period
+1
+
+CPSC 375 High-Performance Computing
+Lecture 21
+
+Collective Communication
+
+Collective Communication Patterns
+
+3
+
+Collective Communication Patterns
+
+4
+
+Collective Communication Patterns
+
+5
+
+Collective Communication Patterns
+
+6
+
+Collective Communication Functions
+
+7
+
+Tree-structured communication
+
+8
+
+An alternative communication
+
+9
+9
+
+MPI_Reduce()
+int MPI_Reduce(
+void*
+void*
+int
+MPI_Datatype
+MPI_Op
+int
+MPI_Comm
+
+in_data_p
+out_data_p
+count
+datatype
+operator
+dest_proc
+comm
+
+/* in */,
+/* out */,
+/* in */,
+/* in */,
+/* in */,
+/* in */,
+/* in */);
+
+Allows every processor to take a specific variable or array,
+combines them using a mathematical operation, and delivers the
+final result to one specific processor.
+10
+
+Predefined reduction operators in MPI
+
+11
+
+MPI_Reduce()
+int MPI_Reduce(
+void*
+void*
+int
+MPI_Datatype
+MPI_Op
+int
+MPI_Comm
+
+in_data_p
+out_data_p
+count
+datatype
+operator
+dest_proc
+comm
+
+/* in */,
+/* out */,
+/* in */,
+/* in */,
+/* in */,
+/* in */,
+/* in */);
+
+MPI_Reduce(&local_int, &total_int, 1, MPI_INT, MPI_SUM, 0,
+MPI_COMM_WORLD);
+double local_x[N], sum[N];
+MPI_Reduce(local_x, sum, N, MPI_INT, MPI_SUM, 0,
+MPI_COMM_WORLD);
+12
+
+Collective vs. Point-to-Point Communications
+• All the processes in the communicator must call the
+same collective function.
+• For example, a program that attempts to match a call to
+MPI_Reduce on one process with a call to MPI_Recv on
+another process is erroneous, and, in all likelihood, the
+program will hang or crash.
+
+13
+
+Collective vs. Point-to-Point Communications
+• The arguments passed by each process to an MPI
+collective communication must be “compatible.”
+• For example, if one process passes in 0 as the dest_proc
+and another passes in 1, then the outcome of a call to
+MPI_Reduce is erroneous, and, once again, the program is
+likely to hang or crash.
+
+14
+
+Collective vs. Point-to-Point Communications
+• The out_data_p argument is only used on dest_proc.
+• However, all of the processes still need to pass in an
+actual argument corresponding to out_data_p, even if it’s
+just NULL.
+
+15
+
+Collective vs. Point-to-Point Communications
+• Point-to-point communications are matched on the basis
+of tags and communicators.
+• Collective communications don’t use tags.
+
+• They’re matched solely on the basis of the communicator
+and the order in which they’re called.
+
+16
+
+Example
+
+• Suppose that each process calls MPI_Reduce with operator
+MPI_SUM, and destination process 0.
+• At first glance, it might seem that after the two calls to
+MPI_Reduce, the value of b will be 3, and the value of d will
+be 6.
+17
+
+Example
+
+• However, the names of the memory locations are irrelevant
+to the matching of the calls to MPI_Reduce.
+
+• The order of the calls will determine the matching so the
+value stored in b will be 1+2+1 = 4, and the value stored in
+d will be 2+1+2 = 5.
+
+18
+
+MPI_Allreduce()
+int MPI_Allreduce(
+void*
+void*
+int
+MPI_Datatype
+MPI_Op
+MPI_Comm
+
+in_data_p
+out_data_p
+count
+datatype
+operator
+comm
+
+/* in */,
+/* out */,
+/* in */,
+/* in */,
+/* in */,
+/* in */);
+
+Useful in a situation in which all of the processes need the
+result of a global sum in order to complete some larger
+computation.
+19
+
+MPI_Allreduce()
+
+A global sum followed by
+distribution of the result.
+
+20
+
+MPI_Allreduce()
+
+A butterfly-structured global sum
+
+21
+
+Broadcast
+int MPI_Bcast(
+void*
+int
+MPI_Datatype
+int
+MPI_Comm
+
+data_p
+count
+datatype
+source_proc
+comm
+
+/* in/out */,
+/* in
+*/,
+/* in
+*/,
+/* in
+*/,
+/* in
+*/);
+
+Data belonging to a single process is sent to all of the processes
+in the communicator.
+
+22
+
+A version of Get_input that uses MPI_Bcast
+void Get_input(
+int
+my_rank /* in */,
+int
+comm_sz /* in */,
+double* a_p
+/* out */,
+double* b_p
+/* out */,
+int*
+n_p
+/* out */) {
+if (my_rank == 0) {
+printf("Enter a, b, and n\n");
+scanf("%lf %lf %d", a_p, b_p, n_p);
+}
+MPI_Bcast(a_p, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+MPI_Bcast(b_p, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+MPI_Bcast(n_p, 1, MPI_INT, 0, MPI_COMM_WORLD);
+}
+23
+
+Data distributions
+Compute a vector sum:
+
+// serial version
+void vsum(double x[], double y[], double z[], int n) {
+int i;
+for (i = 0; i < n; i++)
+z[i] = x[i] + y[i];
+}
+
+/* Vector_sum */
+24
+
+Data partitions
+Example: a 12-element vector among 3 processes
+
+• Block partitioning
+– Assign blocks of consecutive components to each process.
+
+• Cyclic partitioning
+– Assign components in a round robin fashion.
+
+• Block-cyclic partitioning
+– Use a cyclic distribution of blocks of components.
+
+25
+
+Data partitions
+Example: a 12-element vector among 3 processes
+
+• Block partitioning
+– Assign blocks of consecutive components to each process.
+
+• Cyclic partitioning
+– Assign components in a round robin fashion.
+
+• Block-cyclic partitioning
+– Use a cyclic distribution of blocks of components.
+
+26
+
+Data partitions
+Example: a 12-element vector among 3 processes
+
+• Block partitioning
+– Assign blocks of consecutive components to each process.
+
+• Cyclic partitioning
+– Assign components in a round robin fashion.
+
+• Block-cyclic partitioning
+– Use a cyclic distribution of blocks of components.
+
+27
+
+Parallel implementation of vector addition
+void parallel_vector_sum(
+double local_x[] /* in */,
+double local_y[] /* in */,
+double local_z[] /* out */,
+int
+local_n
+/* in */) {
+int local_i;
+for (local_i = 0; local_i < local_n; local_i++)
+local_z[local_i] = local_x[local_i] + local_y[local_i];
+
+}
+
+28
+
+Scatter
+int MPI_Scatter(
+void*
+int
+MPI_Datatype
+void*
+int
+MPI_Datatype
+int
+MPI_Comm
+
+send_buf_p
+send_count
+send_type
+recv_buf_p
+recv_count
+recv_type
+src_proc
+comm
+
+/* in */,
+/* in */,
+/* in */,
+/* out */,
+/* in */,
+/* in */,
+/* in */,
+/* in */);
+
+Reads in an entire vector on process 0 but only sends the
+needed components to each of the other processes.
+29
+
+Reading and distributing a vector
+void Read_vector(
+double
+local_a[] /* out */,
+int
+local_n
+/* in */,
+int
+n
+/* in */,
+char
+vec_name[] /* in */,
+int
+my_rank
+/* in */,
+MPI_Comm comm
+/* in */) {
+
+double* a = NULL;
+int i;
+if (my_rank == 0) {
+a = malloc(n * sizeof(double));
+printf("Enter the vector %s\n", vec_name);
+for (i = 0; i < n; i++) scanf("%lf", &a[i]);
+MPI_Scatter(a, local_n, MPI_DOUBLE, local_a, local_n, MPI_DOUBLE, 0, comm);
+free(a);
+} else {
+MPI_Scatter(a, local_n, MPI_DOUBLE, local_a, local_n, MPI_DOUBLE, 0, comm);
+}
+}
+30
+
+Gather
+int MPI_Gather(
+void*
+int
+MPI_Datatype
+void*
+int
+MPI_Datatype
+int
+MPI_Comm
+
+send_buf_p
+send_count
+send_type
+recv_buf_p
+recv_count
+recv_type
+dest_proc
+comm
+
+/* in */,
+/* in */,
+/* in */,
+/* out */,
+/* in */,
+/* in */,
+/* in */,
+/* in */);
+
+Collect all of the components of the vector onto process 0, and
+then process 0 can process all of the components.
+31
+
+Printing a distributed vector
+void Print_vector(
+double
+local_b[]
+int
+local_n
+int
+n
+int
+my_rank
+MPI_Comm comm
+
+/* in */,
+/* in */,
+/* in */,
+/* in */,
+/* in */) {
+
+double* b = NULL;
+int i;
+if (my_rank == 0) {
+b = malloc(n * sizeof(double));
+MPI_Gather(local_b, local_n, MPI_DOUBLE, b, local_n, MPI_DOUBLE, 0, comm);
+for (i = 0; i < n; i++) printf("%f ", b[i]);
+free(b);
+} else {
+MPI_Gather(local_b, local_n, MPI_DOUBLE, b, local_n, MPI_DOUBLE, 0, comm);
+}
+}
+
+32
+
+Allgather
+int MPI_Allgather(
+void*
+int
+MPI_Datatype
+void*
+int
+MPI_Datatype
+MPI_Comm
+
+send_buf_p
+send_count
+send_type
+recv_buf_p
+recv_count
+recv_type
+comm
+
+/* in */,
+/* in */,
+/* in */,
+/* out */,
+/* in */,
+/* in */,
+/* in */);
+
+• Concatenates the contents of each process’ send_buf_p and
+stores this in each process’ recv_buf_p.
+• As usual, recv_count is the amount of data being received
+from each process.
+33
+
+Matrix-vector multiplication
+
+34
+
+Matrix-vector multiplication
+Dot product of the ith
+row of A with x.
+
+35
+
+Serial matrix-vector multiplication
+void Mat_vect_mult(
+double A[]
+/* in */,
+double x[]
+/* in */,
+double y[]
+/* out */,
+int
+m
+/* in */,
+int
+n
+/* in */) {
+int i, j;
+for (i = 0; i < m; i++) {
+y[i] = 0.0;
+for (j = 0; j < n; j++)
+y[i] += A[i*n+j] * x[j];
+}
+
+// row-major
+
+}
+36
+
+MPI matrix-vector multiplication
+void Mat_vect_mult(
+double
+local_A[]
+double
+local_x[]
+double
+local_y[]
+int
+local_m
+int
+n
+int
+local_n
+MPI_Comm comm
+
+/* in */,
+/* in */,
+/* out */,
+/* in */,
+/* in */,
+/* in */,
+/* in */) {
+
+double* x;
+int local_i, j;
+int local_ok = 1;
+37
+
+MPI matrix-vector multiplication
+x = malloc(n * sizeof(double));
+MPI_Allgather(local_x, local_n, MPI_DOUBLE,
+x, local_n, MPI_DOUBLE, comm);
+for (local_i = 0; local_i < local_m; local_i++) {
+local_y[local_i] = 0.0;
+for (j = 0; j < n; j++)
+local_y[local_i] += local_A[local_i*n + j] * x[j];
+}
+free(x);
+}
+
+38
+
+39
+
+
