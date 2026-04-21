@@ -15,6 +15,7 @@ checkerboard-decomposition
 collective-communication
 communication
 communication-complexity
+communication-overhead
 communicators-mpi
 compare-and-exchange
 computation-to-communication-ratio
@@ -105,6 +106,7 @@ mapping-parallel-programming
 master-worker-pattern
 matrix-multiplication-optimization
 merge-and-split
+monte-carlo-pi
 more-on-openmp-programming-lab
 mpi
 mpi-alltoallv
@@ -160,6 +162,7 @@ strassen
 strassens-algorithm
 strong-scalability
 summa-algorithm
+synchronization-overhead
 trapezoidal-rule-mpi
 weak-scalability
 work-efficiency

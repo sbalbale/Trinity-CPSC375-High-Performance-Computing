@@ -15,17 +15,15 @@ updated: 2026-04-20
 
 ## Core Mechanics
 
-> [!equation] Execution Stages
-> 1. **Master Thread:** Starts execution sequentially.
-> 2. **Fork:** Upon reaching a parallel region, the master creates a team of worker threads.
-> 3. **Parallel Execution:** All threads in the team execute code within the parallel region.
-> 4. **Implicit Barrier:** Threads wait for each other at the end of the region.
-> 5. **Join:** Threads are terminated or parked, and only the master thread continues.
+### Detailed Phases
+1. **Initialization**: Only the **master thread** is active, executing sequential code (I/O, setup).
+2. **Fork Phase**: The master thread creates (or awakens) a team of worker threads.
+3. **Parallel Phase**: Multiple threads work concurrently, each with its own program counter and stack.
+4. **Join Phase**: An implicit barrier at the end of the region forces threads to synchronize. Worker threads are suspended or destroyed.
+5. **Finalization**: Only the master thread gathers results and continues sequential execution.
 
-> [!warning] Common Pitfalls
-> - **Thread Creation Overhead:** Frequent fork/join operations can degrade performance.
-> - **Implicit Synchronization:** Forgetting the automatic join/barrier at the end of a region can lead to misunderstandings of program flow.
-> - **Imbalanced Workload:** If one thread takes much longer than others, all threads must wait at the join point, reducing efficiency.
+> [!info] Dynamic Property
+> Unlike MPI, where the process count is typically fixed, the **thread count in OpenMP is dynamic** and changes during execution as regions are entered and exited. The program always begins and ends in a single-threaded state.
 
 ## Implementations & Examples
 

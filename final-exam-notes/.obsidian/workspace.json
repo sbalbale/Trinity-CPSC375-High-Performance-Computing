@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "raw/lectures/markdown/lec15.md",
+                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "lec15"
+              "title": "Sorting-Cheat-Sheet"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "raw/lectures/markdown/lec15.md",
+                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for lec15"
+              "title": "Backlinks for Sorting-Cheat-Sheet"
             }
           },
           {
@@ -128,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "raw/lectures/markdown/lec15.md",
+                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from lec15"
+              "title": "Outgoing links from Sorting-Cheat-Sheet"
             }
           },
           {
@@ -171,13 +171,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "raw/lectures/markdown/lec15.md",
+                "file": "wiki/exam-prep/Sorting-Cheat-Sheet.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of lec15"
+              "title": "Outline of Sorting-Cheat-Sheet"
             }
           }
         ]
@@ -200,6 +200,18 @@
   },
   "active": "00e3ff6033fc6cff",
   "lastOpenFiles": [
+    "wiki/exam-prep/Performance-Cheat-Sheet.md",
+    "wiki/exam-prep/OpenMP-Cheat-Sheet.md",
+    "wiki/exam-prep/MPI-Cheat-Sheet.md",
+    "wiki/exam-prep/Matrix-Cheat-Sheet.md",
+    "wiki/exam-prep/Exam-2-MOC.md",
+    "wiki/concepts/relational-algebra.md",
+    "raw/exam2_study_guide.html",
+    "wiki/exam-prep/DBMS-Cheat-Sheet.md",
+    "wiki/exam-prep/Sorting-Cheat-Sheet.md",
+    "wiki/concepts/sedSDyQNM",
+    "wiki/sedejhEaj",
+    "raw/lectures/markdown/lec15.md",
     "wiki/concepts/monte-carlo-pi.md",
     "wiki/concepts/synchronization-overhead.md",
     "wiki/concepts/communication-overhead.md",
@@ -207,7 +219,6 @@
     "final_aliases.txt",
     "final_files.txt",
     "final_links.txt",
-    "raw/lectures/markdown/lec15.md",
     "wiki/entities/lenovo-p340.md",
     "wiki/concepts/work-efficiency.md",
     "wiki/concepts/primitive-task.md",
@@ -224,17 +235,6 @@
     "raw/lectures/markdown/Getting_Started_with_OpenMP_Programming.md",
     "raw/assignments/Assignment 8.pdf",
     "raw/assignments/Assignment 7.pdf",
-    "raw/assignments/Assignment 6.pdf",
-    "raw/assignments/Assignment 5.pdf",
-    "raw/assignments",
-    "raw/New folder",
-    "wiki/homework-solutions/Homework-16-Solutions.md",
-    "raw/lectures/markdown/lec27.md",
-    "wiki/homework-solutions/Homework-28-Solutions.md",
-    "wiki/sources/homework-28.md",
-    "wiki/homework-solutions/Homework-27-Solutions.md",
-    "wiki/sources/homework-27.md",
-    "wiki/homework-solutions/Homework-26-Solutions.md",
-    "wiki/sources/homework-26.md"
+    "raw/assignments/Assignment 6.pdf"
   ]
 }

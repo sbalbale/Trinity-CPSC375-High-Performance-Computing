@@ -1,199 +1,0 @@
-Performance Analysis
-• Amdahl’s Law: fixed problem size ⇒ speedup limited by
-the serial fraction (strong scaling, pessimistic bound).
-
-• Gustafson’s Law: scaled problem size ⇒ speedup grows
-with processors as parallel work increases (weak scaling,
-optimistic view).
-• Karp–Flatt metric: empirical measure ⇒ extracts
-effective serial fraction from observed speedup
-(diagnoses overhead and scalability).
-1
-
-Isoefficiency
-• When we increase the number of processes for a fixed
-problem size, the efficiency typically decreases because
-communication overhead and synchronization costs
-grow.
-• If we increase both the problem size and the number of
-processors, we can often maintain a constant efficiency.
-• Isoefficiency answers the question: “How must the
-problem size grow to maintain constant efficiency?”
-2
-
-Derivation
-• W = Ts (serial time or total work)
-• Total overhead: To = p Tp = W
-• Parallel runtime: Tp = (W + To) / p
-• Efficiency: E = W / (p Tp) = W / (W + To)
-• Solving for W:
-
-(Homework)
-
-W = K To
-
-where K = E / (1 – E)
-3
-
-Example
-• Work: n additions (W)
-• Communication: Uses a binary tree reduction. Each of
-the log p stages involves communication.
-• Overhead To : Each of the p processes spends O(log p)
-time on communication ⇒ To = O(p log p).
-• To keep constant efficiency, force the work to be
-proportional to the overhead, i.e,
-
-W = K (p log p) = n
-• Because n must grow at the rate of p log p to keep the
-processes busy, the isoefficiency function is O(p log p).
-
-4
-
-Interpretation
-• O(p), highly scalable ⇒ Only need to increase the data
-proportionally to the processes.
-• O(p log p), scalable ⇒ Slight increase in data per process
-is needed.
-• O(p2), poorly scalable ⇒ Need to quadrupedal the data
-every time you double the processes.
-• Exponential, non-scalable ⇒ The algorithm will fail to
-keep up on large clusters.
-5
-
-CPSC 375 High-Performance Computing
-Lecture 28
-
-Parallel Sorting Algorithms II
-
-Batcher’s Parallel Sorting Algorithms
-• Odd-even Mergesort
-• Bitonic Mergesort
-• Originally derived in terms of switching networks.
-• Both are well-balanced and have parallel time complexity
-of O(log2n) with n processors.
-
-7
-
-Odd-Even Mergesort
-• Start with odd-even merge algorithm which will merge
-two sorted lists into one sorted list.
-• Given two sorted lists a1, a2, a3, …, an and b1, b2, b3, …, bn
-(where n is a power of 2)
-• Elements with odd indices of each sequence, a1, a3, …, an-1
-and b1, b3, …, bn-1 are merged into one sorted list, c1, c2, c3,
-…, cn.
-• Elements with even indices of each sequence, a2, a4, …, an,
-and b2, b4, …, bn are merged into one sorted list, d1, d2, d3,
-…, dn.
-• The final sorted list, e1, e2, e3, …, en is obtained by:
-e2i = min{ci+1, di} e2i+1 = max{ci+1, di}
-8
-
-Odd-Even Mergesort, Example
-
-9
-
-Odd-Even Mergesort
-
-10
-
-Odd-Even Mergesort
-• Essentially the odd and even index lists are interleaved,
-and pairs of odd/even elements are interchanged to move
-the larger toward one end, if necessary.
-• First number is given by e1 = c1 (since this will be the
-smallest of the first elements of each list, a1 or b1)
-• Last number by e2n = dn (since this will be the largest of
-the last elements of each list, an or bn).
-• Pairs of processors perform the compare-and-exchange
-operations.
-• Can be implemented with hardware units that perform
-the compare-and-exchange operations.
-11
-
-Bitonic Mergesort
-Bitonic Sequence
-• A monotonic increasing sequence is a sequence of
-increasing numbers.
-• A bitonic sequence has two sequences, one increasing and
-one decreasing. e.g.
-
-a0  a1  a2, a3, …, ai−1  ai  ai+1, …, an−2  an−1
-for some value of i (0  i  n).
-• A sequence is also bitonic if the preceding can be
-achieved by shifting the numbers cyclically (left or right).
-12
-
-Bitonic Sequences
-
-13
-
-Bitonic Sequences
-If we perform a compare-and-exchange operation on ai with
-ai+n/2
-For all i, where there are n numbers in the sequence, get
-two bitonic sequences, where the numbers in one sequence are
-all less than the numbers in the other sequence.
-
-14
-
-Sorting Bitonic Sequences
-• Compare-andexchange moves
-smaller numbers of
-each pair to left and
-larger numbers of
-pair to right.
-• Given a bitonic
-sequence, recursively
-performing operations
-will sort the list.
-15
-
-Bitonic Sorting
-1. To sort an unordered sequence, sequences are merged into
-larger bitonic sequences, starting with pairs of adjacent
-numbers.
-2. By a compare-and-exchange operation, pairs of adjacent
-numbers are formed into increasing sequences and
-decreasing sequences, pairs of which form a bitonic sequence
-of twice the size of each of the original sequences.
-3. By repeating this process, bitonic sequences of larger
-lengths are obtained.
-4. In the final step, a single bitonic sequence is sorted into a
-single increasing sequence.
-16
-
-Bitonic Sorting
-
-17
-
-Bitonic Sorting, Example
-
-18
-
-Bitonic Sorting, Example
-
-19
-
-Bitonic Sorting, Phases
-The six steps (for eight numbers) are divided into three phases:
-Phase 1. Convert pairs of numbers into increasing/
-decreasing sequences and hence into 4-bit bitonic sequences.
-Phase 2. Split each 4-bit bitonic sequence into two 2-bit
-bitonic sequences, higher sequences at center.
-Sort each 4-bit bitonic sequence increasing/ decreasing
-sequences and merge into 8-bit bitonic sequence.
-
-Phase 3 Sort 8-bit bitonic sequence.
-20
-
-Bitonic Sorting, Analysis
-In general, with n = 2k, there are k phases, each of 1, 2, 3, …, k
-steps. Hence the total number of steps is given by
-
-21
-
-23
-
-
