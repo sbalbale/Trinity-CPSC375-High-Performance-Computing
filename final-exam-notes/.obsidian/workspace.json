@@ -20,8 +20,23 @@
               "icon": "lucide-file",
               "title": "Exam_Note_Template"
             }
+          },
+          {
+            "id": "00e3ff6033fc6cff",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "raw/lectures/markdown/lec15.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "lec15"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -94,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "templates/Exam_Note_Template.md",
+                "file": "raw/lectures/markdown/lec15.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Exam_Note_Template"
+              "title": "Backlinks for lec15"
             }
           },
           {
@@ -113,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "templates/Exam_Note_Template.md",
+                "file": "raw/lectures/markdown/lec15.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Exam_Note_Template"
+              "title": "Outgoing links from lec15"
             }
           },
           {
@@ -156,13 +171,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "templates/Exam_Note_Template.md",
+                "file": "raw/lectures/markdown/lec15.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Exam_Note_Template"
+              "title": "Outline of lec15"
             }
           }
         ]
@@ -183,22 +198,43 @@
       "bases:Create new base": false
     }
   },
-  "active": "b6eb6cc7dfe4e5c7",
+  "active": "00e3ff6033fc6cff",
   "lastOpenFiles": [
-    "raw/lectures/lec31.pdf",
-    "raw/lectures/Unconfirmed 790870.crdownload",
-    "raw/lectures/lec30.pdf",
-    "raw/lectures/Unconfirmed 895473.crdownload",
-    "raw/lectures/lec29.pdf",
-    "raw/lectures/Unconfirmed 419874.crdownload",
-    "raw/lectures/lec28.pdf",
-    "raw/lectures/Unconfirmed 132765.crdownload",
-    "raw/lectures/lec27.pdf",
-    "raw/lectures/Unconfirmed 905611.crdownload",
-    "raw/lectures/MPI Programming with Slurm.pdf",
-    "templates/Exam_Note_Template.md",
-    "GEMINI.md",
-    "CLAUDE.md",
-    "AGENTS.md"
+    "wiki/concepts/monte-carlo-pi.md",
+    "wiki/concepts/synchronization-overhead.md",
+    "wiki/concepts/communication-overhead.md",
+    "final_valid.txt",
+    "final_aliases.txt",
+    "final_files.txt",
+    "final_links.txt",
+    "raw/lectures/markdown/lec15.md",
+    "wiki/entities/lenovo-p340.md",
+    "wiki/concepts/work-efficiency.md",
+    "wiki/concepts/primitive-task.md",
+    "wiki/concepts/scatter-gather.md",
+    "wiki/concepts/deadlock.md",
+    "wiki/concepts/slot-structure.md",
+    "wiki/concepts/relation-metadata.md",
+    "wiki/concepts/overflow-blocks.md",
+    "wiki/concepts/dbms-hashing.md",
+    "wiki/entities/custom-dbms.md",
+    "wiki/concepts/bitmap-allocation.md",
+    "wiki/concepts/base-vs-derived-relations.md",
+    "wiki/homework-solutions/Homework-19-Solutions.md",
+    "raw/lectures/markdown/Getting_Started_with_OpenMP_Programming.md",
+    "raw/assignments/Assignment 8.pdf",
+    "raw/assignments/Assignment 7.pdf",
+    "raw/assignments/Assignment 6.pdf",
+    "raw/assignments/Assignment 5.pdf",
+    "raw/assignments",
+    "raw/New folder",
+    "wiki/homework-solutions/Homework-16-Solutions.md",
+    "raw/lectures/markdown/lec27.md",
+    "wiki/homework-solutions/Homework-28-Solutions.md",
+    "wiki/sources/homework-28.md",
+    "wiki/homework-solutions/Homework-27-Solutions.md",
+    "wiki/sources/homework-27.md",
+    "wiki/homework-solutions/Homework-26-Solutions.md",
+    "wiki/sources/homework-26.md"
   ]
 }

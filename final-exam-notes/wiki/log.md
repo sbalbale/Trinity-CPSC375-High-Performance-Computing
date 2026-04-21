@@ -94,4 +94,4 @@ Updated pages: [[index.md]].
 Found 20 broken wikilinks and 6 missing concept/entity pages.
 Fixed broken links by adding aliases to: [[fosters-methodology]], [[parallel-speedup]], [[mapping-parallel-programming]], [[data-partitioning]], [[distributed-memory-model]], [[domain-decomposition]], [[functional-decomposition]], [[static-mapping]], [[dynamic-mapping]], [[collective-communication]], [[matrix-multiplication-optimization]], [[mpi]], [[slurm]], [[mpi-job-submission]], [[omp-scheduling]].
 Created missing pages: [[parallel-search]], [[mandelbrot-set-generation]], [[parallel-algorithm-design]], [[gene-amdahl]], [[john-gustafson]], [[parallel-sorting-basics]].
-Updated [[index.md]] and [[log.md]].
+Updated [[index]] and [[log]].

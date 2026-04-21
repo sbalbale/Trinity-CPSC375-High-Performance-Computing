@@ -1,0 +1,26 @@
+Advanced-OpenMP-Lab-Summary
+Lec16-Summary
+Lec17-Summary
+Lec20-Summary
+MPI-Slurm-Lab-Summary
+OpenMP-Lab-Summary
+Parallel Algorithm Design-Summary
+communicators-mpi
+distributed-memory-model
+fork-join-model
+getting-started-with-openmp-programming
+lec21-Summary
+lec22-Summary
+lec23-Summary
+lec24-Summary
+lec25-Summary
+lec27-Summary
+lec28-Summary
+lec29-Summary
+lec30-Summary
+lec31-Summary
+mpi-status
+point-to-point-communication
+shared-memory-model
+spmd
+trapezoidal-rule-mpi
