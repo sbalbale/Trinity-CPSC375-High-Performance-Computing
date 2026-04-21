@@ -1,6 +1,7 @@
 # Wiki Index
 
 ## Sources
+- [[getting-started-with-openmp-programming]] — Alternative source for OpenMP lab introduction.
 - [[getting-started-with-openmp-programming-lab]] — Lab introduction to parallel regions, loops, and data sharing.
 - [[lec15]] — Parallel Algorithm Design using Foster's Methodology.
 - [[lec16]] — Deep dive into Mapping and parallelization examples (Search, Sieve).
@@ -68,6 +69,7 @@
 - [[master-worker-pattern]] — Common dynamic mapping strategy using a task pool.
 - [[parallel-algorithm-design]] — Structured framework (PCAM) for parallel design.
 - [[parallel-search]] — Dividing search workload among processors.
+- [[monte-carlo-pi]] — Stochastic Pi estimation example.
 - [[mandelbrot-set-generation]] — Irregular workload example for dynamic balancing.
 - [[parallel-speedup]] — Ratio of sequential to parallel execution time.
 - [[parallel-efficiency]] — Metric for processor utilization ($S_p/p$).
@@ -78,6 +80,8 @@
 - [[weak-scalability]] — Proportional workload scaling.
 - [[isoefficiency-function]] — Metric for evaluating parallel system scalability.
 - [[overhead-parallel-computing]] — Non-computational time (comm, sync, idle).
+- [[communication-overhead]] — Time spent moving data between processors.
+- [[synchronization-overhead]] — Time processors spend waiting at barriers.
 - [[collective-communication]] — Communication involving all processes in a communicator.
 - [[data-partitioning]] — Strategies for dividing data among processes.
 - [[block-decomposition]] — Strategy for dividing data into contiguous chunks.
@@ -165,10 +169,10 @@
 - [[Homework-28-Solutions]] — Isoefficiency and Bitonic sort trace.
 
 ## Lecture Summaries
-- [[Parallel Algorithm Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
+- [[Parallel-Algorithm-Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
 - [[Lec16-Summary]] — Mapping strategies and Parallel Sieve/Search (lec16).
 - [[Lec17-Summary]] — Performance metrics and scaling laws (lec17).
-- [[lec20-Summary]] — Introduction to MPI and Point-to-Point communication.
+- [[Lec20-Summary]] — Introduction to MPI and Point-to-Point communication.
 - [[lec21-Summary]] — MPI Collective Communication operations.
 - [[lec22-Summary]] — MPI Derived Types, Barriers, and ACID properties.
 - [[lec23-Summary]] — Parallel Sieve implementation and block decomposition.
