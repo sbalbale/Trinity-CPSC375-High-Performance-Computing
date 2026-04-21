@@ -85,6 +85,11 @@ Processed lec20.txt. Created 1 new source page, 1 new lecture summary, 0 new ent
 New concepts: [[distributed-memory-model]], [[point-to-point-communication]], [[trapezoidal-rule-mpi]], [[communicators-mpi]], [[mpi-status]].
 Updated pages: [[spmd]], [[shared-memory-model]], [[index.md]].
 
+## [2026-04-20] ingest | Homework 15-28
+Processed Homework 15-28.pdf. Created 14 new source pages and 14 new homework solution pages.
+New solutions: [[Homework-15-Solutions]], [[Homework-16-Solutions]], [[Homework-17-Solutions]], [[Homework-18-Solutions]], [[Homework-19-Solutions]], [[Homework-20-Solutions]], [[Homework-21-Solutions]], [[Homework-22-Solutions]], [[Homework-23-Solutions]], [[Homework-24-Solutions]], [[Homework-25-Solutions]], [[Homework-26-Solutions]], [[Homework-27-Solutions]], [[Homework-28-Solutions]].
+Updated pages: [[index.md]].
+
 ## [2026-04-20] lint | Health check
 Found 20 broken wikilinks and 6 missing concept/entity pages.
 Fixed broken links by adding aliases to: [[fosters-methodology]], [[parallel-speedup]], [[mapping-parallel-programming]], [[data-partitioning]], [[distributed-memory-model]], [[domain-decomposition]], [[functional-decomposition]], [[static-mapping]], [[dynamic-mapping]], [[collective-communication]], [[matrix-multiplication-optimization]], [[mpi]], [[slurm]], [[mpi-job-submission]], [[omp-scheduling]].
