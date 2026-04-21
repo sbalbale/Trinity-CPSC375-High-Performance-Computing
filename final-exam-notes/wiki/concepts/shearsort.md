@@ -14,14 +14,14 @@ updated: 2026-04-20
 ## Core Mechanics
 
 ### The Algorithm
-For a mesh of $n$ elements (where $n = N \times N$):
+For a mesh of $p$ processors (arranged as $\sqrt{p} \times \sqrt{p}$):
 1. **Row Phase (Even Rows)**: Sort from left to right.
-2. **Row Phase (Odd Rows)**: Sort from right to left.
+2. **Row Phase (Odd Rows)**: Sort from right to left (**Snake Order**).
 3. **Column Phase**: Sort all columns from top to bottom.
-4. **Repeat**: Perform steps 1-3 for $\log_2 N + 1$ iterations.
+4. **Repeat**: Perform steps 1-3 for **$\lceil \log_2 p \rceil + 1$** iterations.
 
 > [!equation] Time Complexity
-> - Convergence: $O(\log N)$ iterations.
+> - Convergence: $O(\log \sqrt{p})$ iterations.
 > - Parallel Time: $O(\sqrt{n} \log \sqrt{n})$ where $n$ is the number of elements.
 
 > [!warning] Hardware Advantage
