@@ -101,3 +101,9 @@ Processed 17 markdown versions of lecture slides and lab manuals (Lec 15-31).
 - **Enriched**: [[fosters-methodology]], [[partitioning]], [[communication]], [[agglomeration]], [[shared-memory-model]], [[fork-join-model]], [[openmp]], [[custom-dbms]], [[collective-communication]], [[reduction-operation]], [[mpi-derived-datatypes]], [[mpi-barrier]], [[sieve-of-eratosthenes]], [[sieve-optimizations]], [[block-decomposition]], [[compare-and-exchange]], [[odd-even-transposition-sort]], [[amdahls-law]], [[gustafsons-law]], [[karp-flatt-metric]], [[odd-even-mergesort]], [[bitonic-mergesort]], [[bitonic-sequence]], [[counting-sort]], [[radix-sort]], [[matrix-multiplication-optimization]], [[cannons-algorithm]], [[race-condition]], [[data-sharing-clauses]], [[pine-cluster]], [[slurm]], [[omp-synchronization]], [[performance-measurement-openmp]].
 - **Created**: [[relational-algebra]].
 - **Updated Cheat Sheets**: [[Performance-Cheat-Sheet]], [[MPI-Cheat-Sheet]], [[Sorting-Cheat-Sheet]], [[Matrix-Cheat-Sheet]].
+
+## [2026-04-20] ingest | Exam 2 Study Guide
+Processed exam2_study_guide.html.
+- **Created**: [[exam2-study-guide]], [[Self-Assessment]].
+- **Enriched**: [[sieve-of-eratosthenes]], [[shearsort]], [[foxs-algorithm]].
+- **Added**: Multiple-choice and flashcard sets for retrieval practice.

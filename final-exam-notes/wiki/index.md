@@ -1,6 +1,7 @@
 # Wiki Index
 
 ## Sources
+- [[exam2-study-guide]] — Comprehensive guide for Terminology and Homework.
 - [[getting-started-with-openmp-programming]] — Alternative source for OpenMP lab introduction.
 - [[getting-started-with-openmp-programming-lab]] — Lab introduction to parallel regions, loops, and data sharing.
 - [[lec15]] — Parallel Algorithm Design using Foster's Methodology.
@@ -144,6 +145,7 @@
 - [[communicators-mpi]] — Scoping communication groups.
 
 ## Exam Prep
+- [[Self-Assessment]] — 20 flashcards and 12 multiple-choice practice questions.
 - [[Exam-2-MOC]] — High-density Map of Content for Lectures 15-31.
 - [[Performance-Cheat-Sheet]] — Scaling laws, metrics, and scalability diagnosis.
 - [[MPI-Cheat-Sheet]] — Core MPI syntax, collectives, and matching rules.

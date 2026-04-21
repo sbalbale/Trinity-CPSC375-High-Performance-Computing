@@ -70,7 +70,11 @@ The loop continues until the square of the current prime exceeds the global limi
 
 ## Performance & Complexity
 
-> [!equation] Parallel Time Complexity
+> [!equation] Complexity
+> - **Sequential**: $O(n \ln \ln n)$
+> - **Parallel (Domain Decomp)**: $O\left( \frac{n \ln \ln n}{p} + \sqrt{n} \ln \ln \sqrt{n} \right)$
+
+> [!equation] Parallel Time Complexity (Realistic)
 > $$T_p \approx \frac{\chi n \ln \ln n}{p} + \left( \frac{\sqrt{n}}{\ln \sqrt{n}} \right) \lambda \lceil \log p \rceil$$
 > - $\chi$: Marking time per element.
 > - $\lambda$: Latency of a single broadcast.
