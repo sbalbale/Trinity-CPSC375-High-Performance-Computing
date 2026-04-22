@@ -124,3 +124,8 @@ Re-processed HW23-HW30 using high-fidelity markdown sources (`raw/homeworks/Mark
 - **Updated Source Pages**: [[homework-23]], [[homework-24]], [[homework-25]], [[homework-26]], [[homework-27]], [[homework-28]], [[homework-29]], [[homework-30]] with combined PDF/MD metadata.
 - **Updated Solutions**: [[Homework-23-Solutions]], [[Homework-24-Solutions]], [[Homework-25-Solutions]], [[Homework-26-Solutions]], [[Homework-27-Solutions]], [[Homework-28-Solutions]], [[Homework-29-Solutions]], [[Homework-30-Solutions]] with advanced traces and code.
 - **Enriched Concepts**: [[block-decomposition]], [[sieve-optimizations]], [[odd-even-transposition-sort]], [[parallel-mergesort]], [[amdahls-law]], [[gustafsons-law]], [[karp-flatt-metric]], [[isoefficiency-function]], [[bitonic-mergesort]], [[matrix-multiplication-optimization]].
+
+## [2026-04-21] synthesis | Cross-cutting HPC Themes
+Generated three new synthesis pages to link homework solutions with lecture theory.
+- **Created**: [[shared-vs-distributed-models]], [[scaling-laws-and-metrics]], [[parallel-sorting-paradigms]].
+- **Integrated**: Applied diagnostic logic (Karp-Flatt) and algorithmic trade-offs (Synchronization pressure) across the knowledge base.
