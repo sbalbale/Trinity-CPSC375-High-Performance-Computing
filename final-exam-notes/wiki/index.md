@@ -34,6 +34,8 @@
 - [[homework-26]] — MPI Coordination: Token passing and random reduction.
 - [[homework-27]] — Mathematical proofs of Scaling Laws (Amdahl/Gustafson/Karp-Flatt).
 - [[homework-28]] — Isoefficiency derivation and Bitonic Sorting.
+- [[homework-29]] — Parallel algorithm optimizations and Transpose.
+- [[homework-30]] — Matrix multiplication performance and Strassen.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.
@@ -171,6 +173,8 @@
 - [[Homework-26-Solutions]] — Token-passing output and sum reduction.
 - [[Homework-27-Solutions]] — Scaling law proofs and benchmarking analysis.
 - [[Homework-28-Solutions]] — Isoefficiency and Bitonic sort trace.
+- [[Homework-29-Solutions]] — Transpose locality and Counting Sort trace.
+- [[Homework-30-Solutions]] — Matrix multiplication, Tiling, and Strassen.
 
 ## Lecture Summaries
 - [[Parallel-Algorithm-Design-Summary]] — Detailed walkthrough of Foster's Methodology (lec15).
