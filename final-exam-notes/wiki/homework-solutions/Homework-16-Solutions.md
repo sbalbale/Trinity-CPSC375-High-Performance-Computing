@@ -1,9 +1,9 @@
 ---
 aliases: [Homework 16 Solutions]
 tags: [#homework/solutions, #course_hpc, #openmp]
-sources: [Homework 16.pdf]
+sources: [HW16_Solution.md, Homework 16.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 16 Solutions
@@ -27,26 +27,26 @@ int b = 20;
 
 ### A. Shared Variables
 > [!info]
-> **Variable `b`** is shared across all threads. It was declared outside the parallel region and was not explicitly included in a `private` clause.
+> **Variable `b`** is shared across all threads. It is declared outside the parallel region and is **not** listed in the `private()` clause.
 
 ### B. Private Variables
 > [!info]
-> **Variables `a` and `c`** are private to each thread. 
-> - `a` is private because it was explicitly declared in the `private(a)` clause.
-> - `c` is private because it was declared **inside** the parallel region block.
+> - **Variable `a`** is explicitly declared `private(a)` in the `#pragma omp parallel` directive. Each thread gets its own uninitialized copy.
+> - **Variable `c`** is declared **inside** the parallel block, making it automatically private to each thread (stack-allocated).
 
-### C. Race Condition and Final Value
+### C. Race Condition with 4 Threads
 **Scenario:** Run with 4 threads (IDs 0, 1, 2, 3).
 
 **Final Value of `b`:**
-The final value of `b` is **non-deterministic**. If there were no race condition, the value would be $20 + 0 + 1 + 2 + 3 = 26$. However, due to the race condition, the value will likely be between 20 and 25.
+The final value of `b` is **indeterminate** (non-deterministic).
 
 **Explanation:**
-This code results in a [[race-condition]] because multiple threads are performing a **read-modify-write** operation on the shared variable `b` simultaneously.
-1. Thread 1 and Thread 2 might both read the initial value of `b` (20).
-2. Thread 1 calculates $20 + 1 = 21$ and prepares to write.
-3. Thread 2 calculates $20 + 2 = 22$ and prepares to write.
-4. If Thread 2 writes its result after Thread 1, the update from Thread 1 is **overwritten and lost**.
+This code results in a [[race-condition]] because multiple threads perform an unsynchronized **read-modify-write** on the shared variable `b`.
+> [!warning] Read-Modify-Write Interleaving
+> 1. **Read**: Thread 0 and Thread 1 both read `b = 20`.
+> 2. **Compute**: Thread 0 computes $20+0=20$; Thread 1 computes $20+1=21$.
+> 3. **Write**: Thread 0 writes `20`; Thread 1 writes `21`.
+> Whichever thread writes last "wins," erasing the other's update.
 
 ---
 
@@ -56,27 +56,30 @@ This code results in a [[race-condition]] because multiple threads are performin
 
 > [!code] C Code Snippet
 > ```c
-> #include <omp.h>
 > #include <stdio.h>
+> #include <omp.h>
 > 
 > int main() {
->     // A. Set the number of threads to 8
+>     // A. Set the number of threads to 8 using a library function
 >     omp_set_num_threads(8);
 > 
->     // B. Parallel directive
+>     // B. Parallel directive; each thread prints its greeting
 >     #pragma omp parallel
 >     {
->         int id = omp_get_thread_num();
->         int total = omp_get_num_threads();
->         
->         printf("Hello from thread %d out of %d threads.\n", id, total);
+>         int id    = omp_get_thread_num();   // This thread's ID (0-7)
+>         int total = omp_get_num_threads();  // Total threads (8)
+>         int procs = omp_get_num_procs();    // Available processors
+> 
+>         printf("Hello from thread %d out of %d threads. "
+>                "(%d processors available)\n", id, total, procs);
 >     }
->     
+> 
 >     return 0;
 > }
 > ```
 
-**Key Functions Used:**
-- `omp_set_num_threads(n)`: Sets the requested thread count for subsequent parallel regions.
-- `omp_get_thread_num()`: Returns the unique ID (0 to $N-1$) of the calling thread.
-- `omp_get_num_threads()`: Returns the total number of threads in the current active team.
+**Key Functions:**
+- `omp_set_num_threads(8)` — sets thread count for subsequent parallel regions.
+- `omp_get_thread_num()` — returns the calling thread's unique ID.
+- `omp_get_num_threads()` — returns the total number of threads in the team.
+- `omp_get_num_procs()` — returns physical hardware threads available.

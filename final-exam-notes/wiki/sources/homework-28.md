@@ -1,13 +1,13 @@
 ---
 tags: [homework, performance, scalability, sorting, bitonic-sort]
-sources: [Homework 28.pdf]
+sources: [Homework 28.pdf, HW28_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 28
 
-**Source:** Homework 28.pdf
+**Source:** Homework 28.pdf, HW28_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

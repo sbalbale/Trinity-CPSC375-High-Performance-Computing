@@ -1,13 +1,13 @@
 ---
 tags: [homework, mpi, collective-communication, data-partitioning]
-sources: [Homework 21.pdf]
+sources: [Homework 21.pdf, HW21_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 21
 
-**Source:** Homework 21.pdf
+**Source:** Homework 21.pdf, HW21_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

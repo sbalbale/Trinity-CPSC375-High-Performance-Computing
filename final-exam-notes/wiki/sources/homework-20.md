@@ -1,13 +1,13 @@
 ---
 tags: [homework, mpi, distributed-memory, spmd, communication]
-sources: [Homework 20.pdf]
+sources: [Homework 20.pdf, HW20_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 20
 
-**Source:** Homework 20.pdf
+**Source:** Homework 20.pdf, HW20_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

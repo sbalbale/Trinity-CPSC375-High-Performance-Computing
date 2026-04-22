@@ -1,13 +1,13 @@
 ---
 tags: [homework, dbms, storage, hashing, metadata]
-sources: [Homework 17.pdf]
+sources: [Homework 17.pdf, HW17_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 17
 
-**Source:** Homework 17.pdf
+**Source:** Homework 17.pdf, HW17_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

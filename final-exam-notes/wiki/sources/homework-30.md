@@ -1,6 +1,6 @@
 ---
 tags: [#source, #exam/theory, #homework/solutions]
-sources: [Homework 30.pdf]
+sources: [Homework 30.pdf, HW30_Solution.md]
 created: 2026-04-21
 updated: 2026-04-21
 aliases: [HW30 Source]

@@ -1,13 +1,13 @@
 ---
 tags: [homework, mpi, derived-types, performance, synchronization]
-sources: [Homework 22.pdf]
+sources: [Homework 22.pdf, HW22_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 22
 
-**Source:** Homework 22.pdf
+**Source:** Homework 22.pdf, HW22_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

@@ -1,13 +1,13 @@
 ---
 tags: [homework, openmp, atomic, scheduling, sections]
-sources: [Homework 19.pdf]
+sources: [Homework 19.pdf, HW19_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 19
 
-**Source:** Homework 19.pdf
+**Source:** Homework 19.pdf, HW19_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

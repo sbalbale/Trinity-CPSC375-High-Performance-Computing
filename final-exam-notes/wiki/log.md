@@ -112,3 +112,15 @@ Processed exam2_study_guide.html.
 Processed Homework 29.pdf and Homework 30.pdf. Created 2 new source pages, 2 new homework solution pages, and 2 new concept pages.
 New concepts: [[temporal-locality]], [[transpose-operation]].
 Updated pages: [[counting-sort]], [[matrix-multiplication-optimization]], [[spatial-locality]], [[strassens-algorithm]], [[index]].
+
+## [2026-04-21] ingest | Homework Markdown Solutions (Batch 1)
+Re-processed HW15-HW22 using high-fidelity markdown sources (`raw/homeworks/MarkdownSolutions/`).
+- **Created Source Pages**: [[hw15-solution]], [[hw16-solution]], [[hw17-solution]], [[hw18-solution]], [[hw19-solution]], [[hw20-solution]], [[hw21-solution]], [[hw22-solution]].
+- **Updated Solutions**: [[Homework-15-Solutions]], [[Homework-16-Solutions]], [[Homework-17-Solutions]], [[Homework-18-Solutions]], [[Homework-19-Solutions]], [[Homework-20-Solutions]], [[Homework-21-Solutions]], [[Homework-22-Solutions]] with callouts and LaTeX.
+- **Enriched Concepts**: [[domain-decomposition]], [[omp-synchronization]], [[data-partitioning]].
+
+## [2026-04-21] ingest | Homework Markdown Solutions (Batch 2)
+Re-processed HW23-HW30 using high-fidelity markdown sources (`raw/homeworks/MarkdownSolutions/`).
+- **Updated Source Pages**: [[homework-23]], [[homework-24]], [[homework-25]], [[homework-26]], [[homework-27]], [[homework-28]], [[homework-29]], [[homework-30]] with combined PDF/MD metadata.
+- **Updated Solutions**: [[Homework-23-Solutions]], [[Homework-24-Solutions]], [[Homework-25-Solutions]], [[Homework-26-Solutions]], [[Homework-27-Solutions]], [[Homework-28-Solutions]], [[Homework-29-Solutions]], [[Homework-30-Solutions]] with advanced traces and code.
+- **Enriched Concepts**: [[block-decomposition]], [[sieve-optimizations]], [[odd-even-transposition-sort]], [[parallel-mergesort]], [[amdahls-law]], [[gustafsons-law]], [[karp-flatt-metric]], [[isoefficiency-function]], [[bitonic-mergesort]], [[matrix-multiplication-optimization]].

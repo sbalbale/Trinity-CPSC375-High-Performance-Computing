@@ -1,83 +1,65 @@
 ---
 aliases: [Homework 19 Solutions]
 tags: [#homework/solutions, #course_hpc, #openmp]
-sources: [Homework 19.pdf]
+sources: [HW19_Solution.md, Homework 19.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 19 Solutions
 
 > [!abstract]
-> Solutions to the advanced OpenMP coordination and performance exercises for Homework 19, featuring performance benchmarks for synchronization and scheduling strategies.
+> Solutions to advanced OpenMP exercises for Homework 19, focusing on atomic/critical performance, loop scheduling, and parallel sections.
 
 ## Problem 1: Atomic vs. Critical
 
-**Scenario:** 100,000 deposits of $1 to a single integer `balance`.
+**Goal:** Simulate 100,000 deposits to a single shared balance.
 
-> [!code] Implementation
+> [!code] Comparison
 > ```c
-> int balance = 0;
-> double start = omp_get_wtime();
-> #pragma omp parallel for
-> for (int i = 0; i < 100000; i++) {
->     #pragma omp atomic // or critical
->     balance++;
-> }
-> double end = omp_get_wtime();
+> // Option A: Critical
+> #pragma omp critical
+> balance++;
+> 
+> // Option B: Atomic
+> #pragma omp atomic
+> balance++;
 > ```
 
-**Which one is faster?**
-The version using **`#pragma omp atomic`** is significantly faster.
-
-**Why?**
-- **`atomic`**: Leverages specific hardware instructions (e.g., `LOCK INC` on x86) to perform the update in a single uninterruptible step. It has very low overhead.
-- **`critical`**: Implements a general-purpose **mutual exclusion lock** (mutex). It involves more complex logic, potentially including operating system calls to manage thread queues, which is much slower for a simple scalar increment.
+**Why `atomic` is faster:**
+| Feature | `#pragma omp critical` | `#pragma omp atomic` |
+|---|---|---|
+| **Mechanism** | Software **mutex lock** (OS-level) | Single **hardware instruction** |
+| **Overhead** | High (lock/unlock overhead) | Very low (CPU-level) |
+| **Scope** | Entire code block | Single memory operation |
 
 ---
 
 ## Problem 2: Loop Scheduling
 
-**Scenario:** Loop from $i=0$ to $20$ with work proportional to $i$.
+**Goal:** Loop from 0 to 20 with work proportional to $i$.
 
-### A. Static Scheduling (`schedule(static, 1)`)
-In the static version, iterations are assigned in a round-robin fashion before the loop starts.
-- Thread 0: $0, 4, 8, 12, 16, 20$
-- Thread 1: $1, 5, 9, 13, 17$
-- ...
-**Result:** Threads assigned higher indices (like Thread 0 getting 20) will finish **much later** than others because their workload is larger. The total execution time is determined by the most heavily burdened thread.
-
-### B. Dynamic Scheduling (`schedule(dynamic, 1)`)
-In the dynamic version, iterations are assigned at runtime. When a thread finishes an iteration, it "asks" for the next one.
-
-**How dynamic fixes this:**
-Dynamic scheduling ensures **load balancing**. If Thread 1 finishes its "light" work (e.g., $i=1, 2$) quickly, it will move on to take more iterations while other threads are still busy with "heavy" work. This keeps all processors utilized and reduces the total wall-clock time.
+**Analysis:**
+- **`schedule(static, 1)`**: Iterations are pre-assigned round-robin. In this case, the thread assigned $i=20$ will take significantly longer than others, causing **load imbalance**.
+- **`schedule(dynamic, 1)`**: Iterations are assigned **on demand** at runtime. Threads handling small $i$ values finish quickly and pick up more work, ensuring all threads finish at roughly the same time.
 
 ---
 
 ## Problem 3: Parallel Sections
 
-**Requirement:** Compute average and minimum concurrently.
+**Goal:** Calculate average and minimum of a dataset concurrently.
 
 > [!code] Implementation
 > ```c
 > #pragma omp parallel sections
 > {
 >     #pragma omp section
->     {
->         calculate_average(data);
->     }
+>     { /* Calculate Average */ }
+> 
 >     #pragma omp section
->     {
->         find_minimum(data);
->     }
+>     { /* Find Minimum */ }
 > }
 > ```
 
-**Question:** If you have 4 threads available but only 2 sections defined, what do the other 2 threads do?
-
-**Answer:**
-The other 2 threads will be **idle** for the duration of the `sections` construct. Since there are only 2 distinct units of work defined, OpenMP can only assign work to 2 threads. The remaining threads reach the construct, find no sections available to execute, and skip to the implicit barrier at the end of the `sections` block.
-
-> [!warning] Efficiency
-> Using `sections` with a high thread count but few sections results in poor **parallel efficiency**. For better utilization, one should use data parallelism ([[parallel-loop-openmp]]) if the operations allow it.
+**What do extra threads do?**
+If 4 threads are available but only 2 sections are defined, the **2 surplus threads sit idle** at the implicit barrier until the active threads finish. `parallel sections` does not automatically subdivide tasks to use extra threads.

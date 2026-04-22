@@ -1,13 +1,13 @@
 ---
 tags: [homework, openmp, race-condition, scoping]
-sources: [Homework 16.pdf]
+sources: [Homework 16.pdf, HW16_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 16
 
-**Source:** Homework 16.pdf
+**Source:** Homework 16.pdf, HW16_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 
