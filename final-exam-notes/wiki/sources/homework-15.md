@@ -1,15 +1,15 @@
 ---
 tags: [homework, domain-decomposition, mapping, agglomeration]
-sources: [Homework 15.pdf]
+sources: [Homework 15.pdf, HW15_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 15
 
-**Source:** Homework 15.pdf
-**Date ingested:** 2026-04-20
-**Type:** Homework Assignment
+**Source:** Homework 15.pdf, HW15_Solution.md
+**Date ingested:** 2026-04-21
+**Type:** Homework Assignment & Solutions
 
 ## Summary
 

@@ -1,13 +1,13 @@
 ---
 tags: [homework, performance, speedup, amdahls-law, gustafsons-law, karp-flatt]
-sources: [Homework 27.pdf]
+sources: [Homework 27.pdf, HW27_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 27
 
-**Source:** Homework 27.pdf
+**Source:** Homework 27.pdf, HW27_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

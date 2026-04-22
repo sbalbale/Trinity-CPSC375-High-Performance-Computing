@@ -1,13 +1,13 @@
 ---
 tags: [homework, mpi, algorithm, optimization, sieve]
-sources: [Homework 24.pdf]
+sources: [Homework 24.pdf, HW24_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 24
 
-**Source:** Homework 24.pdf
+**Source:** Homework 24.pdf, HW24_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

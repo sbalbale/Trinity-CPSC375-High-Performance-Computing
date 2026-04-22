@@ -1,9 +1,9 @@
 ---
 aliases: [Homework 15 Solutions]
 tags: [#homework/solutions, #course_hpc]
-sources: [Homework 15.pdf]
+sources: [HW15_Solution.md, Homework 15.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 15 Solutions
@@ -17,13 +17,16 @@ updated: 2026-04-20
 
 ### Domain Decomposition Approach
 > [!equation] Data Partitioning
-> The 3D grid (representing latitude, longitude, and altitude) would be divided into smaller **sub-blocks** or **3D sub-domains**. Each processor is responsible for the computation within its assigned volume.
+> **Domain decomposition** divides the primary data structure (the 3D grid) into pieces and associates the computation with each piece. The Earth's atmosphere is partitioned along longitude, latitude, and altitude boundaries to create **3D sub-volumes** (spatial blocks or "slabs").
 
 **Data Division:**
-The data would be divided using a **3D Block Decomposition**. The global volume is partitioned along all three axes $(x, y, z)$. For example, if the grid is $N \times N \times N$, and we have $p$ processors, we might divide it into sub-blocks of size $\frac{N}{\sqrt[3]{p}} \times \frac{N}{\sqrt[3]{p}} \times \frac{N}{\sqrt[3]{p}}$.
+Divide the grid into 3D sub-volumes. For example, partition the grid along longitude and latitude boundaries to create a checkerboard of vertical columns, or slice it horizontally by altitude layers. Each sub-volume holds local values for pressure, temperature, and wind speed.
 
 **What a Primitive Task Represents:**
-A **primitive task** represents the calculations for a **single grid cell** (or a small atomic cluster of cells) in the 3D space. This task includes updating the pressure, temperature, and wind vectors for that specific point based on the values of its neighbors.
+A **primitive task** represents the computation required to advance a **single grid cell** (one spatial point) forward by one time step. This includes reading its current state and applying physical equations (e.g., finite-difference approximations of fluid dynamics PDEs) to compute new values.
+
+**Communication Pattern:**
+Communication is **local**. Each task only needs values from its 6 immediate neighbors (up, down, north, south, east, west). Tasks at sub-volume boundaries must exchange "halo" values with adjacent sub-volumes at each time step.
 
 ---
 
@@ -33,30 +36,28 @@ A **primitive task** represents the calculations for a **single grid cell** (or 
 
 ### A. The 10:1 Ratio Rule
 > [!question]
-> What is the minimum number of tasks you should aim for to satisfy the "10:1 ratio" rule for static load balancing?
+> If you decide to use static load balancing, what is the minimum number of tasks you should aim for to satisfy the "10:1 ratio" rule?
 
 **Step-by-step Solution:**
-1. Identify the number of processors ($p$). For modern SFF nodes with hyperthreading, we use the number of logical processors.
-2. $p = 16$.
-3. Apply the rule: $\text{Target Tasks} = 10 \times p$.
-4. $\text{Target Tasks} = 10 \times 16 = 160$.
+1. Identify the number of processors ($p$). With 16 logical processors, $p = 16$.
+2. Apply the **Mapping Checklist** rule: $\text{Target Tasks} \ge 10 \times p$.
+3. $\text{Target Tasks} \ge 10 \times 16 = 160$.
 
-**Answer:** You should aim for at least **160 tasks**.
+**Answer:** You should aim for at least **160 tasks**. (The 1,000 tasks provided exceed this requirement).
 
-### B. Communication Overhead vs. Processor Utilization
+### B. Agglomeration vs. Communication Overhead
 > [!question]
-> If communication cost is high, would you prefer smaller tasks or agglomerated blocks? Explain the trade-off.
+> If the communication cost between the 1,000 tasks is high, would you prefer to keep tasks small or agglomerate them? Explain the trade-off.
 
 **Answer:**
-If communication costs are high, you should **agglomerate primitive tasks into larger blocks**.
+When communication cost is high, you should **agglomerate** the 1,000 tasks into a smaller number of larger tasks (ideally one per logical processor = 16 composite tasks).
 
-**Trade-off Explanation:**
-- **Agglomeration (Larger Blocks):**
-    - **Pros:** Reduces **communication overhead**. Grouping tasks reduces the total number of messages and increases the amount of computation per message.
-    - **Cons:** Can decrease **processor utilization** and load balance. Having fewer, larger tasks makes it harder to ensure all processors finish at exactly the same time, potentially leaving some processors idle while the last large task completes.
-- **Smaller Tasks:**
-    - **Pros:** Better **load balancing** and higher potential parallelism.
-    - **Cons:** Higher communication frequency, which may bottleneck the system if the interconnect latency is high.
+**Trade-off Analysis:**
+| Factor | Keep Tasks Small | Agglomerate into Larger Tasks |
+|---|---|---|
+| **Communication** | **High** — each boundary requires a message | **Low** — intra-task communication is eliminated |
+| **Utilization** | High (fine-grained parallelism) | Risk of idle processors if tasks are uneven |
+| **Locality** | Lower | **Higher** — computation occurs without cross-task messaging |
 
-> [!warning] Surface-to-Volume Ratio
-> Agglomerating in 3D (forming cubes rather than slices) is generally more efficient because it minimizes the "surface area" (data to be communicated) relative to the "volume" (computational work).
+> [!warning] Agglomeration Preferred
+> When communication is the bottleneck, agglomeration is preferred to maximize **locality**. By merging tasks that frequently communicate, that overhead becomes local memory access.

@@ -1,9 +1,9 @@
 ---
 aliases: [Homework 17 Solutions]
 tags: [#homework/solutions, #course_hpc, #dbms]
-sources: [Homework 17.pdf, lec17.txt]
+sources: [HW17_Solution.md, Homework 17.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 17 Solutions
@@ -13,100 +13,94 @@ updated: 2026-04-20
 
 ## Problem 1: Relation Creation
 
-**Command:** `CR vehicles 3 1` (Attributes: `vin S`, `make S`, `year I`)
+**Command:** `CR vehicles 3 1` (`vin S`, `make S`, `year I`)
 
-### A. Information added to the `catalog` relation:
+### A. Catalog Entry
 > [!info]
-> - **Relname:** `vehicles`
-> - **Kind:** `B` (Base relation)
-> - **Attsize:** `3` (Number of attributes)
-> - **Keysize:** `1` (Primary key consists of the first attribute)
-> - **Relsize:** `0` (Initial number of tuples)
+> One tuple is added to the **catalog** relation (Base relation):
+> | Relname | Kind | Attsize | Keysize | Relsize |
+> |---|---|---|---|---|
+> | `vehicles` | `B` | `3` | `1` | `0` |
 
-### B. Tuples added to the `columns` relation:
-Three tuples will be added, one for each attribute:
+### B. Columns Entries
+**3 tuples** are added to the **columns** relation:
 | Relname | Attname | Attdomain | Attposition |
-| :--- | :--- | :--- | :--- |
-| `vehicles` | `vin` | `S` | `0` |
-| `vehicles` | `make` | `S` | `1` |
-| `vehicles` | `year` | `I` | `2` |
+|---|---|---|---|
+| `vehicles` | `vin` | `S` | `1` |
+| `vehicles` | `make` | `S` | `2` |
+| `vehicles` | `year` | `I` | `3` |
 
-### C. Manual Deletion from Catalog
-**Why prevent `DE catalog`?**
-The system must prevent manual deletion from system relations like `catalog` because it would lead to **metadata inconsistency**. The catalog is the ground truth for where data is stored on disk; if a user deletes a entry manually, the physical data blocks associated with that table would become "orphaned" and inaccessible, while the [[bitmap-allocation]] would still show them as occupied.
+### C. Preventing `DE catalog`
+**Why prevent manual deletion?**
+The `catalog` is a **system-owned, self-describing table**. Deleting from it would destroy the metadata store, rendering every other relation inaccessible. It would corrupt the entire DBMS.
 
 ---
 
 ## Problem 2: Hashing and Overflow
 
-**Inserting tuple with primary key `vin = "v101"`.**
+**Inserting tuple with primary key `vin = "V101"`.**
 
 ### A. Hash Calculation
 > [!equation] Hash Function
 > $$h(\text{key}) = \left( \sum \text{ASCII}(\text{key}) \right) \pmod{16}$$
+> 
+> ASCII('V')=86, ASCII('1')=49, ASCII('0')=48, ASCII('1')=49.
+> **Sum** = 232.
+> $232 \pmod{16} = \boxed{8}$
 
-**Step-by-step:**
-1. ASCII('v') = 118
-2. ASCII('1') = 49
-3. ASCII('0') = 48
-4. ASCII('1') = 49
-5. Sum = $118 + 49 + 48 + 49 = 264$
-6. $264 \pmod{16} = 8$ (since $16 \times 16 = 256$, and $264 - 256 = 8$)
+### B. Overflow Block Procedure
+If the target block (8) is full:
+1. **Consult Bitmap (Block 0)** to find the first free block (first bit = 0).
+2. **Allocate**: Flip bit to 1 and write bitmap back to disk.
+3. **Link**: Update Block 8's header to point to the new overflow block.
+4. **Write**: Store the tuple in the first empty slot of the overflow block.
 
-**Answer:** The target bucket is **Block 8**.
-
-### B. Overflow Handling
-If Block 8 is full (contains 4 tuples), the `dbput` function performs these steps:
-1. Consult the **Bitmap (Block 0)** to find the first available free block.
-2. Mark that block as occupied in the bitmap.
-3. Link the current full block to this new **overflow block** (by updating a pointer in the block's header).
-4. Write the new tuple into the first slot of the newly allocated overflow block.
+### C. Maximum Blocks
+Total blocks = 256. System blocks (Bitmap, Catalog, Columns) = 3.
+**Maximum blocks for one relation** = $256 - 3 = \boxed{253}$.
 
 ---
 
 ## Problem 3: Buffer Management
 
-### A. Header Slot
-If the buffer holds 9 slots, the header block for `vehicles` should occupy a slot designated for data blocks (typically slots 3-8 if 0, 1, 2 are reserved for Bitmap, Catalog, and Columns).
+### A. Buffer Slot
+The buffer has 9 slots (0-8). If 6 blocks occupy slots 0-5, the `vehicles` header should occupy **slot 6** (first available).
 
-### B. The "Dirty" Block Risk
-**Danger of not flushing:**
-If a "dirty" block (a block that has been modified in memory) is not flushed to the simulated Linux disk file before being overwritten by a new block, the **updates are permanently lost**. The memory state would differ from the disk state, violating the **Durability** property of the system.
+### B. Dirty Block Risk
+> [!warning] Durability Violation
+> If a **dirty block** (modified in memory) is evicted without flushing to disk, all changes (inserts/updates) are **permanently lost**. This leads to silent data corruption.
 
-### C. Bitmap (Block 0) Role
-The Bitmap tracks the status of all 256 blocks. Each bit (or byte in some implementations) represents a block. When a relation needs to grow, the system scans the bitmap for a `0` (free), changes it to a `1` (used), and uses that block index for the new data.
+### C. Bitmap (Block 0)
+The Bitmap is a compact bit array where each bit corresponds to a block (0=free, 1=occupied). It provides a fast, centralized view of free space for allocation.
 
 ---
 
-## Problem 4: Base vs. Derived Relations
+## Problem 4: Storage Contrast
 
 ### A. Kind Attribute
-- **vehicles:** `B` (Base)
-- **result_table:** `D` (Derived)
+- `vehicles`: `B` (Base)
+- `result_table`: `D` (Derived)
 
-### B. Storage Contrast
-- **Base Relations:** Use **Hash Files**. Data is placed in buckets based on a key for $O(1)$ lookup.
-- **Derived Relations:** Use **Heap Files**. Data is stored sequentially (appended) for $O(n)$ sequential reading.
-
-### C. Derived Relation Key Assumption
-The system assumes the **entire tuple is the key** for derived relations because they are often the result of operations (like Projection or Union) that may remove the original primary key or combine data in ways where a single attribute is no longer unique.
+### B. Storage Structure
+| Feature | Base (`vehicles`) | Derived (`result_table`) |
+|---|---|---|
+| **Storage** | **Hash file** | **Heap file** |
+| **Access** | Random (via hash key) | Sequential scan |
+| **Persistence** | Permanent | Temporary |
 
 ---
 
 ## Problem 5: Data Layout
 
-### A. Purpose of First Byte
-The first byte is a **status flag**:
-- `0`: The slot is **empty**.
-- `1`: The slot contains a **valid tuple**.
+### A. Purpose of Flag Byte
+The flag is an **occupancy indicator**: `0` = empty, `1` = occupied. It allows for efficient insertion and simple deletion.
 
 ### B. Max String Length
-In a 64-byte slot:
-- 1 byte is used for the flag.
-- 63 bytes remain.
-**Answer:** The maximum length is **63 characters** (including the null terminator).
+Slot size = 64 bytes. 1 byte used for flag.
+**Max string length** = **63 bytes**.
 
 ### C. Changing a Key
-Changing a primary key is a two-step process because the key determines the physical location (bucket) of the tuple:
-1. **Delete** the existing tuple from its current bucket.
-2. **Re-insert** the tuple with the new key so the hash function can place it in the correct new bucket.
+1. **Delete** the old tuple (locate via `h(old_key)` and set flag to 0).
+2. **Re-insert** with the new key (compute `h(new_key)` and call `dbput`).
+> [!info]
+> This ensures the tuple resides in the correct block determined by its current key.

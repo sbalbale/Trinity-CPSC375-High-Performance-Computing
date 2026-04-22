@@ -14,17 +14,30 @@ updated: 2026-04-20
 ## Core Mechanics
 
 ### Loop Reordering
-Reordering the three nested loops can yield 6-10x speedup simply by changing the memory access pattern from **stride-n** to **unit-stride**.
+Reordering the three nested loops can yield 6-10x speedup by changing the memory access pattern from **stride-n** to **unit-stride**.
 
-| Order | Time ($n=1000$) | Speedup | Access Pattern (B) |
+| Order | Access (B) | Access (C) | Locality |
 | :--- | :--- | :--- | :--- |
-| **ijk** | 2.5s | 1.0x | Stride-n (Poor) |
-| **kij** | 0.4s | 6.25x | Unit-stride (Good) |
-| **jik** | 0.25s | **10.0x** | Unit-stride (Best) |
+| **ijk** | Stride-n | Stride-1 | Poor |
+| **ikj** | **Stride-1** | **Stride-1** | **Excellent** |
+| **jik** | Stride-1 | Stride-1 | Excellent |
+
+> [!code] ikj Implementation
+> ```c
+> for (i = 0; i < n; i++) {
+>     for (k = 0; k < n; k++) {
+>         r = a[i][k]; // Loaded into register once
+>         for (j = 0; j < n; j++)
+>             c[i][j] += r * b[k][j]; // Sequential row access
+>     }
+> }
+> ```
+> In this version, `a[i][k]` is loaded into a register and **reused $n$ times** in the innermost loop. Both $B$ and $C$ are accessed sequentially along their rows, achieving optimal **spatial locality**.
 
 ### Tiling (Blocking)
-Divides matrices into $b \times b$ tiles (blocks) that fit within the L1 or L2 cache.
-- **Data Reuse**: For a $b \times b$ block, elements are loaded once and reused $b$ times.
+While loop reordering improves *spatial* locality (how data is accessed), it does not manage cache **capacity** (how long data stays in cache). For matrices larger than the cache, rows are evicted before they can be reused for the next outer-loop iteration.
+
+**Tiling** improves **temporal locality** by keeping small $b \times b$ tiles in the cache for multiple operations.
 > [!equation] Arithmetic Intensity
 > For tiled multiplication, the ratio of operations to memory accesses is:
 > $$\text{Intensity} = \frac{b}{2} \text{ ops/access}$$

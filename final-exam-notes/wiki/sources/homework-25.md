@@ -1,13 +1,13 @@
 ---
 tags: [homework, mpi, algorithm, sorting, complexity]
-sources: [Homework 25.pdf]
+sources: [Homework 25.pdf, HW25_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 25
 
-**Source:** Homework 25.pdf
+**Source:** Homework 25.pdf, HW25_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 

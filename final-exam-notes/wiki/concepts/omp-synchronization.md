@@ -1,9 +1,9 @@
 ---
 aliases: [omp critical, omp barrier, omp atomic, omp single, omp master, omp-runtime-functions]
 tags: [openmp, synchronization, performance]
-sources: [Getting Started with OpenMP Programming.txt, More on OpenMP Programming.txt]
+sources: [Getting Started with OpenMP Programming.txt, More on OpenMP Programming.txt, HW19_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # OpenMP Synchronization
@@ -16,6 +16,15 @@ updated: 2026-04-20
 ### Mutual Exclusion
 - **Critical Section**: `#pragma omp critical`. Only one thread executes the block at a time.
 - **Atomic**: `#pragma omp atomic`. Fast, hardware-level protection for a single memory update (e.g., `x++`).
+
+#### Atomic vs. Critical Comparison
+
+| Feature | `#pragma omp critical` | `#pragma omp atomic` |
+|---|---|---|
+| **Mechanism** | Software **mutex lock** (OS-level) | Single **hardware instruction** |
+| **Overhead** | High (kernel calls, context switching) | **Minimal** (CPU-level) |
+| **Scope** | Serializes an **entire code block** | Serializes a **single memory operation** |
+| **Performance** | Much slower for fine-grained updates | **Significantly faster** for simple scalar updates |
 
 ### Team Synchronization
 - **Barrier**: `#pragma omp barrier`. All threads wait until the entire team reaches this point.

@@ -1,55 +1,74 @@
 ---
 aliases: [Homework 20 Solutions]
 tags: [#homework/solutions, #course_hpc, #mpi]
-sources: [Homework 20.pdf, lec20.txt]
+sources: [HW20_Solution.md, Homework 20.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 20 Solutions
 
 > [!abstract]
-> Detailed answers to the conceptual and technical MPI exercises for Homework 20, covering architecture, communication, and synchronization.
+> Introduction to MPI and Distributed Memory Programming for Homework 20, covering architecture models, SPMD, and point-to-point communication.
 
-## 1. Shared vs. Distributed Memory
+## Problem 1: Shared vs. Distributed Memory
+
 | Feature | Shared Memory | Distributed Memory |
-| :--- | :--- | :--- |
-| **Access** | All processors see a single global address space. | Each processor has its own private memory. |
-| **Comm** | Implicit (Reading/Writing shared variables). | Explicit (Sending/Receiving messages). |
-| **Advantage** | Easier to program; automatic data locality. | Highly scalable; no bus contention. |
-| **Disadvantage** | Limited scalability due to bus traffic. | Complex to program (explicit data movement). |
+|---|---|---|
+| **Memory Access** | Direct (unified address space) | Indirect (private address spaces) |
+| **Communication** | Implicit (shared variables) | Explicit (message passing) |
+| **Advantage** | Easier programming | **Highly scalable** |
+| **Disadvantage** | Limited scalability (bus bottleneck) | Complex data management |
 
-## 2. MPI Process Characteristics
-- **Process Count:** Specified at start-up time (e.g., `mpirun -n 4`). The number of processes remains fixed throughout the execution.
-- **Identification:** Each process is identified by a unique integer called a **Rank**, ranging from $0$ to $size-1$.
-- **SPMD Model:** **Single Program, Multiple Data**. All processes run the exact same executable, but they execute different branches of logic based on their rank.
+---
 
-## 3. MPI_Init and MPI_Finalize
-- **`MPI_Init`**: Initializes the MPI execution environment. It sets up communicators and internal buffers.
-- **`MPI_Finalize`**: Cleans up the MPI environment and releases resources.
-- **Why encapsulate?** No MPI functions can be called before `Init` or after `Finalize` because the internal state required for communication is not valid.
-- **Violation results:** Calling MPI functions outside this window results in **undefined behavior**, typically manifesting as a crash or a "symbol not found" error.
+## Problem 2: MPI Process Characteristics
 
-## 4. Communicators
-- **Role:** A communicator defines a group of processes that can communicate with each other. It provides a separate communication "universe" to prevent message interference between different modules.
-- **`MPI_COMM_WORLD`**: The default communicator that includes **all** processes launched in the job.
-- **Usage:**
-    - `MPI_Comm_size`: Used to determine the total number of processes available to the program.
-    - `MPI_Comm_rank`: Used by each process to determine its own identity so it can decide which subset of data to work on.
+- **Fixed Count**: Set at launch time (`mpiexec -n N`) and remains constant.
+- **SPMD Model**: Every process runs the **same executable** but uses its **unique rank** (0 to $N-1$) to operate on different data.
+- **Independence**: Processes have private memory; no direct access to peer memory.
 
-## 5. Point-to-Point Mechanics
-`MPI_Send` and `MPI_Recv` work together by matching messages.
-- **Parameters:**
-    - **Destination/Source:** The rank of the target or sender.
-    - **Tag:** A user-defined ID to distinguish different types of messages.
-    - **Communicator:** The group context (must be the same for sender and receiver).
-- **Matching Criteria:** A message is received only if the **communicator**, **sender rank**, and **tag** all match the parameters in the `MPI_Recv` call.
+---
 
-## 6. Dynamic Metadata
-- **`MPI_Status`**: A structure that stores metadata about a received message (e.g., source rank and tag). Useful when using `MPI_ANY_SOURCE` or `MPI_ANY_TAG`.
-- **`MPI_Get_count`**: Used to determine the actual number of data elements received in a message. This is necessary when the receiver doesn't know the exact message size in advance.
+## Problem 3: Lifecycle Management
 
-## 7. Communication Issues
-- **Blocking Behavior:** `MPI_Recv` is **blocking**, meaning it will not return until the message is fully received. `MPI_Send` is also blocking in the sense that it doesn't return until the buffer is safe to reuse.
-- **Deadlock:** If Process 0 calls `MPI_Recv` from Process 1, and Process 1 also calls `MPI_Recv` from Process 0 simultaneously, they will both wait forever. This is a common bug in MPI programs.
-- **Buffering:** Smaller messages might be buffered by the system, allowing `MPI_Send` to return even if the matching `Recv` hasn't been called yet. However, relying on this behavior is dangerous because it is implementation-dependent; large messages will cause the sender to block until the receiver starts, potentially leading to deadlock.
+- **`MPI_Init`**: Sets up the communication infrastructure, assigns ranks, and defines `MPI_COMM_WORLD`.
+- **`MPI_Finalize`**: Cleans up resources and tears down network connections.
+> [!danger] Undefined Behavior
+> Calling MPI functions before `Init` or after `Finalize` typically results in **segfaults or deadlocks** as the environment is uninitialized or destroyed.
+
+---
+
+## Problem 4: Communicators and Rank/Size
+
+- **Communicator**: A named group of processes (e.g., `MPI_COMM_WORLD`). Enforces message isolation.
+- **`MPI_Comm_size`**: Returns total process count ($p$). Used for dividing total work.
+- **`MPI_Comm_rank`**: Returns unique ID (rank). Used for task differentiation (e.g., `if (rank == 0)`).
+
+---
+
+## Problem 5: `MPI_Send` and `MPI_Recv`
+
+> [!equation] Message Matching
+> A receive matches a send if and only if:
+> 1. **Communicator** matches.
+> 2. **Source/Destination** ranks match.
+> 3. **Tag** matches.
+
+- **Blocking**: `MPI_Recv` blocks until a message is received. `MPI_Send` behavior is implementation-dependent (buffered for small messages, synchronous/blocking for large ones).
+
+---
+
+## Problem 6: Wildcards and Status
+
+- **Wildcards**: `MPI_ANY_SOURCE` and `MPI_ANY_TAG` allow receiving from any peer.
+- **`MPI_Status`**: A struct containing the actual `MPI_SOURCE` and `MPI_TAG` after a wildcard receive.
+- **`MPI_Get_count`**: Queries the status to find the **actual number of elements** received.
+
+---
+
+## Problem 7: Issues and Deadlock
+
+> [!warning] Deadlock Risk
+> Symmetric blocking sends (e.g., two processes sending to each other before receiving) can cause **deadlock** if the messages are too large to be buffered.
+> **Solution**: Alternate send/receive order or use non-blocking `MPI_Isend`/`MPI_Irecv`.

@@ -1,13 +1,13 @@
 ---
 tags: [homework, data-partitioning, block-decomposition, load-balancing]
-sources: [Homework 23.pdf]
+sources: [Homework 23.pdf, HW23_Solution.md]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-21
 ---
 
 # Homework 23
 
-**Source:** Homework 23.pdf
+**Source:** Homework 23.pdf, HW23_Solution.md
 **Date ingested:** 2026-04-20
 **Type:** Homework Assignment
 
