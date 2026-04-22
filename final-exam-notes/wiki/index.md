@@ -192,9 +192,6 @@
 - [[MPI-Slurm-Lab-Summary]] — Practical Cluster computing on Pine with Slurm.
 
 ## Synthesis
-computing on Pine with Slurm.
-
-## Synthesis
-.
-
-## Synthesis
+- [[shared-vs-distributed-models]] — Comparative analysis of OpenMP and MPI.
+- [[scaling-laws-and-metrics]] — Unified framework for scaling laws (Amdahl, Gustafson) and diagnostics.
+- [[parallel-sorting-paradigms]] — Trade-offs between transposition, tree-based, and network sorts.
