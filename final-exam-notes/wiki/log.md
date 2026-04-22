@@ -115,7 +115,7 @@ Updated pages: [[counting-sort]], [[matrix-multiplication-optimization]], [[spat
 
 ## [2026-04-21] ingest | Homework Markdown Solutions (Batch 1)
 Re-processed HW15-HW22 using high-fidelity markdown sources (`raw/homeworks/MarkdownSolutions/`).
-- **Created Source Pages**: [[hw15-solution]], [[hw16-solution]], [[hw17-solution]], [[hw18-solution]], [[hw19-solution]], [[hw20-solution]], [[hw21-solution]], [[hw22-solution]].
+- **Updated Source Pages**: [[homework-15]], [[homework-16]], [[homework-17]], [[homework-18]], [[homework-19]], [[homework-20]], [[homework-21]], [[homework-22]].
 - **Updated Solutions**: [[Homework-15-Solutions]], [[Homework-16-Solutions]], [[Homework-17-Solutions]], [[Homework-18-Solutions]], [[Homework-19-Solutions]], [[Homework-20-Solutions]], [[Homework-21-Solutions]], [[Homework-22-Solutions]] with callouts and LaTeX.
 - **Enriched Concepts**: [[domain-decomposition]], [[omp-synchronization]], [[data-partitioning]].
 
