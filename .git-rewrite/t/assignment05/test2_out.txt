@@ -1,0 +1,43 @@
+studnts
+sid name major
+111 Alice CS
+222 Bob Math
+333 Charlie CS
+444 Dave Bio
+
+alumni
+sid name major
+666 Frank Art
+222 Bob Math
+555 Eve CS
+
+allstuds
+sid name major
+111 Alice CS
+222 Bob Math
+333 Charlie CS
+444 Dave Bio
+666 Frank Art
+555 Eve CS
+
+diffstud
+sid name major
+666 Frank Art
+555 Eve CS
+
+st_grads
+sid name major gpa
+111 Alice CS 38
+333 Charlie CS 35
+444 Dave Bio 29
+
+smart_cs
+sid name major gpa
+111 Alice CS 38
+333 Charlie CS 35
+
+names
+name
+Alice
+Charlie
+

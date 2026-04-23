@@ -1,0 +1,100 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# LaTeX Auxiliary Files (Generated during report compilation)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.nav
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdy
+# Note: Keep *.pdf un-ignored so you can track your final assignments and lecture slides.
+
+# HPC / Cluster / Slurm Outputs
+# Ignores standard Slurm job output files and crash dumps
+slurm-*.out
+slurm-*.err
+core
+core.*
+*.err
+
+# Archives and Compressed Files (e.g., downloaded source code like HPL)
+*.tar
+*.tar.gz
+*.zip
+*.tgz
+
+# OS & Editor Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~

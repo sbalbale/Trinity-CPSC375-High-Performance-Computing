@@ -1,0 +1,40 @@
+CR studnts 3 1
+sid I
+name S
+major S
+IN studnts 4
+111 Alice CS
+222 Bob Math
+333 Charlie CS
+444 Dave Bio
+CR alumni 3 1
+sid I
+name S
+major S
+IN alumni 3
+222 Bob Math
+555 Eve CS
+666 Frank Art
+PR studnts
+PR alumni
+UN studnts alumni allstuds
+PR allstuds
+DF allstuds studnts diffstud
+PR diffstud
+CR grades 2 1
+sid I
+gpa I
+IN grades 3
+111 38
+333 35
+444 29
+NJ studnts grades st_grads 1
+sid
+PR st_grads
+SL st_grads smart_cs 2
+major == CS
+gpa > 30
+PR smart_cs
+PJ smart_cs names 1
+name
+PR names
