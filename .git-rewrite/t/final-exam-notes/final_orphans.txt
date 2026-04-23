@@ -1,5 +1,0 @@
-ORPHAN: getting-started-with-openmp-programming
-ORPHAN: Lec20-Summary
-ORPHAN: Parallel
-ORPHAN: Algorithm
-ORPHAN: Design-Summary

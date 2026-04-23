@@ -1,5 +1,0 @@
-Lec20-Summary
-communication-overhead
-getting-started-with-openmp-programming
-monte-carlo-pi
-synchronization-overhead
