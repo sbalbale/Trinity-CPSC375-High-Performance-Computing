@@ -1,6 +1,6 @@
 ---
 tags: [homework, matrix-multiplication, scalability]
-sources: [Homework 31.pdf]
+sources: [Homework 31.pdf, HW31_Solution.md]
 created: 2026-04-23
 updated: 2026-04-23
 ---

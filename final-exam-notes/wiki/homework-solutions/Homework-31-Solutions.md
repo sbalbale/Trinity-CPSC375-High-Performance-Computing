@@ -1,14 +1,14 @@
 ---
 aliases: [HW31, Homework 31 Solutions]
 tags: [#homework/solutions, #CPSC375, #exam/algorithm, #exam/theory]
-sources: [Homework 31.pdf]
+sources: [Homework 31.pdf, HW31_Solution.md]
 created: 2026-04-23
 updated: 2026-04-23
 ---
 
 # Homework 31 Solutions
 
-**Source:** Homework 31.pdf
+**Source:** Homework 31.pdf / HW31_Solution.md
 **Date ingested:** 2026-04-23
 **Type:** homework
 
@@ -21,66 +21,59 @@ This homework focuses on parallel matrix multiplication algorithms, specifically
 **Question:** Derive why the block-striped computation-to-communication ratio of $n/p$ is considered poor compared to Cannon's ratio of $n/\sqrt{p}$.
 
 >[!example] Solution: Computation-to-Communication Ratio
-> For parallel matrix multiplication of $n \times n$ matrices:
-> 
 > **Block-Striped Decomposition:**
-> - Each of the $p$ processes holds a block of $n \times (n/p)$ elements.
-> - **Computation:** Each process computes $n^2 / p$ elements.
-> - **Communication:** Each process must shift its block $p-1$ times. In each shift, it sends $n^2 / p$ elements.
-> - **Total Communication Volume:** $(p-1) \times (n^2 / p) \approx n^2$.
-> - **Ratio:** $\frac{\text{Computation}}{\text{Communication}} = \frac{O(n^3/p)}{O(n^2)} = O(n/p)$.
+> - **Computation:** $T_{\text{comp}} = O(n^3/p)$.
+> - **Communication:** Each process must eventually see all $p$ stripes of $B$. Total communication volume is $(p-1) \cdot n^2/p \approx O(n^2)$.
+> - **Ratio:** $\frac{T_{\text{comp}}}{T_{\text{comm}}} = \frac{n^3/p}{n^2} = \frac{n}{p}$.
 > 
 > **Cannon's Algorithm (Checkerboard Decomposition):**
-> - Processors are arranged in a $\sqrt{p} \times \sqrt{p}$ mesh.
-> - Each process holds a block of size $(n/\sqrt{p}) \times (n/\sqrt{p})$.
-> - **Computation:** Each process computes $(n/\sqrt{p}) \times (n/\sqrt{p}) \times n = n^3 / p$ operations.
-> - **Communication:** Each process shifts its block $\sqrt{p}-1$ times. In each shift, it sends $n^2 / p$ elements.
-> - **Total Communication Volume:** $(\sqrt{p}-1) \times (n^2 / p) \approx n^2 / \sqrt{p}$.
-> - **Ratio:** $\frac{\text{Computation}}{\text{Communication}} = \frac{O(n^3/p)}{O(n^2/\sqrt{p})} = O(n/\sqrt{p})$.
+> - **Computation:** $T_{\text{comp}} = O(n^3/p)$.
+> - **Communication:** $\sqrt{p}$ iterations of two blocks of size $(n/\sqrt{p})^2 = n^2/p$. Total $T_{\text{comm}} = \sqrt{p} \cdot n^2/p = O(n^2/\sqrt{p})$.
+> - **Ratio:** $\frac{T_{\text{comp}}}{T_{\text{comm}}} = \frac{n^3/p}{n^2/\sqrt{p}} = \frac{n}{\sqrt{p}}$.
 > 
-> **Conclusion:** Cannon's ratio of $n/\sqrt{p}$ is better (larger) than the block-striped ratio of $n/p$ because $\sqrt{p} < p$. This means Cannon's algorithm spends proportionally less time communicating as the number of processors $p$ scales, making it highly scalable.
+> **Comparison for Scalability:**
+> To maintain a target ratio $R$ (where computation hides communication):
+> - **Block-Striped:** $n \ge R \cdot p$ (Linear scaling).
+> - **Cannon's:** $n \ge R \cdot \sqrt{p}$ ($\sqrt{p}$ scaling).
+> 
+> **Conclusion:** As $p$ increases, the block-striped ratio collapses $\sqrt{p}$ times faster than Cannon's. For $p=10,000$ and $n=10,000$, block-striped has a ratio of 1 (terrible), whereas Cannon's has 100 (healthy).
 
 ## Problem 2: Cannon's vs. Fox's Algorithm
 
 **Question A:** Trace the specific movement of blocks $A_{1,2}$ and $B_{1,2}$ in a $4 \times 4$ processor mesh during initial alignment in Cannon's.
 
 >[!example] Solution 2A: Initial Alignment Trace
-> In a $4 \times 4$ mesh ($\sqrt{p} = 4$), processors are indexed $(i, j)$ from $0$ to $3$.
-> - **$A_{i,j}$ Initial Shift:** Cycled left by $i$ positions.
-> - **$B_{i,j}$ Initial Shift:** Cycled up by $j$ positions.
-> 
-> For block $A_{1,2}$ (located at row $i=1$, column $j=2$):
-> - It is shifted left by $i=1$ position.
-> - New location: Row $1$, Column $(2 - 1) \pmod 4 = 1$. It moves to $P_{1,1}$.
-> 
-> For block $B_{1,2}$ (located at row $i=1$, column $j=2$):
-> - It is shifted up by $j=2$ positions.
-> - New location: Row $(1 - 2) \pmod 4 = 3$, Column $2$. It moves to $P_{3,2}$.
+> In a $4 \times 4$ mesh ($\sqrt{p} = 4$), row/col indices are $0, 1, 2, 3$.
+> - **Block $A_{1,2}$:** Shifted left by $i=1$ position. New location is column $(2-1) \pmod 4 = 1$. **$P_{1,2} \to P_{1,1}$**.
+> - **Block $B_{1,2}$:** Shifted up by $j=2$ positions. New location is row $(1-2) \pmod 4 = 3$. **$P_{1,2} \to P_{3,2}$**.
 
 **Question B:** Compare the memory overhead of Fox's algorithm against Cannon's algorithm.
 
 >[!example] Solution 2B: Memory Overhead Comparison
-> - **Cannon's Algorithm:** Uses strictly **in-place** shifts. It only requires memory to hold one block of $A$, one block of $B$, and the computed block of $C$. The memory overhead is minimal since blocks are swapped cyclically.
-> - **Fox's Algorithm:** Requires an **extra communication buffer** to store the broadcasted block of $A$ along the processor rows. Because the local $A$ block must also be maintained for future steps, it inherently requires more memory per processor than Cannon's algorithm.
+> - **Cannon's Algorithm:** Uses strictly **in-place** shifts. Total memory per process is $3n^2/p$ (one block each for A, B, and C).
+> - **Fox's Algorithm:** Requires an **extra communication buffer** to store the broadcasted A block while keeping the original A block for later steps. Total memory is $4n^2/p$.
+> - **Impact:** Fox's represents a **~33% memory increase** over Cannon's, which can be critical in memory-bound regimes (e.g., GPU HBM).
 
 **Question C:** Identify a hardware scenario where `MPI_Bcast` optimization might make Fox's algorithm faster.
 
 >[!example] Solution 2C: Hardware Optimization for Fox's Algorithm
-> Fox's algorithm can outperform Cannon's on hardware with highly optimized, hardware-accelerated **multicast or broadcast networks** (e.g., specific topologies like fat-trees with switch-level broadcast support, or InfiniBand networks with hardware multicast). In these environments, `MPI_Bcast` can execute in $O(1)$ or very low latency, making the row-wise broadcast of Fox's algorithm faster than the sequential point-to-point ring shifts required by Cannon's algorithm.
+> Fox's algorithm can win when the row-broadcast completes in $O(\log \sqrt{p})$ time, beating Cannon's sequential $O(\sqrt{p})$ shifts:
+> 1. **Hardware Multicast:** InfiniBand or Cray networks with switch-level broadcast support.
+> 2. **GPU Clusters:** NCCL/RCCL exploiting NVLink/NVSwitch topologies with tree algorithms.
+> 3. **NUMA Systems:** Shared-memory broadcasts that collapse to memcpy/cache-line reads rather than discrete message exchanges.
 
 ## Problem 3: SUMMA (Scalable Universal Matrix Multiplication Algorithm)
 
 **Question A:** Explain how rewriting the matrix product into a sum of outer products allows SUMMA to be more flexible.
 
 >[!example] Solution 3A: Outer Product Flexibility
-> By defining $C = \sum A_{:,k} \times B_{k,:}$, SUMMA frames matrix multiplication as a sequence of rank-k updates (outer products of a column panel of $A$ and a row panel of $B$).
-> - This decoupling means the algorithm does not rely on shifting specific square blocks along a rigid 2D mesh.
-> - The panel broadcast approach allows processors to be arranged in an arbitrary $p_r \times p_c$ grid (where $p_r \times p_c = p$). It completely removes the restriction that $p$ must be a perfect square, making SUMMA significantly more adaptable to available cluster sizes.
+> Unlike Cannon's or Fox's which couple the algorithm to a square $\sqrt{p} \times \sqrt{p}$ grid, SUMMA's outer-product formulation ($C = \sum A_{:,k} \times B_{k,:}$) only requires row and column broadcasts.
+> - **Arbitrary Grids:** Works on any $p_r \times p_c$ grid (e.g., $3 \times 4$ for 12 nodes).
+> - **Non-square Matrices:** Naturally handles $m \times n$ products where $k$ is decoupled from the output dimensions.
 
 **Question B:** Explain how the block size $b$ balances communication latency and pipelining efficiency.
 
 >[!example] Solution 3B: Tuning Block Size $b$
-> In SUMMA, panels of width $b$ are broadcasted.
-> - **Very small $b$:** Leads to many small messages. This increases **latency overhead** because the fixed cost of initiating a message (startup time) is incurred repeatedly, dominating the communication time.
-> - **Very large $b$:** Reduces the number of messages but leads to large panels. This reduces the **efficiency of pipelining** because subsequent processors must wait longer for the entire large panel to arrive before they can begin computing. It limits the overlap between communication and computation.
-> - An optimal $b$ balances these extremes, minimizing latency costs while allowing smooth overlapping of communication with computation.
+> - **Very small $b$ (e.g., 1 or 2):** Latency cost $(n/b \cdot \alpha)$ dominates. The local update degenerates to rank-1 updates (BLAS-2), losing the BLAS-3 cache-reuse efficiency.
+> - **Very large $b$ (e.g., $n/\sqrt{p}$):** Pipelining suffers because there are too few stages ($n/b$ is tiny) to hide broadcasts behind computation. Panel buffers also grow large, potentially crowding out the cache.
+> - **Sweet Spot:** Typically $b \in [32, 128]$, balancing BLAS-3 throughput with enough stages for effective overlap/pipelining.
