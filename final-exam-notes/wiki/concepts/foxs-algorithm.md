@@ -1,9 +1,9 @@
 ---
 aliases: [Broadcast-and-Shift Matrix Mult]
 tags: [algorithm, matrix, distributed, mpi]
-sources: [lec31.txt]
+sources: [lec31.txt, Homework 31.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-23
 ---
 
 # Fox's Algorithm

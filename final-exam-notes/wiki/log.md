@@ -129,3 +129,9 @@ Re-processed HW23-HW30 using high-fidelity markdown sources (`raw/homeworks/Mark
 Generated three new synthesis pages to link homework solutions with lecture theory.
 - **Created**: [[shared-vs-distributed-models]], [[scaling-laws-and-metrics]], [[parallel-sorting-paradigms]].
 - **Integrated**: Applied diagnostic logic (Karp-Flatt) and algorithmic trade-offs (Synchronization pressure) across the knowledge base.
+
+## [2026-04-23] ingest | Homework 31
+Processed Homework 31.pdf. Created 1 new source page and 1 new homework solution page.
+New solutions: [[Homework-31-Solutions]].
+Updated pages: [[cannons-algorithm]], [[foxs-algorithm]], [[computation-to-communication-ratio]], [[summa-algorithm]], [[index]].
+

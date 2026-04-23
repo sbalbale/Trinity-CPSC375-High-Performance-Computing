@@ -36,6 +36,7 @@
 - [[homework-28]] — Isoefficiency derivation and Bitonic Sorting.
 - [[homework-29]] — Parallel algorithm optimizations and Transpose.
 - [[homework-30]] — Matrix multiplication performance and Strassen.
+- [[homework-31]] — Matrix multiplication scalability and algorithm comparisons.
 
 ## Entities
 - [[openmp]] — Open Multi-Processing API for shared-memory multiprocessing.

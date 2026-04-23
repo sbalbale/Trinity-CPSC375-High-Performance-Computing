@@ -1,9 +1,9 @@
 ---
 aliases: [Scalable Universal Matrix Multiplication Algorithm]
 tags: [algorithm, matrix, distributed, scalable]
-sources: [lec31.txt]
+sources: [lec31.txt, Homework 31.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-23
 ---
 
 # SUMMA Algorithm
@@ -12,6 +12,9 @@ updated: 2026-04-20
 > **SUMMA** (Scalable Universal Matrix Multiplication Algorithm) is a highly versatile distributed algorithm that computes matrix products as a sum of **outer products**. It is the standard algorithm used in modern libraries like ScaLAPACK.
 
 ## Core Mechanics
+
+> [!abstract] Flexibility
+> Unlike Cannon's or Fox's algorithms, SUMMA's panel broadcast approach allows processors to be arranged in an arbitrary $p_r \times p_c$ grid. It removes the restriction that $p$ must be a perfect square.
 
 ### Rank-b Updates
 Instead of individual elements or large blocks, SUMMA uses **panels** (stripes of width $b$):

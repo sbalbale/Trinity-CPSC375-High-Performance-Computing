@@ -1,9 +1,9 @@
 ---
 aliases: [Comp/Comm Ratio, Arithmetic Intensity]
 tags: [performance, scalability, theoretical]
-sources: [lec31.txt]
+sources: [lec31.txt, Homework 31.pdf]
 created: 2026-04-20
-updated: 2026-04-20
+updated: 2026-04-23
 ---
 
 # Computation-to-Communication Ratio
