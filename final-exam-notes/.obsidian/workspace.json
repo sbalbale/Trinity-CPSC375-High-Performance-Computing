@@ -1,22 +1,20 @@
 {
   "main": {
-    "id": "42e2e9504bdfd054",
+    "id": "e1f859cedc9e1ce3",
     "type": "split",
     "children": [
       {
-        "id": "c0743b77c73d34cd",
+        "id": "5732681238477727",
         "type": "tabs",
         "children": [
           {
-            "id": "617b293cd860df80",
+            "id": "3bb4818f29944e82",
             "type": "leaf",
             "state": {
-              "type": "pdf",
-              "state": {
-                "file": "raw/homeworks/Homework 16.pdf"
-              },
-              "icon": "lucide-file-text",
-              "title": "Homework 16"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
             }
           }
         ]
@@ -25,15 +23,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "a7504d03b12e9cef",
+    "id": "055b2484ecfc90ce",
     "type": "split",
     "children": [
       {
-        "id": "f6dca913718a7b89",
+        "id": "c723c947014ed3ae",
         "type": "tabs",
         "children": [
           {
-            "id": "c10c899358744d32",
+            "id": "8d9a03f73b7480fe",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -46,7 +44,7 @@
             }
           },
           {
-            "id": "1ce0e5a57aaf8f1d",
+            "id": "31c413e90f5722aa",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -63,7 +61,7 @@
             }
           },
           {
-            "id": "360e2aff96120642",
+            "id": "9771b8e6e0842ab9",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -79,15 +77,15 @@
     "width": 300
   },
   "right": {
-    "id": "b5e935aff4355262",
+    "id": "d52ad899a8c5a82a",
     "type": "split",
     "children": [
       {
-        "id": "acdda1e94928ad4e",
+        "id": "e13ba2258315259c",
         "type": "tabs",
         "children": [
           {
-            "id": "783b6d096ee99137",
+            "id": "1753095c747581a6",
             "type": "leaf",
             "state": {
               "type": "backlink",
@@ -105,7 +103,7 @@
             }
           },
           {
-            "id": "8d4da760e29dfe2d",
+            "id": "e11cb13859ac37b7",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
@@ -118,7 +116,7 @@
             }
           },
           {
-            "id": "6af432454bc97c44",
+            "id": "a857675328b681f2",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -133,7 +131,7 @@
             }
           },
           {
-            "id": "e88da19d3181bdb7",
+            "id": "f36c84aa21f69fe5",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -147,7 +145,7 @@
             }
           },
           {
-            "id": "d1a09792a87ac4c9",
+            "id": "4e61683b42ade334",
             "type": "leaf",
             "state": {
               "type": "outline",
@@ -179,42 +177,29 @@
       "terminal:Open terminal": false
     }
   },
-  "active": "617b293cd860df80",
+  "active": "3bb4818f29944e82",
   "lastOpenFiles": [
-    "wiki/homework-solutions/HW16_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW16_Solution.md",
-    "raw/homeworks/Homework 16.pdf",
-    "raw/homeworks/Homework 17.pdf",
-    "wiki/homework-solutions/HW15_Solution.md",
-    "wiki/homework-solutions/HW19_Solution.md",
-    "wiki/homework-solutions/HW18_Solution.md",
-    "wiki/homework-solutions/HW17_Solution.md",
-    "wiki/homework-solutions/HW28_Solution.md",
-    "wiki/homework-solutions/HW27_Solution.md",
-    "wiki/homework-solutions/HW26_Solution.md",
-    "wiki/homework-solutions/HW25_Solution.md",
-    "wiki/homework-solutions/HW24_Solution.md",
-    "wiki/homework-solutions/HW23_Solution.md",
-    "wiki/homework-solutions/HW22_Solution.md",
-    "wiki/homework-solutions/HW21_Solution.md",
-    "wiki/homework-solutions/HW30_Solution.md",
     "wiki/homework-solutions/HW29_Solution.md",
-    "wiki/homework-solutions/HW20_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW17_Solution.md",
+    "wiki/homework-solutions/HW31_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW31_Solution.md",
+    "raw/homeworks/Homework 31.pdf",
+    "wiki/homework-solutions/HW30_Solution.md",
+    "wiki/homework-solutions/HW17_Solution.md",
+    "wiki/homework-solutions/Homework-24-Solutions.md",
     "wiki/homework-solutions/Homework-30-Solutions.md",
-    "final_unindexed_6.txt",
-    "final_unindexed_5.txt",
-    "final_unindexed_4.txt",
-    "final_unindexed_3.txt",
-    "final_unindexed_2.txt",
-    "final_dir_structure.txt",
-    "wiki/synthesis/scaling-laws-and-metrics.md",
-    "wiki/synthesis/parallel-sorting-paradigms.md",
-    "wiki/synthesis/shared-vs-distributed-models.md",
-    "wiki/homework-solutions/Homework-28-Solutions.md",
-    "raw/homeworks/Homework 30.pdf",
-    "raw/homeworks/Homework 29.pdf",
-    "wiki/exam-prep/Matrix-Cheat-Sheet.md",
-    "wiki/exam-prep/DBMS-Cheat-Sheet.md"
+    "wiki/homework-solutions/Homework-27-Solutions.md",
+    "wiki/exam-prep/Sorting-Cheat-Sheet.md",
+    "wiki/homework-solutions/Homework-29-Solutions.md",
+    "wiki/homework-solutions/Homework-31-Solutions.md",
+    "wiki/sources/homework-31.md",
+    "raw/homeworks/MarkdownSolutions/HW30_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW23_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW19_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW21_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW24_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW26_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW28_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW29_Solution.md",
+    "raw/homeworks/MarkdownSolutions/HW27_Solution.md"
   ]
 }
