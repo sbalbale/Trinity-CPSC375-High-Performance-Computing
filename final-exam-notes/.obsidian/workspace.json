@@ -11,13 +11,142 @@
             "id": "3bb4818f29944e82",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "wiki/lecture-summaries/lec27-Summary.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "lec27-Summary"
+            }
+          },
+          {
+            "id": "8a19e9cc978d586a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "wiki/sources/lec29.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "lec29"
+            }
+          },
+          {
+            "id": "f4f55ac95c70c097",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "wiki/concepts/checkerboard-decomposition.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "checkerboard-decomposition"
+            }
+          },
+          {
+            "id": "e0a380abc3cb41a4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "wiki/concepts/summa-algorithm.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "summa-algorithm"
+            }
+          },
+          {
+            "id": "73df3fef8b721f0b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "wiki/concepts/foxs-algorithm.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "foxs-algorithm"
+            }
+          },
+          {
+            "id": "7e0711884b5423c7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "wiki/concepts/amdahls-law.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "amdahls-law"
+            }
+          },
+          {
+            "id": "d3c217687b23156b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "wiki/concepts/acid-properties.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "acid-properties"
+            }
+          },
+          {
+            "id": "f78553cc2a454f2c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "wiki/concepts/race-condition.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "race-condition"
+            }
+          },
+          {
+            "id": "86b8f6531eff5e8d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "raw/lectures/markdown/lec31.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "lec31"
+            }
+          },
+          {
+            "id": "84d02cbd3c68b299",
+            "type": "leaf",
+            "state": {
+              "type": "pdf",
+              "state": {
+                "file": "raw/lectures/lec31.pdf"
+              },
+              "icon": "lucide-file-text",
+              "title": "lec31"
             }
           }
-        ]
+        ],
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -49,7 +178,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "race conditions",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -70,7 +199,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -177,29 +307,35 @@
       "terminal:Open terminal": false
     }
   },
-  "active": "3bb4818f29944e82",
+  "active": "f78553cc2a454f2c",
   "lastOpenFiles": [
-    "wiki/homework-solutions/HW29_Solution.md",
-    "wiki/homework-solutions/HW31_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW31_Solution.md",
-    "raw/homeworks/Homework 31.pdf",
-    "wiki/homework-solutions/HW30_Solution.md",
-    "wiki/homework-solutions/HW17_Solution.md",
-    "wiki/homework-solutions/Homework-24-Solutions.md",
-    "wiki/homework-solutions/Homework-30-Solutions.md",
+    "wiki/concepts/acid-properties.md",
+    "wiki/concepts/amdahls-law.md",
+    "wiki/concepts/parallel-speedup.md",
+    "wiki/sources/homework-27.md",
     "wiki/homework-solutions/Homework-27-Solutions.md",
+    "wiki/concepts/gustafsons-law.md",
+    "wiki/concepts/cache-optimization-parallel.md",
+    "wiki/concepts/communication.md",
+    "wiki/entities/gene-amdahl.md",
+    "wiki/concepts/cannons-algorithm.md",
+    "wiki/concepts/foxs-algorithm.md",
+    "raw/lectures/markdown/lec31.md",
+    "raw/lectures/lec31.pdf",
+    "raw/homeworks/MarkdownSolutions/HW18_Solution.md",
+    "raw/lectures/markdown/Getting_Started_with_OpenMP_Programming.md",
+    "wiki/homework-solutions/HW18_Solution.md",
+    "wiki/homework-solutions/HW17_Solution.md",
+    "wiki/homework-solutions/HW16_Solution.md",
+    "wiki/homework-solutions/HW15_Solution.md",
+    "wiki/exam-prep/Matrix-Cheat-Sheet.md",
     "wiki/exam-prep/Sorting-Cheat-Sheet.md",
-    "wiki/homework-solutions/Homework-29-Solutions.md",
-    "wiki/homework-solutions/Homework-31-Solutions.md",
-    "wiki/sources/homework-31.md",
-    "raw/homeworks/MarkdownSolutions/HW30_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW23_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW19_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW21_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW24_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW26_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW28_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW29_Solution.md",
-    "raw/homeworks/MarkdownSolutions/HW27_Solution.md"
+    "wiki/exam-prep/Performance-Cheat-Sheet.md",
+    "wiki/concepts/checkerboard-decomposition.md",
+    "wiki/concepts/summa-algorithm.md",
+    "wiki/lecture-summaries/lec23-Summary.md",
+    "wiki/lecture-summaries/lec21-Summary.md",
+    "wiki/lecture-summaries/Lec16-Summary.md",
+    "raw/homeworks/Homework 31.pdf"
   ]
 }

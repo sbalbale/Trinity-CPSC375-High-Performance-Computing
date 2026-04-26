@@ -1,7 +1,14 @@
 ---
-aliases: [Skew-and-Shift Matrix Mult]
-tags: [algorithm, matrix, distributed, mpi]
-sources: [lec31.txt, Homework 31.pdf]
+aliases:
+  - Skew-and-Shift Matrix Mult
+tags:
+  - algorithm
+  - matrix
+  - distributed
+  - mpi
+sources:
+  - lec31.txt
+  - Homework 31.pdf
 created: 2026-04-20
 updated: 2026-04-23
 ---
